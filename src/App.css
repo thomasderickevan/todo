@@ -35,6 +35,20 @@
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
+@keyframes highlight-blue {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); border-color: #3b82f6; transform: scale(1); }
+  50% { box-shadow: 0 0 30px 10px rgba(59, 130, 246, 0.5); border-color: #3b82f6; transform: scale(1.02); }
+  100% { box-shadow: inherit; border-color: var(--border-color); transform: scale(1); }
+}
+
+.highlight-tasks {
+  animation: highlight-blue 1.5s ease-out;
+}
+
+.highlight-assistant {
+  animation: highlight-blue 1.5s ease-out;
+}
+
 body {
   background-color: var(--secondary-bg);
   color: var(--text-main);
@@ -45,6 +59,7 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 1rem;
+  padding-top: 100px;
 }
 
 .container {

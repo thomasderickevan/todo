@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import confetti from 'canvas-confetti'
 import AIAssistant from './components/AIAssistant'
+import LandingPage from './components/LandingPage'
+import LegalFooter from './components/LegalFooter'
+import Navbar from './components/Navbar'
+import guestUserIcon from './assets/guest-user.svg'
 import { auth, googleProvider, db } from './firebase'
 import { 
   signInWithPopup, 
@@ -35,6 +39,7 @@ type Theme = 'light' | 'dark';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('isGuest') === 'true');
   const [tasks, setTasks] = useState<Todo[]>(() => {
     const savedTasks = localStorage.getItem('local_tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
@@ -56,6 +61,11 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Sync isGuest to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('isGuest', isGuest.toString());
+  }, [isGuest]);
 
   // Firestore Tasks Listener
   useEffect(() => {
@@ -82,8 +92,7 @@ function App() {
         ...doc.data()
       })) as Todo[];
       setTasks(taskList);
-      // Cache firestore tasks locally
-      localStorage.setItem('local_tasks', JSON.stringify(taskList));
+      // No need to manually set localStorage here, the global tasks listener will handle it
     }, (error) => {
       console.error("Firestore Listen Error:", error);
       // Fallback to local storage on firestore error
@@ -99,12 +108,10 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Save to local storage when user is null and tasks change
+  // Sync to local storage whenever tasks change (provides immediate offline cache)
   useEffect(() => {
-    if (!user) {
-      localStorage.setItem('local_tasks', JSON.stringify(tasks));
-    }
-  }, [tasks, user]);
+    localStorage.setItem('local_tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const handleLogin = async () => {
     try {
@@ -117,8 +124,18 @@ function App() {
 
   const handleLogout = () => {
     signOut(auth);
+    setIsGuest(false);
+    sessionStorage.removeItem('isGuest');
     localStorage.removeItem('local_tasks'); // Clear local cache on logout to avoid mixing profiles
     setTasks([]);
+  };
+
+  const handleGuestMode = () => {
+    setIsGuest(true);
+  };
+
+  const handleHomeClick = () => {
+    setIsGuest(false);
   };
 
   const addTask = async (e?: React.FormEvent) => {
@@ -241,13 +258,24 @@ function App() {
 
   if (loading) return <div className="loading-screen">🌀 Initializing Cyber-Link...</div>;
 
+  if (!user && !isGuest) {
+    return (
+      <>
+        <Navbar onHomeClick={handleHomeClick} showLinks={false} />
+        <LandingPage onLogin={handleLogin} onGuest={handleGuestMode} />
+      </>
+    );
+  }
+
   return (
-    <div className="container">
-      <div className="todo-card">
+    <>
+      <Navbar onHomeClick={handleHomeClick} />
+      <div className="container">
+      <div className="todo-card" id="tasks-section">
         <header className="main-header">
           <div className="header-top">
             <div className="user-profile">
-              <img src={user?.photoURL || 'https://via.placeholder.com/40'} alt="Profile" className="avatar" />
+              <img src={user?.photoURL || guestUserIcon} alt="Profile" className="avatar" />
               <div className="user-info">
                 <span className="welcome">{user ? 'Welcome back,' : 'Guest Mode'}</span>
                 <span className="username">{user?.displayName?.split(' ')[0] || 'User'}</span>
@@ -344,8 +372,10 @@ function App() {
         </footer>
       </div>
       <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />
+      <LegalFooter />
       <Analytics />
     </div>
+    </>
   )
 }
 

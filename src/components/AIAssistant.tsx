@@ -159,7 +159,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
           </div>
         </div>
       )}
-      <div className={`cyber-orb-card ${isStudyMode ? 'active' : ''}`}>
+      <div className={`cyber-orb-card ${isStudyMode ? 'active' : ''}`} id="assistant-section">
         <div className="glass-reflection"></div>
         <div className="orb-container">
           <div className={`orb ${status.toLowerCase()} ${isListening ? 'listening' : ''}`}>

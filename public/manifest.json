@@ -1,14 +1,14 @@
 {
-  "short_name": "Student Helper",
-  "name": "Student Helper AI Companion",
+  "short_name": "TaskMaster",
+  "name": "TaskMaster: Task Manager",
   "icons": [
     {
-      "src": "vite.svg",
+      "src": "favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/svg+xml"
     },
     {
-      "src": "vite.svg",
+      "src": "favicon.svg",
       "type": "image/svg+xml",
       "sizes": "512x512"
     }
