@@ -35,7 +35,10 @@ type Theme = 'light' | 'dark';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [tasks, setTasks] = useState<Todo[]>([]);
+  const [tasks, setTasks] = useState<Todo[]>(() => {
+    const savedTasks = localStorage.getItem('local_tasks');
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
   const [filter, setFilter] = useState<Filter>('All');
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
@@ -57,7 +60,13 @@ function App() {
   // Firestore Tasks Listener
   useEffect(() => {
     if (!user) {
-      setTasks([]);
+      // Load from local storage when no user
+      const savedTasks = localStorage.getItem('local_tasks');
+      if (savedTasks) {
+        setTasks(JSON.parse(savedTasks));
+      } else {
+        setTasks([]);
+      }
       return;
     }
 
@@ -73,8 +82,13 @@ function App() {
         ...doc.data()
       })) as Todo[];
       setTasks(taskList);
+      // Cache firestore tasks locally
+      localStorage.setItem('local_tasks', JSON.stringify(taskList));
     }, (error) => {
       console.error("Firestore Listen Error:", error);
+      // Fallback to local storage on firestore error
+      const savedTasks = localStorage.getItem('local_tasks');
+      if (savedTasks) setTasks(JSON.parse(savedTasks));
     });
 
     return () => unsubscribe();
@@ -85,55 +99,80 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Save to local storage when user is null and tasks change
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem('local_tasks', JSON.stringify(tasks));
+    }
+  }, [tasks, user]);
+
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Login failed", error);
+      alert("Login failed. Check your internet or firewall.");
     }
   };
 
-  const handleLogout = () => signOut(auth);
+  const handleLogout = () => {
+    signOut(auth);
+    localStorage.removeItem('local_tasks'); // Clear local cache on logout to avoid mixing profiles
+    setTasks([]);
+  };
 
   const addTask = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (inputValue.trim() === '' || !user) return;
+    if (inputValue.trim() === '') return;
 
-    try {
-      const newTask = {
-        text: inputValue.trim(),
-        completed: false,
-        createdAt: Date.now(),
-        userId: user.uid
-      };
+    const newTaskData = {
+      text: inputValue.trim(),
+      completed: false,
+      createdAt: Date.now(),
+      userId: user?.uid || 'local-user'
+    };
 
-      console.log("Attempting to add task:", newTask);
-      await addDoc(collection(db, "todos"), newTask);
-      console.log("Task added successfully!");
+    if (user) {
+      try {
+        await addDoc(collection(db, "todos"), newTaskData);
+        setInputValue('');
+      } catch (err) {
+        console.error("Error adding task to Firestore:", err);
+        // Fallback: add to local state if firestore fails
+        const newTask = { id: Date.now().toString(), ...newTaskData };
+        setTasks(prev => [newTask, ...prev]);
+        setInputValue('');
+      }
+    } else {
+      const newTask = { id: Date.now().toString(), ...newTaskData };
+      setTasks(prev => [newTask, ...prev]);
       setInputValue('');
-    } catch (err) {
-      console.error("Error adding task:", err);
-      alert("Failed to add task. Please check your Firestore rules.");
     }
   };
 
   const addTaskVoice = async (taskName: string) => {
-    if (!user) return;
-    try {
-      const newTask = {
-        text: taskName,
-        completed: false,
-        createdAt: Date.now(),
-        userId: user.uid
-      };
-      await addDoc(collection(db, "todos"), newTask);
-    } catch (e) {
-      console.error("Error adding voice task:", e);
+    const newTaskData = {
+      text: taskName,
+      completed: false,
+      createdAt: Date.now(),
+      userId: user?.uid || 'local-user'
+    };
+
+    if (user) {
+      try {
+        await addDoc(collection(db, "todos"), newTaskData);
+      } catch (e) {
+        console.error("Error adding voice task to Firestore:", e);
+        const newTask = { id: Date.now().toString(), ...newTaskData };
+        setTasks(prev => [newTask, ...prev]);
+      }
+    } else {
+      const newTask = { id: Date.now().toString(), ...newTaskData };
+      setTasks(prev => [newTask, ...prev]);
     }
   };
 
   const toggleTask = async (task: Todo) => {
-    if (!user) return;
     const nextCompleted = !task.completed;
     
     if (nextCompleted) {
@@ -148,41 +187,43 @@ function App() {
       });
     }
 
-    try {
-      await setDoc(doc(db, "todos", task.id), { ...task, completed: nextCompleted });
-    } catch (e) {
-      console.error("Error toggling task:", e);
+    if (user && !task.id.includes('local')) { // Firestore tasks use alphanumeric IDs, local use numeric string
+      try {
+        await setDoc(doc(db, "todos", task.id), { ...task, completed: nextCompleted });
+      } catch (e) {
+        console.error("Error toggling Firestore task:", e);
+        // Fallback local update
+        setTasks(prev => prev.map(t => t.id === task.id ? { ...t, completed: nextCompleted } : t));
+      }
+    } else {
+      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, completed: nextCompleted } : t));
     }
   };
 
   const deleteTask = async (id: string) => {
-    if (!user) return;
-    try {
-      await deleteDoc(doc(db, "todos", id));
-    } catch (e) {
-      console.error("Error deleting task:", e);
+    if (user && isNaN(Number(id))) {
+      try {
+        await deleteDoc(doc(db, "todos", id));
+      } catch (e) {
+        console.error("Error deleting Firestore task:", e);
+        setTasks(prev => prev.filter(t => t.id !== id));
+      }
+    } else {
+      setTasks(prev => prev.filter(t => t.id !== id));
     }
   };
 
   const clearCompleted = () => {
     tasks.forEach(async (task) => {
       if (task.completed) {
-        try {
-          await deleteDoc(doc(db, "todos", task.id));
-        } catch (e) {
-          console.error("Error clearing task:", e);
-        }
+        await deleteTask(task.id);
       }
     });
   };
 
   const clearAllVoice = () => {
     tasks.forEach(async (task) => {
-      try {
-        await deleteDoc(doc(db, "todos", task.id));
-      } catch (e) {
-        console.error("Error clearing task voice:", e);
-      }
+      await deleteTask(task.id);
     });
   };
 
@@ -202,106 +243,107 @@ function App() {
 
   return (
     <div className="container">
-      {!user ? (
-        <div className="login-card">
-          <h1>Student Helper</h1>
-          <p>Sign in to sync your study tasks across all devices.</p>
-          <button className="google-btn" onClick={handleLogin}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-            Continue with Google
-          </button>
-        </div>
-      ) : (
-        <div className="todo-card">
-          <header className="main-header">
-            <div className="header-top">
-              <div className="user-profile">
-                <img src={user.photoURL || 'https://via.placeholder.com/40'} alt="Profile" className="avatar" />
-                <div className="user-info">
-                  <span className="welcome">Welcome back,</span>
-                  <span className="username">{user.displayName?.split(' ')[0]}</span>
-                </div>
+      <div className="todo-card">
+        <header className="main-header">
+          <div className="header-top">
+            <div className="user-profile">
+              <img src={user?.photoURL || 'https://via.placeholder.com/40'} alt="Profile" className="avatar" />
+              <div className="user-info">
+                <span className="welcome">{user ? 'Welcome back,' : 'Guest Mode'}</span>
+                <span className="username">{user?.displayName?.split(' ')[0] || 'User'}</span>
               </div>
-              <div className="header-actions">
-                <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
-                  {theme === 'light' ? '🌙' : '☀️'}
-                </button>
+            </div>
+            <div className="header-actions">
+              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
+                {theme === 'light' ? '🌙' : '☀️'}
+              </button>
+              {user ? (
                 <button className="logout-btn" onClick={handleLogout} title="Logout">
                   🚪
                 </button>
-              </div>
+              ) : (
+                <button className="login-btn-small" onClick={handleLogin} title="Login with Google">
+                  🔑
+                </button>
+              )}
             </div>
-            <div className="progress-container">
-              <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
-              <span className="progress-text">{progressPercent}% Completed</span>
-            </div>
-          </header>
+          </div>
+          <div className="progress-container">
+            <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
+            <span className="progress-text">{progressPercent}% Completed</span>
+          </div>
+        </header>
 
-          <div className="search-box">
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <form onSubmit={addTask} className="input-group-vertical">
+          <div className="input-row">
             <input
               type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="What needs to be done?"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
             />
           </div>
+          <button type="submit" className="add-btn-large">Add Task</button>
+        </form>
 
-          <form onSubmit={addTask} className="input-group-vertical">
-            <div className="input-row">
-              <input
-                type="text"
-                placeholder="What needs to be done?"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="add-btn-large">Add Task</button>
-          </form>
+        <div className="filters">
+          {(['All', 'Active', 'Completed'] as Filter[]).map(f => (
+            <button
+              key={f}
+              className={filter === f ? 'active' : ''}
+              onClick={() => setFilter(f)}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
 
-          <div className="filters">
-            {(['All', 'Active', 'Completed'] as Filter[]).map(f => (
-              <button
-                key={f}
-                className={filter === f ? 'active' : ''}
-                onClick={() => setFilter(f)}
-              >
-                {f}
+        <ul className="task-list">
+          {filteredTasks.map(task => (
+            <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+              <div className="task-content" onClick={() => toggleTask(task)}>
+                <span className="checkbox"></span>
+                <span className="task-text">{task.text}</span>
+              </div>
+              <button className="delete-btn" onClick={() => deleteTask(task.id)}>
+                &times;
               </button>
-            ))}
-          </div>
+            </li>
+          ))}
+          {filteredTasks.length === 0 && (
+            <li className="empty-state">
+              <p>{searchQuery ? 'No matching tasks found.' : 'All caught up!'}</p>
+            </li>
+          )}
+        </ul>
 
-          <ul className="task-list">
-            {filteredTasks.map(task => (
-              <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                <div className="task-content" onClick={() => toggleTask(task)}>
-                  <span className="checkbox"></span>
-                  <span className="task-text">{task.text}</span>
-                </div>
-                <button className="delete-btn" onClick={() => deleteTask(task.id)}>
-                  &times;
-                </button>
-              </li>
-            ))}
-            {filteredTasks.length === 0 && (
-              <li className="empty-state">
-                <p>{searchQuery ? 'No matching tasks found.' : 'All caught up!'}</p>
-              </li>
-            )}
-          </ul>
-
-          {tasks.length > 0 && (
-            <footer className="todo-footer">
+        <footer className="todo-footer">
+          {tasks.length > 0 ? (
+            <>
               <span>{tasks.length - completedCount} items left</span>
               {completedCount > 0 && (
                 <button className="clear-btn" onClick={clearCompleted}>
                   Clear Completed
                 </button>
               )}
-            </footer>
+            </>
+          ) : (
+            <span className="sync-status">
+              {user ? '✨ Synced with Cloud' : '📍 Saving Locally'}
+            </span>
           )}
-        </div>
-      )}
-      {user && <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />}
+        </footer>
+      </div>
+      <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />
       <Analytics />
     </div>
   )

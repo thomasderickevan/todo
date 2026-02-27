@@ -39,7 +39,7 @@ body {
   background-color: var(--secondary-bg);
   color: var(--text-main);
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -66,6 +66,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .header-top h1 {
@@ -616,7 +617,7 @@ body {
   gap: 8px;
 }
 
-.logout-btn {
+.logout-btn, .login-btn-small {
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
   width: 44px;
@@ -627,6 +628,11 @@ body {
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
+}
+
+.login-btn-small:hover {
+  background: var(--primary-color);
+  color: white;
 }
 
 .loading-screen {
