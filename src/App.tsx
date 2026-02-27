@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import confetti from 'canvas-confetti'
 import AIAssistant from './components/AIAssistant'
 import './App.css'
@@ -196,6 +197,7 @@ function App() {
         )}
       </div>
       <AIAssistant onAddTask={addTaskVoice} onClearList={() => setTasks([])} />
+      <Analytics />
     </div>
   )
 }

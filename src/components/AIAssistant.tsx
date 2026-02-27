@@ -12,9 +12,31 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   const [isStudyMode, setIsStudyMode] = useState(false);
   const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
   const [status, setStatus] = useState('Off');
+  const [isUserMissing, setIsUserMissing] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  const alarmRef = useRef<HTMLAudioElement | null>(null);
   const { speak, listen } = useVoiceAgent();
+
+  // Initialize alarm
+  useEffect(() => {
+    alarmRef.current = new Audio('https://www.myinstants.com/media/sounds/hacker-alarm.mp3');
+    alarmRef.current.loop = true;
+    
+    return () => {
+      alarmRef.current?.pause();
+    };
+  }, []);
+
+  // Handle alarm playback
+  useEffect(() => {
+    if (isUserMissing && isStudyMode) {
+      alarmRef.current?.play().catch(e => console.error("Alarm failed", e));
+    } else {
+      alarmRef.current?.pause();
+      if (alarmRef.current) alarmRef.current.currentTime = 0;
+    }
+  }, [isUserMissing, isStudyMode]);
 
   // Load Model
   useEffect(() => {
@@ -64,11 +86,14 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
     if (phoneDetected) {
       speak("Focus! Put your phone away.");
       setStatus('Distracted (Phone)');
+      setIsUserMissing(false);
     } else if (!personDetected) {
       speak("Where are you? Come back to study.");
       setStatus('User Missing');
+      setIsUserMissing(true);
     } else {
       setStatus('Focused');
+      setIsUserMissing(false);
     }
   }, [model, isStudyMode, speak]);
 
@@ -76,7 +101,9 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   useEffect(() => {
     let interval: any;
     if (isStudyMode && model) {
-      interval = setInterval(detectObjects, 5000);
+      interval = setInterval(detectObjects, 3000); // More frequent checks (3s)
+    } else {
+      setIsUserMissing(false);
     }
     return () => clearInterval(interval);
   }, [isStudyMode, model, detectObjects]);
@@ -97,35 +124,46 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   }, [listen, onAddTask, onClearList, speak]);
 
   return (
-    <div className="ai-monitor-card">
-      <h3>AI Monitor</h3>
-      <div className="video-preview">
-        {isStudyMode ? (
-          <video ref={videoRef} autoPlay muted playsInline width="200" />
-        ) : (
-          <div className="video-placeholder">Camera Off</div>
-        )}
-      </div>
-      
-      <div className={`status-badge ${status.toLowerCase().includes('focused') ? 'focused' : 'warning'}`}>
-        Status: {status}
-      </div>
-
-      <div className="ai-controls">
-        <button 
-          className={`study-toggle ${isStudyMode ? 'on' : 'off'}`}
-          onClick={() => setIsStudyMode(!isStudyMode)}
-        >
-          Study Mode: {isStudyMode ? 'ON' : 'OFF'}
-        </button>
+    <>
+      {isUserMissing && isStudyMode && (
+        <div className="warning-overlay">
+          <div className="warning-content">
+            <h1>⚠️ CAUTION: USER MISSING</h1>
+            <p>RETURN TO YOUR DESK IMMEDIATELY</p>
+            <div className="warning-animation"></div>
+          </div>
+        </div>
+      )}
+      <div className="ai-monitor-card">
+        <h3>AI Monitor</h3>
+        <div className="video-preview">
+          {isStudyMode ? (
+            <video ref={videoRef} autoPlay muted playsInline width="200" />
+          ) : (
+            <div className="video-placeholder">Camera Off</div>
+          )}
+        </div>
         
-        <button className="listen-btn" onClick={handleVoiceCommand}>
-          🎤 Voice Command
-        </button>
-      </div>
+        <div className={`status-badge ${status.toLowerCase().includes('focused') ? 'focused' : 'warning'}`}>
+          Status: {status}
+        </div>
 
-      <p className="ai-tip">Try saying "Add task Finish project"</p>
-    </div>
+        <div className="ai-controls">
+          <button 
+            className={`study-toggle ${isStudyMode ? 'on' : 'off'}`}
+            onClick={() => setIsStudyMode(!isStudyMode)}
+          >
+            Study Mode: {isStudyMode ? 'ON' : 'OFF'}
+          </button>
+          
+          <button className="listen-btn" onClick={handleVoiceCommand}>
+            🎤 Voice Command
+          </button>
+        </div>
+
+        <p className="ai-tip">Try saying "Add task Finish project"</p>
+      </div>
+    </>
   );
 };
 
