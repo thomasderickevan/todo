@@ -1,9 +1,9 @@
 # Instructions for Gemini CLI
 
-- **Automated Deployments:** After every successful code modification and a successful `npm run build`, you MUST attempt to push the changes to GitHub.
+- **Manual Deployments:** You MUST NOT push changes automatically.
+- **Commit Command:** Only perform `git add`, `git commit`, and `git push` when the user explicitly gives a directive like "commit" or "push to github".
 - **Git Path:** C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe
 - **Standard Workflow:**
-  1. `C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe add .`
-  2. `C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe commit -m "Automated update: [Brief description of change]"`
-  3. `C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe push`
-- **Confirmation:** If a `git push` fails due to authentication, briefly inform the user and provide the direct command they should run to fix it.
+  1. C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe add .
+  2. C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe commit -m "Manual update: [Brief description of change]"
+  3. C:\Users\evan\AppData\Local\Programs\Git\cmd\git.exe push

@@ -14,30 +14,11 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   const [status, setStatus] = useState('Off');
   const [isUserMissing, setIsUserMissing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [lastResponse, setLastResponse] = useState('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
-  const wakeWordRecognitionRef = useRef<any>(null);
   const missingTimerRef = useRef<any>(null);
-  const { speak, listen, startWakeWordDetection } = useVoiceAgent();
-
-  const getAIResponse = (query: string) => {
-    const q = query.toLowerCase();
-    if (q.includes('study tip') || q.includes('how to study')) {
-      return "Try the Pomodoro technique: study for 25 minutes, then take a 5-minute break.";
-    }
-    if (q.includes('how to focus')) {
-      return "Minimize distractions, keep your phone away, and try listening to Lo-Fi or white noise.";
-    }
-    if (q.includes('what is') || q.includes('explain')) {
-      return "That's a great question! For detailed explanations, you can link my logic to the Gemini API, but for now, remember that consistency is the key to learning.";
-    }
-    if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
-      return "Hello! I am your AI study companion. How can I help you today?";
-    }
-    return "I'm not sure about that specific topic yet, but I'm here to help you stay focused!";
-  };
+  const { speak, listen } = useVoiceAgent();
 
   // Initialize alarm
   useEffect(() => {
@@ -55,51 +36,20 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
     setIsListening(true);
     speak("Yes? I am listening.");
     
-    // Stop wake word while listening for commands to avoid interference
-    if (wakeWordRecognitionRef.current) {
-      wakeWordRecognitionRef.current.stop();
-    }
-
     listen((command) => {
       setIsListening(false);
-      
       if (command.includes('add task')) {
         const taskName = command.replace('add task', '').trim();
         if (taskName) {
           onAddTask(taskName);
           speak(`Added task ${taskName}`);
-          setLastResponse(`Added task: ${taskName}`);
         }
       } else if (command.includes('clear list')) {
         onClearList();
         speak("List cleared.");
-        setLastResponse("I've cleared your todo list.");
-      } else {
-        // Handle as a general question
-        const response = getAIResponse(command);
-        setLastResponse(response);
-        speak(response);
-      }
-      
-      // Restart wake word detection after command is handled
-      if (isStudyMode) {
-        wakeWordRecognitionRef.current = startWakeWordDetection(triggerVoiceListen);
       }
     });
-  }, [speak, listen, onAddTask, onClearList, isStudyMode, startWakeWordDetection]);
-
-  // Start Wake Word Detection when in Study Mode
-  useEffect(() => {
-    if (isStudyMode && !isListening) {
-      wakeWordRecognitionRef.current = startWakeWordDetection(triggerVoiceListen);
-    }
-    
-    return () => {
-      if (wakeWordRecognitionRef.current) {
-        wakeWordRecognitionRef.current.stop();
-      }
-    };
-  }, [isStudyMode, isListening, startWakeWordDetection, triggerVoiceListen]);
+  }, [speak, listen, onAddTask, onClearList]);
 
   // Handle alarm playback
   useEffect(() => {
@@ -166,7 +116,6 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
       }
     } else if (!personDetected) {
       setStatus('User Missing');
-      // Only trigger warning after 5 seconds of being missing
       if (!missingTimerRef.current && !isUserMissing) {
         missingTimerRef.current = setTimeout(() => {
           setIsUserMissing(true);
@@ -187,7 +136,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   useEffect(() => {
     let interval: any;
     if (isStudyMode && model) {
-      interval = setInterval(detectObjects, 3000); // More frequent checks (3s)
+      interval = setInterval(detectObjects, 3000);
     } else {
       setIsUserMissing(false);
     }
@@ -223,12 +172,6 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
           Status: {status}
         </div>
 
-        {lastResponse && (
-          <div className="ai-response-bubble">
-            <p>{lastResponse}</p>
-          </div>
-        )}
-
         <div className="ai-controls">
           <button 
             className={`study-toggle ${isStudyMode ? 'on' : 'off'}`}
@@ -242,7 +185,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
           </button>
         </div>
 
-        <p className="ai-tip">Say "Hey" or "AI" to wake me up!</p>
+        <p className="ai-tip">Click manual trigger to add tasks by voice!</p>
       </div>
     </>
   );

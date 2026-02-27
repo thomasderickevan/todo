@@ -195,6 +195,11 @@ function App() {
             )}
           </footer>
         )}
+        <div className="mobile-download">
+          <a href="/app-debug.apk" download className="download-link">
+            📲 Download Android App (.apk)
+          </a>
+        </div>
       </div>
       <AIAssistant onAddTask={addTaskVoice} onClearList={() => setTasks([])} />
       <Analytics />
