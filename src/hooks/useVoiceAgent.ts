@@ -31,5 +31,33 @@ export const useVoiceAgent = () => {
     recognition.start();
   }, []);
 
-  return { speak, listen };
+  const startWakeWordDetection = useCallback((onWakeWord: () => void) => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    recognition.onresult = (event: any) => {
+      const results = event.results;
+      const last = results[results.length - 1][0].transcript.toLowerCase();
+      
+      if (last.includes('hey') || last.includes('ai')) {
+        onWakeWord();
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error !== 'no-speech') {
+        console.error("Wake Word Error:", event.error);
+      }
+    };
+
+    recognition.start();
+    return recognition;
+  }, []);
+
+  return { speak, listen, startWakeWordDetection };
 };

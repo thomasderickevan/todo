@@ -13,10 +13,31 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
   const [status, setStatus] = useState('Off');
   const [isUserMissing, setIsUserMissing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [lastResponse, setLastResponse] = useState('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
-  const { speak, listen } = useVoiceAgent();
+  const wakeWordRecognitionRef = useRef<any>(null);
+  const missingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { speak, listen, startWakeWordDetection } = useVoiceAgent();
+
+  const getAIResponse = (query: string) => {
+    const q = query.toLowerCase();
+    if (q.includes('study tip') || q.includes('how to study')) {
+      return "Try the Pomodoro technique: study for 25 minutes, then take a 5-minute break.";
+    }
+    if (q.includes('how to focus')) {
+      return "Minimize distractions, keep your phone away, and try listening to Lo-Fi or white noise.";
+    }
+    if (q.includes('what is') || q.includes('explain')) {
+      return "That's a great question! For detailed explanations, you can link my logic to the Gemini API, but for now, remember that consistency is the key to learning.";
+    }
+    if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+      return "Hello! I am your AI study companion. How can I help you today?";
+    }
+    return "I'm not sure about that specific topic yet, but I'm here to help you stay focused!";
+  };
 
   // Initialize alarm
   useEffect(() => {
@@ -25,8 +46,60 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
     
     return () => {
       alarmRef.current?.pause();
+      if (missingTimerRef.current) clearTimeout(missingTimerRef.current);
     };
   }, []);
+
+  // Handle Voice Command Start
+  const triggerVoiceListen = useCallback(() => {
+    setIsListening(true);
+    speak("Yes? I am listening.");
+    
+    // Stop wake word while listening for commands to avoid interference
+    if (wakeWordRecognitionRef.current) {
+      wakeWordRecognitionRef.current.stop();
+    }
+
+    listen((command) => {
+      setIsListening(false);
+      
+      if (command.includes('add task')) {
+        const taskName = command.replace('add task', '').trim();
+        if (taskName) {
+          onAddTask(taskName);
+          speak(`Added task ${taskName}`);
+          setLastResponse(`Added task: ${taskName}`);
+        }
+      } else if (command.includes('clear list')) {
+        onClearList();
+        speak("List cleared.");
+        setLastResponse("I've cleared your todo list.");
+      } else {
+        // Handle as a general question
+        const response = getAIResponse(command);
+        setLastResponse(response);
+        speak(response);
+      }
+      
+      // Restart wake word detection after command is handled
+      if (isStudyMode) {
+        wakeWordRecognitionRef.current = startWakeWordDetection(triggerVoiceListen);
+      }
+    });
+  }, [speak, listen, onAddTask, onClearList, isStudyMode, startWakeWordDetection]);
+
+  // Start Wake Word Detection when in Study Mode
+  useEffect(() => {
+    if (isStudyMode && !isListening) {
+      wakeWordRecognitionRef.current = startWakeWordDetection(triggerVoiceListen);
+    }
+    
+    return () => {
+      if (wakeWordRecognitionRef.current) {
+        wakeWordRecognitionRef.current.stop();
+      }
+    };
+  }, [isStudyMode, isListening, startWakeWordDetection, triggerVoiceListen]);
 
   // Handle alarm playback
   useEffect(() => {
@@ -87,15 +160,28 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
       speak("Focus! Put your phone away.");
       setStatus('Distracted (Phone)');
       setIsUserMissing(false);
+      if (missingTimerRef.current) {
+        clearTimeout(missingTimerRef.current);
+        missingTimerRef.current = null;
+      }
     } else if (!personDetected) {
-      speak("Where are you? Come back to study.");
       setStatus('User Missing');
-      setIsUserMissing(true);
+      // Only trigger warning after 5 seconds of being missing
+      if (!missingTimerRef.current && !isUserMissing) {
+        missingTimerRef.current = setTimeout(() => {
+          setIsUserMissing(true);
+          speak("Where are you? Come back to study.");
+        }, 5000);
+      }
     } else {
       setStatus('Focused');
       setIsUserMissing(false);
+      if (missingTimerRef.current) {
+        clearTimeout(missingTimerRef.current);
+        missingTimerRef.current = null;
+      }
     }
-  }, [model, isStudyMode, speak]);
+  }, [model, isStudyMode, speak, isUserMissing]);
 
   // Object detection interval
   useEffect(() => {
@@ -135,10 +221,14 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
         </div>
       )}
       <div className="ai-monitor-card">
-        <h3>AI Monitor</h3>
+        <header className="ai-monitor-header">
+          <h1>AI Agent</h1>
+          <div className={`listening-indicator ${isListening ? 'active' : ''}`}></div>
+        </header>
+
         <div className="video-preview">
           {isStudyMode ? (
-            <video ref={videoRef} autoPlay muted playsInline width="200" />
+            <video ref={videoRef} autoPlay muted playsInline width="100%" />
           ) : (
             <div className="video-placeholder">Camera Off</div>
           )}
@@ -148,6 +238,12 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
           Status: {status}
         </div>
 
+        {lastResponse && (
+          <div className="ai-response-bubble">
+            <p>{lastResponse}</p>
+          </div>
+        )}
+
         <div className="ai-controls">
           <button 
             className={`study-toggle ${isStudyMode ? 'on' : 'off'}`}
@@ -156,12 +252,12 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
             Study Mode: {isStudyMode ? 'ON' : 'OFF'}
           </button>
           
-          <button className="listen-btn" onClick={handleVoiceCommand}>
-            🎤 Voice Command
+          <button className="listen-btn" onClick={triggerVoiceListen}>
+            🎤 Manual Trigger
           </button>
         </div>
 
-        <p className="ai-tip">Try saying "Add task Finish project"</p>
+        <p className="ai-tip">Say "Hey" or "AI" to wake me up!</p>
       </div>
     </>
   );
