@@ -11,9 +11,10 @@ interface AIAssistantProps {
 const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   const [isStudyMode, setIsStudyMode] = useState(false);
   const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
-  const [status, setStatus] = useState('Off');
+  const [status, setStatus] = useState('Standby');
   const [isUserMissing, setIsUserMissing] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [lastResponse, setLastResponse] = useState('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
@@ -43,10 +44,14 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
         if (taskName) {
           onAddTask(taskName);
           speak(`Added task ${taskName}`);
+          setLastResponse(`Added task: ${taskName}`);
         }
       } else if (command.includes('clear list')) {
         onClearList();
         speak("List cleared.");
+        setLastResponse("I've cleared your todo list.");
+      } else {
+          setLastResponse("I'm focused on your tasks. Ask me to add or clear them!");
       }
     });
   }, [speak, listen, onAddTask, onClearList]);
@@ -83,7 +88,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
         }
       } catch (err) {
         console.error("Camera Access Error:", err);
-        setStatus('Camera Error');
+        setStatus('Error');
       }
     };
 
@@ -108,14 +113,14 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
 
     if (phoneDetected) {
       speak("Focus! Put your phone away.");
-      setStatus('Distracted (Phone)');
+      setStatus('Distracted');
       setIsUserMissing(false);
       if (missingTimerRef.current) {
         clearTimeout(missingTimerRef.current);
         missingTimerRef.current = null;
       }
     } else if (!personDetected) {
-      setStatus('User Missing');
+      setStatus('Away');
       if (!missingTimerRef.current && !isUserMissing) {
         missingTimerRef.current = setTimeout(() => {
           setIsUserMissing(true);
@@ -154,38 +159,46 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
           </div>
         </div>
       )}
-      <div className="ai-monitor-card">
-        <header className="ai-monitor-header">
-          <div className="ai-title">AI Agent</div>
-          <div className={`listening-indicator ${isListening ? 'active' : ''}`}></div>
-        </header>
+      <div className={`cyber-orb-card ${isStudyMode ? 'active' : ''}`}>
+        <div className="glass-reflection"></div>
+        <div className="orb-container">
+          <div className={`orb ${status.toLowerCase()} ${isListening ? 'listening' : ''}`}>
+            <div className="orb-inner"></div>
+            <div className="orb-glow"></div>
+          </div>
+        </div>
 
-        <div className="video-preview">
+        <div className="ai-info">
+          <div className="ai-label">STUDY AGENT</div>
+          <div className={`ai-status-text ${status.toLowerCase()}`}>{status}</div>
+        </div>
+
+        <div className="video-viewport">
           {isStudyMode ? (
-            <video ref={videoRef} autoPlay muted playsInline width="100%" />
+            <video ref={videoRef} autoPlay muted playsInline />
           ) : (
-            <div className="video-placeholder">Camera Off</div>
+            <div className="video-off-icon">🛡️</div>
           )}
         </div>
-        
-        <div className={`status-badge ${status.toLowerCase().includes('focused') ? 'focused' : 'warning'}`}>
-          Status: {status}
-        </div>
 
-        <div className="ai-controls">
+        {lastResponse && (
+          <div className="cyber-response">
+            <p>{lastResponse}</p>
+          </div>
+        )}
+
+        <div className="cyber-controls">
           <button 
-            className={`study-toggle ${isStudyMode ? 'on' : 'off'}`}
+            className={`cyber-toggle ${isStudyMode ? 'active' : ''}`}
             onClick={() => setIsStudyMode(!isStudyMode)}
           >
-            Study Mode: {isStudyMode ? 'ON' : 'OFF'}
+            {isStudyMode ? 'STOP SESSION' : 'START SESSION'}
           </button>
           
-          <button className="listen-btn" onClick={triggerVoiceListen}>
-            🎤 Manual Trigger
+          <button className="cyber-voice-btn" onClick={triggerVoiceListen}>
+            <span className="mic-icon">🎤</span>
           </button>
         </div>
-
-        <p className="ai-tip">Click manual trigger to add tasks by voice!</p>
       </div>
     </>
   );
