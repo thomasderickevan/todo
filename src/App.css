@@ -250,8 +250,130 @@ header h1 {
   text-decoration: underline;
 }
 
-@media (max-width: 480px) {
-  .todo-card {
-    padding: 1.5rem;
+/* AI Monitor Card Styling */
+.ai-monitor-card {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 250px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 1000;
+  animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.ai-monitor-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.video-preview {
+  width: 100%;
+  height: 150px;
+  background: var(--secondary-color);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-placeholder {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-badge.focused {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.warning {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ai-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.study-toggle {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.study-toggle.on {
+  background: var(--success);
+  color: white;
+}
+
+.study-toggle.off {
+  background: var(--secondary-color);
+  color: var(--text-primary);
+}
+
+.listen-btn {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.listen-btn:hover {
+  background: #f5f3ff;
+}
+
+.ai-tip {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .ai-monitor-card {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: 100%;
+    margin-top: 2rem;
   }
 }

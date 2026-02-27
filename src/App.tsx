@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
+import AIAssistant from './components/AIAssistant'
 import './App.css'
 
 interface Todo {
@@ -76,6 +77,15 @@ function App() {
 
   const clearCompleted = () => {
     setTasks(tasks.filter(task => !task.completed));
+  };
+
+  const addTaskVoice = (taskName: string) => {
+    const newTask: Todo = {
+      id: crypto.randomUUID(),
+      text: taskName,
+      completed: false,
+    };
+    setTasks(prev => [...prev, newTask]);
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -185,6 +195,7 @@ function App() {
           </footer>
         )}
       </div>
+      <AIAssistant onAddTask={addTaskVoice} onClearList={() => setTasks([])} />
     </div>
   )
 }
