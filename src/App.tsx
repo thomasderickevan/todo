@@ -8,9 +8,12 @@ interface Todo {
   id: string;
   text: string;
   completed: boolean;
+  priority: 'High' | 'Medium' | 'Low';
+  createdAt: number;
 }
 
 type Filter = 'All' | 'Active' | 'Completed';
+type Theme = 'light' | 'dark';
 
 function App() {
   const [tasks, setTasks] = useState<Todo[]>(() => {
@@ -27,30 +30,48 @@ function App() {
   });
 
   const [filter, setFilter] = useState<Filter>('All');
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    return savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  });
+  const [searchQuery, setSearchQuery] = useState('');
   const [inputValue, setInputValue] = useState('');
-
-  const playYay = () => {
-    const audio = new Audio('https://www.myinstants.com/media/sounds/children-yay-sound-effect.mp3');
-    audio.volume = 0.5;
-    audio.play().catch(e => console.error("Audio play failed", e));
-  };
+  const [priority, setPriority] = useState<Todo['priority']>('Medium');
 
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const addTask = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (inputValue.trim() === '') return;
 
     const newTask: Todo = {
       id: crypto.randomUUID(),
       text: inputValue.trim(),
       completed: false,
+      priority,
+      createdAt: Date.now(),
     };
 
     setTasks([...tasks, newTask]);
     setInputValue('');
+  };
+
+  const addTaskVoice = (taskName: string) => {
+    const newTask: Todo = {
+      id: crypto.randomUUID(),
+      text: taskName,
+      completed: false,
+      priority: 'Medium',
+      createdAt: Date.now(),
+    };
+    setTasks(prev => [...prev, newTask]);
   };
 
   const toggleTask = (id: string) => {
@@ -58,7 +79,9 @@ function App() {
       if (task.id === id) {
         const nextCompleted = !task.completed;
         if (nextCompleted) {
-          playYay();
+          const audio = new Audio('https://www.myinstants.com/media/sounds/children-yay-sound-effect.mp3');
+          audio.volume = 0.5;
+          audio.play().catch(() => {});
           confetti({
             particleCount: 150,
             spread: 70,
@@ -80,43 +103,66 @@ function App() {
     setTasks(tasks.filter(task => !task.completed));
   };
 
-  const addTaskVoice = (taskName: string) => {
-    const newTask: Todo = {
-      id: crypto.randomUUID(),
-      text: taskName,
-      completed: false,
-    };
-    setTasks(prev => [...prev, newTask]);
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'Active') return !task.completed;
-    if (filter === 'Completed') return task.completed;
-    return true;
-  });
+  const filteredTasks = tasks
+    .filter(task => {
+      const matchesFilter = filter === 'Active' ? !task.completed : (filter === 'Completed' ? task.completed : true);
+      const matchesSearch = task.text.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesSearch;
+    })
+    .sort((a, b) => {
+      const priorityMap = { High: 0, Medium: 1, Low: 2 };
+      return priorityMap[a.priority] - priorityMap[b.priority] || b.createdAt - a.createdAt;
+    });
 
   const completedCount = tasks.filter(t => t.completed).length;
   const progressPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+
   return (
     <div className="container">
       <div className="todo-card">
-        <header>
-          <h1>Tasks</h1>
+        <header className="main-header">
+          <div className="header-top">
+            <h1>Tasks</h1>
+            <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+          </div>
           <div className="progress-container">
             <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
             <span className="progress-text">{progressPercent}% Completed</span>
           </div>
         </header>
 
-        <form onSubmit={addTask} className="input-group">
+        <div className="search-box">
           <input
             type="text"
-            placeholder="Add a new task..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="add-btn">Add</button>
+        </div>
+
+        <form onSubmit={addTask} className="input-group-vertical">
+          <div className="input-row">
+            <input
+              type="text"
+              placeholder="What needs to be done?"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <select 
+              value={priority} 
+              onChange={(e) => setPriority(e.target.value as Todo['priority'])}
+              className={`priority-select ${priority.toLowerCase()}`}
+            >
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <button type="submit" className="add-btn-large">Add Task</button>
         </form>
 
         <div className="filters">
@@ -133,10 +179,13 @@ function App() {
 
         <ul className="task-list">
           {filteredTasks.map(task => (
-            <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+            <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''} prio-${task.priority.toLowerCase()}`}>
               <div className="task-content" onClick={() => toggleTask(task.id)}>
-                <span className="checkbox"></span>
-                <span className="task-text">{task.text}</span>
+                <span className={`checkbox prio-${task.priority.toLowerCase()}`}></span>
+                <div className="text-wrapper">
+                  <span className="task-text">{task.text}</span>
+                  <span className={`priority-tag ${task.priority.toLowerCase()}`}>{task.priority}</span>
+                </div>
               </div>
               <button className="delete-btn" onClick={() => deleteTask(task.id)}>
                 &times;
@@ -145,42 +194,7 @@ function App() {
           ))}
           {filteredTasks.length === 0 && (
             <li className="empty-state">
-              <svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" className="celebration-svg">
-                <g transform="translate(60, 80)">
-                  <circle cx="0" cy="-30" r="20" fill="#FFDBAC" /> <path d="M -15 0 Q 0 10 15 0 L 10 30 L -10 30 Z" fill="#3498db" /> <g>
-                    <path d="M 15 5 L 35 -5" stroke="#FFDBAC" strokeWidth="8" strokeLinecap="round" /> <circle cx="35" cy="-5" r="5" fill="#FFDBAC" /> <path d="M 35 -5 L 35 -15" stroke="#FFDBAC" strokeWidth="4" strokeLinecap="round"> <animateTransform 
-                        attributeName="transform" 
-                        type="rotate" 
-                        from="0 35 -5" 
-                        to="-20 35 -5" 
-                        dur="0.5s" 
-                        repeatCount="indefinite" 
-                        additive="sum" 
-                        calcMode="spline" 
-                        keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" 
-                        values="0;-20;0" />
-                    </path>
-                  </g>
-                </g>
-
-                <g transform="translate(140, 80)">
-                  <circle cx="0" cy="-30" r="20" fill="#F1C27D" /> <path d="M -15 0 Q 0 10 15 0 L 10 30 L -10 30 Z" fill="#e74c3c" /> <g>
-                    <path d="M -15 5 L -35 -5" stroke="#F1C27D" strokeWidth="8" strokeLinecap="round" /> <circle cx="-35" cy="-5" r="5" fill="#F1C27D" /> <path d="M -35 -5 L -35 -15" stroke="#F1C27D" strokeWidth="4" strokeLinecap="round"> <animateTransform 
-                        attributeName="transform" 
-                        type="rotate" 
-                        from="0 -35 -5" 
-                        to="20 -35 -5" 
-                        dur="0.6s" 
-                        repeatCount="indefinite" 
-                        additive="sum" 
-                        calcMode="spline" 
-                        keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" 
-                        values="0;20;0" />
-                    </path>
-                  </g>
-                </g>
-              </svg>
-              <p>All caught up!</p>
+              <p>{searchQuery ? 'No matching tasks found.' : 'All caught up!'}</p>
             </li>
           )}
         </ul>
@@ -195,11 +209,6 @@ function App() {
             )}
           </footer>
         )}
-        <div className="mobile-download">
-          <a href="/app-debug.apk" download className="download-link">
-            📲 Download Android App (.apk)
-          </a>
-        </div>
       </div>
       <AIAssistant onAddTask={addTaskVoice} onClearList={() => setTasks([])} />
       <Analytics />

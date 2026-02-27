@@ -156,7 +156,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
       )}
       <div className="ai-monitor-card">
         <header className="ai-monitor-header">
-          <h1>AI Agent</h1>
+          <div className="ai-title">AI Agent</div>
           <div className={`listening-indicator ${isListening ? 'active' : ''}`}></div>
         </header>
 
