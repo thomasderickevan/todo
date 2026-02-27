@@ -19,7 +19,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
   const wakeWordRecognitionRef = useRef<any>(null);
-  const missingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const missingTimerRef = useRef<any>(null);
   const { speak, listen, startWakeWordDetection } = useVoiceAgent();
 
   const getAIResponse = (query: string) => {
@@ -193,21 +193,6 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
     }
     return () => clearInterval(interval);
   }, [isStudyMode, model, detectObjects]);
-
-  const handleVoiceCommand = useCallback(() => {
-    listen((command) => {
-      if (command.includes('add task')) {
-        const taskName = command.replace('add task', '').trim();
-        if (taskName) {
-          onAddTask(taskName);
-          speak(`Added task ${taskName}`);
-        }
-      } else if (command.includes('clear list')) {
-        onClearList();
-        speak("List cleared.");
-      }
-    });
-  }, [listen, onAddTask, onClearList, speak]);
 
   return (
     <>
