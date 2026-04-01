@@ -11,7 +11,10 @@ Meet Summarizer is a browser extension designed to enhance productivity during G
 3. **Automated Task Sync**:
    - Direct integration with Firestore-based TaskMaster.
    - Categorizing tasks by urgency or speaker.
-4. **Export Options**: 
+4. **Smart Email Notifications**:
+   - Automated distribution of meeting summaries and action items to participants.
+   - Personalized "Your Tasks" emails for individual attendees.
+5. **Export Options**: 
    - Save summaries as Google Docs (via existing DriveSync logic).
    - Export transcripts as plain text or PDF.
 
@@ -21,7 +24,8 @@ Meet Summarizer is a browser extension designed to enhance productivity during G
 - **Content Script**: DOM manipulation to scrape captions from the Google Meet UI.
 - **Backend Integration**: 
    - Firebase Auth for session persistence.
-   - Cloud Functions (optional) for heavy AI processing to keep the client lightweight.
+   - SendGrid or Nodemailer for managing automated email workflows.
+   - Cloud Functions for heavy AI processing and email triggering.
 
 ## Development Phases
 ### Phase 1: Prototype (Week 1-2)
@@ -32,12 +36,12 @@ Meet Summarizer is a browser extension designed to enhance productivity during G
 ### Phase 2: Integration (Week 3-4)
 - Connect extension to **endeavor** Auth (Firebase).
 - Implement "Add to TaskMaster" button within the extension UI.
-- Add Google Drive export functionality.
+- Implement basic email summary triggers via Cloud Functions.
 
 ### Phase 3: Polish (Week 5+)
 - Refine UI/UX to match the **endeavor** aesthetic.
 - Support for multiple languages.
-- Advanced speaker identification and tagging.
+- Advanced speaker identification and automated email routing based on participants list.
 
 ## Security & Privacy
 - **Client-Side Processing**: Prioritize local processing where possible.
