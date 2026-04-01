@@ -150,7 +150,7 @@
   gap: 1rem;
 }
 
-.ai-btn, .del-btn {
+.ai-btn, .sync-btn, .del-btn {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
@@ -164,18 +164,23 @@
   color: white;
 }
 
+.sync-btn {
+  background-color: #10b981; /* Emerald green */
+  color: white;
+}
+
 .del-btn {
   background-color: transparent;
   color: #ef4444;
   border-color: #fca5a5;
 }
 
-.ai-btn:disabled {
+.ai-btn:disabled, .sync-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.ai-btn:hover:not(:disabled), .del-btn:hover {
+.ai-btn:hover:not(:disabled), .sync-btn:hover:not(:disabled), .del-btn:hover {
   opacity: 0.8;
 }
 

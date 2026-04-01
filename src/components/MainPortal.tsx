@@ -17,7 +17,7 @@ const MainPortal: React.FC = () => {
   const handleSyncAll = async () => {
     // In a full implementation, you'd fetch all Firestore data 
     // and package it into a file for Google Drive.
-    await saveToDrive('ederick_backup.json', { date: new Date().toISOString() });
+    await saveToDrive('ederick_backup.json', JSON.stringify({ date: new Date().toISOString() }, null, 2));
     alert("ederick portal data backup completed in Google Drive!");
   };
 

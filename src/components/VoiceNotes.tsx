@@ -14,6 +14,7 @@ import {
   deleteDoc,
   doc
 } from 'firebase/firestore';
+import { useDriveSync } from '../hooks/useDriveSync';
 import './VoiceNotes.css';
 
 interface VoiceNote {
@@ -30,6 +31,8 @@ const VoiceNotes: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null);
+  const { saveToDrive } = useDriveSync();
+  const [syncingId, setSyncingId] = useState<string | null>(null);
   
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -187,6 +190,19 @@ const VoiceNotes: React.FC = () => {
     setIsAnalyzing(null);
   };
 
+  const handleSyncToDrive = async (note: VoiceNote) => {
+    if (!user) {
+      alert("Please sign in to save to Google Drive");
+      return;
+    }
+    setSyncingId(note.id);
+    const fileName = `Voice Note - ${new Date(note.createdAt).toLocaleString()}`;
+    const content = `Date: ${new Date(note.createdAt).toLocaleString()}\n\nNote:\n${note.text}${note.summary ? `\n\nAI Summary:\n${note.summary}` : ''}`;
+    
+    await saveToDrive(fileName, content);
+    setSyncingId(null);
+  };
+
   if (authLoading) return <div className="loading-screen">🌀 Loading Voice Engine...</div>;
 
   return (
@@ -245,6 +261,13 @@ const VoiceNotes: React.FC = () => {
                     {isAnalyzing === note.id ? "Analyzing..." : "Summarize with AI"}
                   </button>
                 )}
+                <button 
+                  className="sync-btn" 
+                  onClick={() => handleSyncToDrive(note)}
+                  disabled={syncingId === note.id}
+                >
+                  {syncingId === note.id ? "Syncing..." : "Sync to Drive"}
+                </button>
                 <button className="del-btn" onClick={() => deleteNote(note.id)}>Delete</button>
               </div>
             </div>
