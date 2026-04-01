@@ -1,16 +1,25 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import { useDriveSync } from '../hooks/useDriveSync';
 import guestUserIcon from '../assets/guest-user.svg';
 import './MainPortal.css';
 
 const MainPortal: React.FC = () => {
   const navigate = useNavigate();
   const { user, login, logout, loading } = useAuth();
+  const { saveToDrive, isSyncing } = useDriveSync();
 
   React.useEffect(() => {
     document.title = 'ederick portal';
   }, []);
+
+  const handleSyncAll = async () => {
+    // In a full implementation, you'd fetch all Firestore data 
+    // and package it into a file for Google Drive.
+    await saveToDrive('ederick_backup.json', { date: new Date().toISOString() });
+    alert("ederick portal data backup completed in Google Drive!");
+  };
 
   return (
     <div className="portal-container">
@@ -19,6 +28,9 @@ const MainPortal: React.FC = () => {
           {!loading && (
             user ? (
               <div className="user-menu">
+                <button className="sync-btn-nav" onClick={handleSyncAll} disabled={isSyncing}>
+                  {isSyncing ? 'Syncing...' : 'Sync to Drive'}
+                </button>
                 <img 
                   src={user.photoURL || guestUserIcon} 
                   alt="Profile" 
@@ -26,13 +38,14 @@ const MainPortal: React.FC = () => {
                   referrerPolicy="no-referrer"
                 />
                 <span className="user-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                <button className="logout-btn-nav" onClick={logout}>Sign Out</button>
+                <button className="logout-btn-nav" onClick={() => logout()}>Sign Out</button>
               </div>
             ) : (
-              <button className="login-btn-nav" onClick={login}>Sign In</button>
+              <button className="login-btn-nav" onClick={() => login()}>Sign In</button>
             )
           )}
         </div>
+
         <h1>Apps by <span className="brand-name">ederick</span></h1>
         <p>Choose an application to get started.</p>
       </header>

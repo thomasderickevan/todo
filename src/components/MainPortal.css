@@ -51,6 +51,28 @@
   border: 1px solid var(--portal-border);
 }
 
+.sync-btn-nav {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-right: 0.5rem;
+}
+
+.sync-btn-nav:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.sync-btn-nav:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .nav-avatar {
   width: 32px;
   height: 32px;
