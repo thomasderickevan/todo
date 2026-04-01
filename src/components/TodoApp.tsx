@@ -96,10 +96,12 @@ const TodoApp = () => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Sync to local storage whenever tasks change
+  // Sync to local storage whenever tasks change, but only if NOT signed in
   useEffect(() => {
-    localStorage.setItem('local_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (!user) {
+      localStorage.setItem('local_tasks', JSON.stringify(tasks));
+    }
+  }, [tasks, user]);
 
   const handleLogin = async () => {
     await login();
