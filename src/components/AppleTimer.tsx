@@ -128,8 +128,8 @@ const AppleTimer: React.FC = () => {
   useEffect(() => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    document.title = `${minutes}:${seconds < 10 ? '0' : ''}${seconds} | Apple Timer`;
-    return () => { document.title = 'endeavor portal'; };
+    document.title = `${minutes}:${seconds < 10 ? '0' : ''}${seconds} • Apple Timer • endeavor`;
+    return () => { document.title = 'Portal • endeavor'; };
   }, [timeLeft]);
 
   const formatTime = (seconds: number) => {

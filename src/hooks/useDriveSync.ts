@@ -21,16 +21,26 @@ export const useDriveSync = () => {
         mimeType: 'application/vnd.google-apps.document', // Convert to Google Doc
       };
 
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      form.append('file', new Blob([content], { type: 'text/plain' }));
+      const boundary = '-------314159265358979323846';
+      const delimiter = "\r\n--" + boundary + "\r\n";
+      const close_delim = "\r\n--" + boundary + "--";
+
+      const multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: text/plain\r\n\r\n' +
+        content +
+        close_delim;
 
       const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${googleAccessToken}`,
+          'Content-Type': `multipart/related; boundary=${boundary}`,
         },
-        body: form,
+        body: multipartRequestBody,
       });
 
       if (!response.ok) {

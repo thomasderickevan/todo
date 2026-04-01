@@ -12,7 +12,7 @@ const MainPortal: React.FC = () => {
   const { saveToDrive, isSyncing } = useDriveSync();
 
   React.useEffect(() => {
-    document.title = 'endeavor portal';
+    document.title = 'Portal • endeavor';
   }, []);
 
   const handleSyncAll = async () => {

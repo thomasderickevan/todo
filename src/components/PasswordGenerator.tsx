@@ -29,6 +29,10 @@ const PasswordGenerator: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [strength, setStrength] = useState('');
 
+  useEffect(() => {
+    document.title = 'Shield Gen • endeavor';
+  }, []);
+
   const generateRandomPassword = useCallback(() => {
     const charset = {
       uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',

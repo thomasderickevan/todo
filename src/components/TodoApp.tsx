@@ -36,7 +36,7 @@ const TodoApp = () => {
   const { user, login, logout, loading: authLoading } = useAuth();
   
   useEffect(() => {
-    document.title = 'TaskMaster | endeavor';
+    document.title = 'TaskMaster • endeavor';
   }, []);
 
   const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('isGuest') === 'true');
@@ -72,8 +72,7 @@ const TodoApp = () => {
 
     const q = query(
       collection(db, "todos"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -81,9 +80,14 @@ const TodoApp = () => {
         id: doc.id,
         ...doc.data()
       })) as Todo[];
+      // Sort client-side to avoid the need for a composite index (userId + createdAt)
+      taskList.sort((a, b) => b.createdAt - a.createdAt);
       setTasks(taskList);
     }, (error) => {
       console.error("Firestore Listen Error:", error);
+      if (error.code === 'failed-precondition') {
+        console.warn("Firestore query failed: Missing index. Sorting in memory instead.");
+      }
       const savedTasks = localStorage.getItem('local_tasks');
       if (savedTasks) setTasks(JSON.parse(savedTasks));
     });

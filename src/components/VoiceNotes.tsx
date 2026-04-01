@@ -41,10 +41,10 @@ const VoiceNotes: React.FC = () => {
   const transcriptRef = useRef('');
 
   // Sample API Key for AI Analysis (Placeholder as requested)
-  const AI_API_KEY = "sk-endeavor-sample-key-1234567890abcdef";
+  const AI_API_KEY = "AIzaSyAOZnSn4XgDsv8RMK5zsx6m7V0sM2JXj70";
 
   useEffect(() => {
-    document.title = 'VoiceNotes | endeavor';
+    document.title = 'VoiceNotes • endeavor';
     return () => {
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
@@ -68,8 +68,7 @@ const VoiceNotes: React.FC = () => {
 
     const q = query(
       collection(db, "voice_notes"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -77,9 +76,14 @@ const VoiceNotes: React.FC = () => {
         id: doc.id,
         ...doc.data()
       })) as VoiceNote[];
+      // Sort client-side to avoid the need for a composite index (userId + createdAt)
+      notesList.sort((a, b) => b.createdAt - a.createdAt);
       setNotes(notesList);
     }, (error) => {
       console.error("Firestore error:", error);
+      if (error.code === 'failed-precondition') {
+        console.warn("Firestore query failed: Missing index. Sorting in memory instead.");
+      }
     });
 
     return () => unsubscribe();
