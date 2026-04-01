@@ -84,8 +84,15 @@ const MainPortal: React.FC = () => {
         </div>
 
         <div className="app-card disabled">
+          <div className="app-icon">📹</div>
+          <h2>Meet Summarizer</h2>
+          <p>Google Meet extension to capture captions, generate AI summaries, and sync tasks.</p>
+          <div className="app-badge coming-soon">Extension</div>
+        </div>
+
+        <div className="app-card disabled">
           <div className="app-icon">📊</div>
-          <h2>FinanceTracker (Coming Soon)</h2>
+          <h2>FinanceTracker</h2>
           <p>Keep track of your expenses and savings. Smart insights for your wallet.</p>
           <div className="app-badge coming-soon">WIP</div>
         </div>

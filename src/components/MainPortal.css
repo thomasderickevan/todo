@@ -107,15 +107,16 @@
 
 .portal-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .portal-logo {
-  width: 80px;
-  height: 80px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
 }
 
@@ -218,5 +219,15 @@
   
   .portal-container {
     padding: 3rem 1rem;
+  }
+
+  .portal-logo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .portal-brand {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
