@@ -12,7 +12,9 @@ import {
   orderBy, 
   onSnapshot,
   deleteDoc,
-  doc
+  doc,
+  setDoc,
+  writeBatch
 } from 'firebase/firestore';
 import { useDriveSync } from '../hooks/useDriveSync';
 import './VoiceNotes.css';
@@ -26,7 +28,7 @@ interface VoiceNote {
 }
 
 const VoiceNotes: React.FC = () => {
-  const { user, loading: authLoading, login, logout } = useAuth();
+  const { user, loading: authLoading, login, logout, googleAccessToken } = useAuth();
   const [notes, setNotes] = useState<VoiceNote[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -57,13 +59,13 @@ const VoiceNotes: React.FC = () => {
     if (!user) {
       const localNotes = localStorage.getItem('local_voice_notes');
       if (localNotes) {
-        console.log("Loading local voice notes:", JSON.parse(localNotes));
         setNotes(JSON.parse(localNotes));
+      } else {
+        setNotes([]);
       }
       return;
     }
 
-    console.log("Fetching voice notes from Firestore for user:", user.uid);
     const q = query(
       collection(db, "voice_notes"),
       where("userId", "==", user.uid),
@@ -75,7 +77,6 @@ const VoiceNotes: React.FC = () => {
         id: doc.id,
         ...doc.data()
       })) as VoiceNote[];
-      console.log("Fetched notes from Firestore:", notesList);
       setNotes(notesList);
     }, (error) => {
       console.error("Firestore error:", error);
@@ -84,7 +85,30 @@ const VoiceNotes: React.FC = () => {
     return () => unsubscribe();
   }, [user]);
 
-  // Sync local notes to localStorage
+  // Handle local notes migration when user signs in
+  useEffect(() => {
+    if (user) {
+      const localNotesStr = localStorage.getItem('local_voice_notes');
+      if (localNotesStr) {
+        const localNotes = JSON.parse(localNotesStr) as VoiceNote[];
+        if (localNotes.length > 0) {
+          const migrateNotes = async () => {
+            const batch = writeBatch(db);
+            localNotes.forEach((note) => {
+              const newNoteRef = doc(collection(db, "voice_notes"));
+              const { id, ...noteData } = note;
+              batch.set(newNoteRef, { ...noteData, userId: user.uid });
+            });
+            await batch.commit();
+            localStorage.removeItem('local_voice_notes');
+          };
+          migrateNotes().catch(console.error);
+        }
+      }
+    }
+  }, [user]);
+
+  // Sync local notes to localStorage (only if guest)
   useEffect(() => {
     if (!user && notes.length > 0) {
       localStorage.setItem('local_voice_notes', JSON.stringify(notes));
@@ -181,7 +205,7 @@ const VoiceNotes: React.FC = () => {
     setIsAnalyzing(note.id);
     
     // Simulate AI API call using the placeholder key
-    console.log("Using API Key:", AI_API_KEY);
+    console.log("Using AI API Key:", AI_API_KEY);
     
     // Artificial delay to simulate processing
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -189,7 +213,12 @@ const VoiceNotes: React.FC = () => {
     const mockSummary = "SUMMARY: " + (note.text.length > 50 ? note.text.substring(0, 50) + "..." : note.text) + " (AI Analyzed)";
 
     if (user && isNaN(Number(note.id))) {
-      setNotes(prev => prev.map(n => n.id === note.id ? { ...n, summary: mockSummary } : n));
+      try {
+        await setDoc(doc(db, "voice_notes", note.id), { ...note, summary: mockSummary });
+      } catch (err) {
+        console.error("Error updating summary in Firestore:", err);
+        setNotes(prev => prev.map(n => n.id === note.id ? { ...n, summary: mockSummary } : n));
+      }
     } else {
       setNotes(prev => prev.map(n => n.id === note.id ? { ...n, summary: mockSummary } : n));
     }
@@ -202,6 +231,12 @@ const VoiceNotes: React.FC = () => {
       alert("Please sign in to save to Google Drive");
       return;
     }
+    
+    if (!googleAccessToken) {
+      alert("Google Drive access is required. Please sign out and sign in again to authorize.");
+      return;
+    }
+
     setSyncingId(note.id);
     const fileName = `Voice Note - ${new Date(note.createdAt).toLocaleString()}`;
     const content = `Date: ${new Date(note.createdAt).toLocaleString()}\n\nNote:\n${note.text}${note.summary ? `\n\nAI Summary:\n${note.summary}` : ''}`;
