@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { useDriveSync } from '../hooks/useDriveSync';
 import guestUserIcon from '../assets/guest-user.svg';
+import brandLogo from '../assets/logo-only.png';
 import './MainPortal.css';
 
 const MainPortal: React.FC = () => {
@@ -11,14 +12,14 @@ const MainPortal: React.FC = () => {
   const { saveToDrive, isSyncing } = useDriveSync();
 
   React.useEffect(() => {
-    document.title = 'ederick portal';
+    document.title = 'endeavor portal';
   }, []);
 
   const handleSyncAll = async () => {
     // In a full implementation, you'd fetch all Firestore data 
     // and package it into a file for Google Drive.
-    await saveToDrive('ederick_backup.json', JSON.stringify({ date: new Date().toISOString() }, null, 2));
-    alert("ederick portal data backup completed in Google Drive!");
+    await saveToDrive('endeavor_backup.json', JSON.stringify({ date: new Date().toISOString() }, null, 2));
+    alert("endeavor portal data backup completed in Google Drive!");
   };
 
   return (
@@ -46,7 +47,10 @@ const MainPortal: React.FC = () => {
           )}
         </div>
 
-        <h1>Apps by <span className="brand-name">ederick</span></h1>
+        <div className="portal-brand">
+          <img src={brandLogo} alt="endeavor logo" className="portal-logo" />
+          <h1>Apps by <span className="brand-name">endeavor</span></h1>
+        </div>
         <p>Choose an application to get started.</p>
       </header>
 
@@ -88,7 +92,7 @@ const MainPortal: React.FC = () => {
       </main>
 
       <footer className="portal-footer">
-        <p>&copy; 2026 ederick. All rights reserved.</p>
+        <p>&copy; 2026 endeavor. All rights reserved.</p>
       </footer>
     </div>
   );

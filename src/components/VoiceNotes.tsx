@@ -39,10 +39,10 @@ const VoiceNotes: React.FC = () => {
   const transcriptRef = useRef('');
 
   // Sample API Key for AI Analysis (Placeholder as requested)
-  const AI_API_KEY = "sk-ederick-sample-key-1234567890abcdef";
+  const AI_API_KEY = "sk-endeavor-sample-key-1234567890abcdef";
 
   useEffect(() => {
-    document.title = 'VoiceNotes | ederick';
+    document.title = 'VoiceNotes | endeavor';
     return () => {
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };

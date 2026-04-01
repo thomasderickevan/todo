@@ -42,7 +42,7 @@
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   transition: transform 0.3s ease;
 }
 
@@ -50,8 +50,11 @@
   transform: scale(1.05);
 }
 
-.logo-emoji {
-  font-size: 1.8rem;
+.logo-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .brand-name {

@@ -36,7 +36,7 @@ const TodoApp = () => {
   const { user, login, logout, loading: authLoading } = useAuth();
   
   useEffect(() => {
-    document.title = 'TaskMaster | ederick';
+    document.title = 'TaskMaster | endeavor';
   }, []);
 
   const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('isGuest') === 'true');

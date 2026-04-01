@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import brandLogo from '../assets/logo-only.png';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -42,8 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ showLinks = true }) => {
       <div className="navbar-content">
         <div className="navbar-left" onClick={() => navigate('/')}>
           <div className="brand-logo">
-            <span className="logo-emoji">🏠</span>
-            <span className="brand-name">ederick portal</span>
+            <img src={brandLogo} alt="endeavor logo" className="logo-image" />
           </div>
         </div>
         

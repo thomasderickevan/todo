@@ -9,6 +9,7 @@ const AppleTimer: React.FC = () => {
     short: Number(localStorage.getItem('at_short')) || 5,
     long: Number(localStorage.getItem('at_long')) || 15,
   });
+  const [selectedSound, setSelectedSound] = useState(localStorage.getItem('at_sound') || 'chime');
   
   const [mode, setMode] = useState<'focus' | 'short' | 'long'>('focus');
   const [timeLeft, setTimeLeft] = useState(durations[mode] * 60);
@@ -21,24 +22,49 @@ const AppleTimer: React.FC = () => {
   
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const playSound = useCallback(() => {
+  const playSound = useCallback((soundTypeOverride?: string) => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
+    const sound = soundTypeOverride || selectedSound;
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    const playNote = (freq: number, start: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.3) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(volume, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + duration);
+    };
 
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-    oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1); // E6
-
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.5);
-  }, []);
+    switch (sound) {
+      case 'digital':
+        [0, 0.15, 0.3].forEach(t => playNote(1000, audioCtx.currentTime + t, 0.1, 'square', 0.15));
+        break;
+      case 'bell':
+        playNote(440, audioCtx.currentTime, 2, 'sine', 0.3);
+        playNote(660, audioCtx.currentTime + 0.1, 2, 'sine', 0.2);
+        break;
+      case 'wood':
+        playNote(150, audioCtx.currentTime, 0.1, 'triangle', 0.4);
+        break;
+      case 'chime':
+      default:
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+        break;
+    }
+  }, [selectedSound]);
 
   const switchMode = useCallback((newMode: 'focus' | 'short' | 'long') => {
     setMode(newMode);
@@ -65,6 +91,13 @@ const AppleTimer: React.FC = () => {
     if (mode === m && !isActive) {
       setTimeLeft(val * 60);
     }
+  };
+
+  const updateSound = (sound: string) => {
+    setSelectedSound(sound);
+    localStorage.setItem('at_sound', sound);
+    // Play a quick preview of the selected sound
+    setTimeout(() => playSound(sound), 50);
   };
 
   useEffect(() => {
@@ -96,7 +129,7 @@ const AppleTimer: React.FC = () => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     document.title = `${minutes}:${seconds < 10 ? '0' : ''}${seconds} | Apple Timer`;
-    return () => { document.title = 'ederick portal'; };
+    return () => { document.title = 'endeavor portal'; };
   }, [timeLeft]);
 
   const formatTime = (seconds: number) => {
@@ -109,39 +142,79 @@ const AppleTimer: React.FC = () => {
 
   const renderAppleLifecycle = () => {
     return (
-      <svg width="140" height="120" viewBox="0 0 400 300" className="apple-lifecycle-svg">
-        {/* Seed: 0-15% */}
-        <g style={{ opacity: progress <= 15 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <ellipse cx="200" cy="220" rx="6" ry="10" fill="#8B5A2B"/>
+      <svg width="160" height="160" viewBox="0 0 200 200" className="apple-lifecycle-svg">
+        {/* Seed: 0-12.5% */}
+        <g style={{ opacity: progress <= 12.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M100,152 C103,152 105,156 105,158 C105,160 95,160 95,158 C95,156 97,152 100,152 Z" fill="#5D4037"/>
         </g>
-        {/* Sapling: 15-35% */}
-        <g style={{ opacity: progress > 15 && progress <= 35 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <rect x="198" y="180" width="4" height="40" fill="#10b981"/>
-          <circle cx="200" cy="170" r="10" fill="#34d399"/>
+        
+        {/* Sprout: 12.5-25% */}
+        <g style={{ opacity: progress > 12.5 && progress <= 25 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M100,152 C103,152 105,156 105,158 C105,160 95,160 95,158 C95,156 97,152 100,152 Z" fill="#5D4037"/>
+          <path d="M100,152 Q105,147 100,142" fill="none" stroke="#81C784" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="98" cy="142" r="2" fill="#4CAF50"/>
         </g>
-        {/* Tree: 35-55% */}
-        <g style={{ opacity: progress > 35 && progress <= 55 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <rect x="190" y="140" width="20" height="80" fill="#78350f"/>
-          <circle cx="200" cy="120" r="40" fill="#059669"/>
+
+        {/* Sapling: 25-37.5% */}
+        <g style={{ opacity: progress > 25 && progress <= 37.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M100,160 Q100,145 98,140" fill="none" stroke="#795548" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M98,140 Q108,135 108,142 Q103,145 98,140 Z" fill="#81C784"/>
+          <path d="M99,148 Q88,145 90,152 Q95,153 99,148 Z" fill="#4CAF50"/>
         </g>
-        {/* Apple Fruit: 55-75% */}
-        <g style={{ opacity: progress > 55 && progress <= 75 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <circle cx="200" cy="150" r="25" fill="#ef4444"/>
-          <rect x="198" y="120" width="4" height="10" fill="#78350f"/>
-          <ellipse cx="210" cy="120" rx="8" ry="4" fill="#10b981"/>
+
+        {/* Flowering Tree: 37.5-50% */}
+        <g style={{ opacity: progress > 37.5 && progress <= 50 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <rect x="92" y="90" width="16" height="70" fill="#795548" rx="2"/>
+          <circle cx="100" cy="70" r="35" fill="#4CAF50"/>
+          <circle cx="75" cy="95" r="25" fill="#388E3C"/>
+          <circle cx="125" cy="95" r="25" fill="#388E3C"/>
+          <circle cx="100" cy="50" r="25" fill="#81C784"/>
+          <circle cx="90" cy="65" r="4" fill="#F8BBD0"/>
+          <circle cx="110" cy="75" r="4" fill="#F8BBD0"/>
+          <circle cx="75" cy="90" r="4" fill="#F8BBD0"/>
+          <circle cx="120" cy="85" r="4" fill="#F8BBD0"/>
+          <circle cx="100" cy="55" r="4" fill="#F8BBD0"/>
         </g>
-        {/* Bitten Apple: 75-90% */}
-        <g style={{ opacity: progress > 75 && progress <= 90 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <circle cx="200" cy="150" r="25" fill="#ef4444"/>
-          <circle cx="222" cy="145" r="12" fill="white"/>
-          <rect x="198" y="120" width="4" height="10" fill="#78350f"/>
+
+        {/* Apple Tree: 50-62.5% */}
+        <g style={{ opacity: progress > 50 && progress <= 62.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <rect x="92" y="90" width="16" height="70" fill="#795548" rx="2"/>
+          <circle cx="100" cy="70" r="35" fill="#4CAF50"/>
+          <circle cx="75" cy="95" r="25" fill="#388E3C"/>
+          <circle cx="125" cy="95" r="25" fill="#388E3C"/>
+          <circle cx="100" cy="50" r="25" fill="#81C784"/>
+          <circle cx="90" cy="65" r="5" fill="#E53935"/>
+          <circle cx="110" cy="75" r="5" fill="#E53935"/>
+          <circle cx="75" cy="90" r="5" fill="#E53935"/>
+          <circle cx="120" cy="85" r="5" fill="#E53935"/>
+          <circle cx="100" cy="55" r="5" fill="#E53935"/>
         </g>
-        {/* Apple Core: 90-100% */}
-        <g style={{ opacity: progress > 90 ? 1 : 0, transition: 'opacity 0.5s' }}>
-          <path d="M190 120 Q200 130 210 120 L210 180 Q200 170 190 180 Z" fill="#fef3c7" />
-          <rect x="198" y="110" width="4" height="10" fill="#78350f"/>
-          <circle cx="197" cy="145" r="2" fill="#4b5563" />
-          <circle cx="203" cy="155" r="2" fill="#4b5563" />
+
+        {/* Big Apple: 62.5-75% */}
+        <g style={{ opacity: progress > 62.5 && progress <= 75 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M100,110 C140,100 140,160 100,160 C60,160 60,100 100,110 Z" fill="#E53935"/>
+          <path d="M100,110 Q100,95 110,90" fill="none" stroke="#5D4037" strokeWidth="4" strokeLinecap="round"/>
+          <path d="M110,90 Q120,90 125,100 Q110,105 110,90" fill="#4CAF50"/>
+        </g>
+
+        {/* Bitten Apple: 75-87.5% */}
+        <g style={{ opacity: progress > 75 && progress <= 87.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M100,110 C140,100 140,160 100,160 C60,160 60,100 100,110 Z" fill="#E53935"/>
+          <path d="M100,110 Q100,95 110,90" fill="none" stroke="#5D4037" strokeWidth="4" strokeLinecap="round"/>
+          <path d="M110,90 Q120,90 125,100 Q110,105 110,90" fill="#4CAF50"/>
+          <circle cx="132" cy="125" r="16" fill="white"/>
+          <circle cx="122" cy="142" r="14" fill="white"/>
+        </g>
+
+        {/* Apple Core: 87.5-100% */}
+        <g style={{ opacity: progress > 87.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
+          <path d="M85,120 Q100,135 85,150 L115,150 Q100,135 115,120 Z" fill="#FFE0B2"/>
+          <path d="M85,120 C95,115 105,115 115,120 C110,105 105,110 100,110 C95,110 90,105 85,120 Z" fill="#E53935"/>
+          <path d="M85,150 C95,155 105,155 115,150 C115,160 105,160 100,160 C95,160 85,160 85,150 Z" fill="#E53935"/>
+          <path d="M100,110 Q100,95 110,90" fill="none" stroke="#5D4037" strokeWidth="4" strokeLinecap="round"/>
+          <path d="M110,90 Q120,90 125,100 Q110,105 110,90" fill="#4CAF50"/>
+          <ellipse cx="97" cy="135" rx="2" ry="4" fill="#5D4037"/>
+          <ellipse cx="103" cy="135" rx="2" ry="4" fill="#5D4037"/>
         </g>
       </svg>
     );
@@ -182,7 +255,7 @@ const AppleTimer: React.FC = () => {
 
           <div className="timer-display-section">
             <div className="progress-ring">
-              <svg width="240" height="240">
+              <svg width="240" height="240" className="progress-ring-svg">
                 <circle
                   className="progress-ring-bg"
                   stroke="#e5e7eb"
@@ -226,31 +299,50 @@ const AppleTimer: React.FC = () => {
 
           {isSettingsOpen && (
             <div className="at-settings">
-              <h3>Customize Durations (min)</h3>
-              <div className="settings-grid">
-                <div className="setting-item">
-                  <label>Focus</label>
-                  <input 
-                    type="number" 
-                    value={durations.focus} 
-                    onChange={(e) => updateDuration('focus', Math.max(1, parseInt(e.target.value) || 1))}
-                  />
+              <div className="settings-section">
+                <h3>Durations (min)</h3>
+                <div className="settings-grid">
+                  <div className="setting-item">
+                    <label>Focus</label>
+                    <input 
+                      type="number" 
+                      value={durations.focus} 
+                      onChange={(e) => updateDuration('focus', Math.max(1, parseInt(e.target.value) || 1))}
+                    />
+                  </div>
+                  <div className="setting-item">
+                    <label>Short</label>
+                    <input 
+                      type="number" 
+                      value={durations.short} 
+                      onChange={(e) => updateDuration('short', Math.max(1, parseInt(e.target.value) || 1))}
+                    />
+                  </div>
+                  <div className="setting-item">
+                    <label>Long</label>
+                    <input 
+                      type="number" 
+                      value={durations.long} 
+                      onChange={(e) => updateDuration('long', Math.max(1, parseInt(e.target.value) || 1))}
+                    />
+                  </div>
                 </div>
-                <div className="setting-item">
-                  <label>Short Break</label>
-                  <input 
-                    type="number" 
-                    value={durations.short} 
-                    onChange={(e) => updateDuration('short', Math.max(1, parseInt(e.target.value) || 1))}
-                  />
-                </div>
-                <div className="setting-item">
-                  <label>Long Break</label>
-                  <input 
-                    type="number" 
-                    value={durations.long} 
-                    onChange={(e) => updateDuration('long', Math.max(1, parseInt(e.target.value) || 1))}
-                  />
+              </div>
+
+              <div className="settings-section sound-settings">
+                <h3>Alarm Sound</h3>
+                <div className="sound-selector-row">
+                  <select 
+                    className="pg-select" 
+                    value={selectedSound} 
+                    onChange={(e) => updateSound(e.target.value)}
+                  >
+                    <option value="chime">Apple Chime</option>
+                    <option value="digital">Digital Beep</option>
+                    <option value="bell">Zen Bell</option>
+                    <option value="wood">Wood Block</option>
+                  </select>
+                  <button className="preview-btn" onClick={() => playSound()}>Test</button>
                 </div>
               </div>
             </div>
