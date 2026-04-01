@@ -65,6 +65,20 @@ const MainPortal: React.FC = () => {
           <div className="app-badge">New</div>
         </div>
 
+        <div className="app-card" onClick={() => navigate('/password')}>
+          <div className="app-icon">🔐</div>
+          <h2>Shield Gen</h2>
+          <p>Generate unbreakable passwords instantly. Customizable and secure.</p>
+          <div className="app-badge">Security</div>
+        </div>
+
+        <div className="app-card" onClick={() => navigate('/timer')}>
+          <div className="app-icon">🍏</div>
+          <h2>Apple Timer</h2>
+          <p>Boost productivity with the focus technique. Focus and rest.</p>
+          <div className="app-badge">Productivity</div>
+        </div>
+
         <div className="app-card disabled">
           <div className="app-icon">📊</div>
           <h2>FinanceTracker (Coming Soon)</h2>

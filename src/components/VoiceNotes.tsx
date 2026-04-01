@@ -56,10 +56,14 @@ const VoiceNotes: React.FC = () => {
   useEffect(() => {
     if (!user) {
       const localNotes = localStorage.getItem('local_voice_notes');
-      if (localNotes) setNotes(JSON.parse(localNotes));
+      if (localNotes) {
+        console.log("Loading local voice notes:", JSON.parse(localNotes));
+        setNotes(JSON.parse(localNotes));
+      }
       return;
     }
 
+    console.log("Fetching voice notes from Firestore for user:", user.uid);
     const q = query(
       collection(db, "voice_notes"),
       where("userId", "==", user.uid),
@@ -71,7 +75,10 @@ const VoiceNotes: React.FC = () => {
         id: doc.id,
         ...doc.data()
       })) as VoiceNote[];
+      console.log("Fetched notes from Firestore:", notesList);
       setNotes(notesList);
+    }, (error) => {
+      console.error("Firestore error:", error);
     });
 
     return () => unsubscribe();
@@ -79,7 +86,7 @@ const VoiceNotes: React.FC = () => {
 
   // Sync local notes to localStorage
   useEffect(() => {
-    if (!user) {
+    if (!user && notes.length > 0) {
       localStorage.setItem('local_voice_notes', JSON.stringify(notes));
     }
   }, [notes, user]);
