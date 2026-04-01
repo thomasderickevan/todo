@@ -1,9 +1,40 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 
 vi.mock('canvas-confetti', () => ({
   default: vi.fn(),
+}));
+
+// Mock Auth
+vi.mock('./AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+// Mock Firebase
+vi.mock('./firebase', () => ({
+  db: {},
+  auth: {},
+  googleProvider: {},
+}));
+
+vi.mock('firebase/firestore', () => ({
+  collection: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  orderBy: vi.fn(),
+  onSnapshot: vi.fn(() => vi.fn()),
+  addDoc: vi.fn(),
+  setDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  doc: vi.fn(),
 }));
 
 // Mock Audio
@@ -17,17 +48,29 @@ window.Audio = MockAudio as any;
 describe('Todo App', () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
+    // Set guest mode to true to bypass landing page in TodoApp
+    sessionStorage.setItem('isGuest', 'true');
   });
 
+  const renderApp = () => {
+    render(
+      <MemoryRouter initialEntries={['/todo']}>
+        <App />
+      </MemoryRouter>
+    );
+  };
+
   it('renders the Todo App title', () => {
-    render(<App />);
+    renderApp();
+    // The Navbar has "Tasks" text
     expect(screen.getByText('Tasks')).toBeInTheDocument();
   });
 
   it('can add a new task', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText('Add a new task...');
-    const addButton = screen.getByText('Add');
+    renderApp();
+    const input = screen.getByPlaceholderText('What needs to be done?');
+    const addButton = screen.getByText('Add Task');
 
     fireEvent.change(input, { target: { value: 'Buy groceries' } });
     fireEvent.click(addButton);
@@ -36,9 +79,9 @@ describe('Todo App', () => {
   });
 
   it('can toggle task completion', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText('Add a new task...');
-    const addButton = screen.getByText('Add');
+    renderApp();
+    const input = screen.getByPlaceholderText('What needs to be done?');
+    const addButton = screen.getByText('Add Task');
 
     fireEvent.change(input, { target: { value: 'Test task' } });
     fireEvent.click(addButton);
@@ -51,9 +94,9 @@ describe('Todo App', () => {
   });
 
   it('can delete a task', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText('Add a new task...');
-    const addButton = screen.getByText('Add');
+    renderApp();
+    const input = screen.getByPlaceholderText('What needs to be done?');
+    const addButton = screen.getByText('Add Task');
 
     fireEvent.change(input, { target: { value: 'Task to delete' } });
     fireEvent.click(addButton);
@@ -65,9 +108,9 @@ describe('Todo App', () => {
   });
 
   it('filters tasks correctly', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText('Add a new task...');
-    const addButton = screen.getByText('Add');
+    renderApp();
+    const input = screen.getByPlaceholderText('What needs to be done?');
+    const addButton = screen.getByText('Add Task');
 
     // Add active task
     fireEvent.change(input, { target: { value: 'Active task' } });
