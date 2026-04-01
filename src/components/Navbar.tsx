@@ -1,12 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 interface NavbarProps {
-  onHomeClick?: () => void;
   showLinks?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onHomeClick, showLinks = true }) => {
+const Navbar: React.FC<NavbarProps> = ({ showLinks = true }) => {
+  const navigate = useNavigate();
+
   const scrollToAndHighlight = (id: string, highlightClass: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -27,10 +29,10 @@ const Navbar: React.FC<NavbarProps> = ({ onHomeClick, showLinks = true }) => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="navbar-left" onClick={onHomeClick}>
+        <div className="navbar-left" onClick={() => navigate('/')}>
           <div className="brand-logo">
-            <span className="logo-emoji">✅</span>
-            <span className="brand-name">TaskMaster</span>
+            <span className="logo-emoji">🏠</span>
+            <span className="brand-name">ederick portal</span>
           </div>
         </div>
         
@@ -38,8 +40,8 @@ const Navbar: React.FC<NavbarProps> = ({ onHomeClick, showLinks = true }) => {
           <div className="navbar-right">
             <ul className="nav-links">
               <li>
-                <a href="#" onClick={(e) => { e.preventDefault(); onHomeClick?.(); }}>
-                  <span className="nav-icon">🏠</span> Home
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+                   Portal
                 </a>
               </li>
               <li>
