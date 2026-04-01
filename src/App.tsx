@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AuthProvider } from './AuthContext';
 import MainPortal from './components/MainPortal';
 import TodoApp from './components/TodoApp';
@@ -17,6 +18,7 @@ function App() {
         <Route path="/password" element={<PasswordGenerator />} />
         <Route path="/timer" element={<AppleTimer />} />
       </Routes>
+      <SpeedInsights />
     </AuthProvider>
   );
 }
