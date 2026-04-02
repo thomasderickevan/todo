@@ -1,24 +1,57 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../AuthContext';
 
+interface SaveToDriveOptions {
+  convertToGoogleDoc?: boolean;
+  mimeType?: string;
+  silent?: boolean;
+}
+
 export const useDriveSync = () => {
   const { user, googleAccessToken } = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const saveToDrive = useCallback(async (fileName: string, content: string) => {
+  const saveToDrive = useCallback(async (
+    fileName: string,
+    content: string,
+    options: SaveToDriveOptions = {}
+  ) => {
     if (!user || !googleAccessToken) {
       console.warn("User must be logged in with Google to sync with Drive");
       alert("Please sign in again to re-authorize Google Drive access.");
       return;
     }
 
+    const {
+      convertToGoogleDoc = true,
+      mimeType = 'text/plain',
+      silent = false,
+    } = options;
+
     setIsSyncing(true);
     try {
       console.log(`Syncing "${fileName}" to Google Drive...`);
-      
+
+      const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and trashed=false&fields=files(id,name)&pageSize=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${googleAccessToken}`,
+          },
+        }
+      );
+
+      if (!searchResponse.ok) {
+        const errorData = await searchResponse.json();
+        throw new Error(errorData.error?.message || 'Failed to search Google Drive');
+      }
+
+      const searchResult = await searchResponse.json();
+      const existingFileId = searchResult.files?.[0]?.id as string | undefined;
+
       const metadata = {
         name: fileName,
-        mimeType: 'application/vnd.google-apps.document', // Convert to Google Doc
+        mimeType: convertToGoogleDoc ? 'application/vnd.google-apps.document' : mimeType,
       };
 
       const boundary = '-------314159265358979323846';
@@ -30,12 +63,16 @@ export const useDriveSync = () => {
         'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
         JSON.stringify(metadata) +
         delimiter +
-        'Content-Type: text/plain\r\n\r\n' +
+        `Content-Type: ${mimeType}\r\n\r\n` +
         content +
         close_delim;
 
-      const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
+      const endpoint = existingFileId
+        ? `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart`
+        : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+
+      const response = await fetch(endpoint, {
+        method: existingFileId ? 'PATCH' : 'POST',
         headers: {
           Authorization: `Bearer ${googleAccessToken}`,
           'Content-Type': `multipart/related; boundary=${boundary}`,
@@ -50,7 +87,9 @@ export const useDriveSync = () => {
 
       const result = await response.json();
       console.log('Successfully synced to Drive:', result);
-      alert(`Saved to Google Drive as "${fileName}"`);
+      if (!silent) {
+        alert(`${existingFileId ? 'Updated' : 'Saved'} in Google Drive as "${fileName}"`);
+      }
       
     } catch (error: any) {
       console.error("Drive sync error:", error);
@@ -70,7 +109,7 @@ export const useDriveSync = () => {
     try {
       // 1. Search for the file by name
       const searchResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=name='${fileName}'&fields=files(id, name)`,
+        `https://www.googleapis.com/drive/v3/files?q=name='${fileName}'&fields=files(id, name, mimeType)`,
         {
           headers: { Authorization: `Bearer ${googleAccessToken}` },
         }
@@ -85,29 +124,33 @@ export const useDriveSync = () => {
       }
 
       const fileId = searchResult.files[0].id;
+      const driveMimeType = searchResult.files[0].mimeType as string | undefined;
 
       // 2. Download the file content
       // Note: If the file was saved as a Google Doc, we need to export it as text
-      const downloadResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
-        {
-          headers: { Authorization: `Bearer ${googleAccessToken}` },
-        }
-      );
-
-      if (!downloadResponse.ok) {
-        // Try direct download if export fails (in case it's not a Google Doc)
-        const directResponse = await fetch(
-          `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      if (driveMimeType?.startsWith('application/vnd.google-apps')) {
+        const downloadResponse = await fetch(
+          `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
           {
             headers: { Authorization: `Bearer ${googleAccessToken}` },
           }
         );
-        if (!directResponse.ok) throw new Error("Failed to download file from Drive");
-        return await directResponse.text();
+
+        if (!downloadResponse.ok) {
+          throw new Error("Failed to export file from Drive");
+        }
+
+        return await downloadResponse.text();
       }
 
-      return await downloadResponse.text();
+      const directResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        {
+          headers: { Authorization: `Bearer ${googleAccessToken}` },
+        }
+      );
+      if (!directResponse.ok) throw new Error("Failed to download file from Drive");
+      return await directResponse.text();
     } catch (error: any) {
       console.error("Drive download error:", error);
       alert(`Failed to restore from Drive: ${error.message}`);

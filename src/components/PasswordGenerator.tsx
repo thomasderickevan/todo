@@ -36,6 +36,25 @@ interface VaultEntry {
   userId: string;
 }
 
+const getLocalVaultKey = (userId?: string) =>
+  userId ? `local_vault_passwords_${userId}` : 'local_vault_passwords_guest';
+
+const loadLocalVaultEntries = (userId?: string): VaultEntry[] => {
+  try {
+    const raw = localStorage.getItem(getLocalVaultKey(userId));
+    return raw ? JSON.parse(raw) as VaultEntry[] : [];
+  } catch (error) {
+    console.error('Failed to read local vault cache:', error);
+    return [];
+  }
+};
+
+const saveLocalVaultEntries = (entries: VaultEntry[], userId?: string) => {
+  localStorage.setItem(getLocalVaultKey(userId), JSON.stringify(entries));
+};
+
+const DRIVE_VAULT_BACKUP_FILE = 'endeavor_vault_backup.json';
+
 const PasswordGenerator: React.FC = () => {
   const { user, login, logout, loading: authLoading, googleAccessToken } = useAuth();
   const { saveToDrive, getFromDrive, isSyncing } = useDriveSync();
@@ -70,7 +89,7 @@ const PasswordGenerator: React.FC = () => {
   // Fetch Vault Entries
   useEffect(() => {
     if (!user) {
-      setVaultEntries([]);
+      setVaultEntries(loadLocalVaultEntries());
       return;
     }
 
@@ -86,8 +105,10 @@ const PasswordGenerator: React.FC = () => {
       })) as VaultEntry[];
       entries.sort((a, b) => b.createdAt - a.createdAt);
       setVaultEntries(entries);
+      saveLocalVaultEntries(entries, user.uid);
     }, (error) => {
       console.error("Vault listener error:", error);
+      setVaultEntries(loadLocalVaultEntries(user.uid));
     });
 
     return () => unsubscribe();
@@ -121,13 +142,14 @@ const PasswordGenerator: React.FC = () => {
   }, [length, options]);
 
   const generatePassphrase = useCallback(() => {
-    let words = [];
+    const words = [];
     for (let i = 0; i < wordCount; i++) {
-      let word = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      const word = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      let styledWord = word;
       if (options.capitalize) {
-        word = word.charAt(0).toUpperCase() + word.slice(1);
+        styledWord = word.charAt(0).toUpperCase() + word.slice(1);
       }
-      words.push(word);
+      words.push(styledWord);
     }
     setPassword(words.join(options.separator));
     setCopied(false);
@@ -177,6 +199,22 @@ const PasswordGenerator: React.FC = () => {
     }
   };
 
+  const syncVaultBackupToDrive = useCallback(async (entries: VaultEntry[], silent = true) => {
+    if (!user || !googleAccessToken) {
+      return;
+    }
+
+    await saveToDrive(
+      DRIVE_VAULT_BACKUP_FILE,
+      JSON.stringify(entries, null, 2),
+      {
+        convertToGoogleDoc: false,
+        mimeType: 'application/json',
+        silent,
+      }
+    );
+  }, [user, googleAccessToken, saveToDrive]);
+
   const saveToVault = async () => {
     if (!user) {
       alert("Please sign in to use the Shield Vault.");
@@ -192,21 +230,41 @@ const PasswordGenerator: React.FC = () => {
     }
 
     setIsSaving(true);
+    const entryData = {
+      serviceName: serviceName.trim(),
+      username: vaultUsername.trim(),
+      encryptedPassword: CryptoJS.AES.encrypt(password, masterPin).toString(),
+      createdAt: Date.now(),
+      userId: user.uid
+    };
+
     try {
-      const encrypted = CryptoJS.AES.encrypt(password, masterPin).toString();
-      await addDoc(collection(db, "vault_passwords"), {
-        serviceName,
-        username: vaultUsername,
-        encryptedPassword: encrypted,
-        createdAt: Date.now(),
-        userId: user.uid
-      });
+      await addDoc(collection(db, "vault_passwords"), entryData);
+      const updatedEntries = [
+        {
+          id: `pending-${entryData.createdAt}`,
+          ...entryData,
+        },
+        ...vaultEntries,
+      ].sort((a, b) => b.createdAt - a.createdAt);
+
+      await syncVaultBackupToDrive(updatedEntries);
       alert(`Successfully locked credentials for ${serviceName} in your vault!`);
       setServiceName('');
       setVaultUsername('');
     } catch (err) {
       console.error("Vault Save Error:", err);
-      alert("Failed to save to vault.");
+      const fallbackEntry: VaultEntry = {
+        id: `local-${entryData.createdAt}`,
+        ...entryData
+      };
+      const updatedEntries = [fallbackEntry, ...vaultEntries].sort((a, b) => b.createdAt - a.createdAt);
+      setVaultEntries(updatedEntries);
+      saveLocalVaultEntries(updatedEntries, user.uid);
+      await syncVaultBackupToDrive(updatedEntries);
+      alert(`Saved ${entryData.serviceName} locally because cloud vault save failed.`);
+      setServiceName('');
+      setVaultUsername('');
     } finally {
       setIsSaving(false);
     }
@@ -231,7 +289,16 @@ const PasswordGenerator: React.FC = () => {
   const deleteEntry = async (entry: VaultEntry) => {
     if (window.confirm("Are you sure you want to delete this vault entry?")) {
       try {
-        await deleteDoc(doc(db, "vault_passwords", entry.id));
+        if (user && !entry.id.startsWith('local-')) {
+          await deleteDoc(doc(db, "vault_passwords", entry.id));
+          const updatedEntries = vaultEntries.filter((item) => item.id !== entry.id);
+          await syncVaultBackupToDrive(updatedEntries);
+        } else {
+          const updatedEntries = vaultEntries.filter((item) => item.id !== entry.id);
+          setVaultEntries(updatedEntries);
+          saveLocalVaultEntries(updatedEntries, user?.uid);
+          await syncVaultBackupToDrive(updatedEntries);
+        }
       } catch (err) {
         console.error("Error deleting vault entry:", err);
         alert("Failed to delete entry.");
@@ -245,8 +312,7 @@ const PasswordGenerator: React.FC = () => {
       return;
     }
 
-    const backupData = JSON.stringify(vaultEntries, null, 2);
-    await saveToDrive('endeavor_vault_backup.json', backupData);
+    await syncVaultBackupToDrive(vaultEntries, false);
   };
 
   const handleRestoreFromDrive = async () => {
@@ -256,7 +322,7 @@ const PasswordGenerator: React.FC = () => {
     }
 
     if (window.confirm("This will merge your Drive backup into your current vault. Continue?")) {
-      const content = await getFromDrive('endeavor_vault_backup.json');
+      const content = await getFromDrive(DRIVE_VAULT_BACKUP_FILE);
       if (!content) return;
 
       try {
