@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>endeavor Shield + Meet</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">endeavor extension</p>
+          <h1>Shield + Meet</h1>
+        </div>
+        <div class="status-pill" id="meetLiveStatus">Meet idle</div>
+      </header>
+
+      <div class="tab-row">
+        <button class="tab-button active" data-tab="shield">Shield Gen</button>
+        <button class="tab-button" data-tab="meet">Meet</button>
+      </div>
+
+      <main>
+        <section class="tab-panel active" id="shieldPanel">
+          <div class="card">
+            <div class="mode-row">
+              <button class="mode-button active" data-mode="password">Password</button>
+              <button class="mode-button" data-mode="passphrase">Passphrase</button>
+            </div>
+
+            <label class="field-label" for="generatedValue">Generated secret</label>
+            <div class="inline-field">
+              <input id="generatedValue" type="text" readonly>
+              <button id="copyGeneratedBtn" class="ghost-button">Copy</button>
+            </div>
+
+            <div id="passwordControls">
+              <label class="field-label" for="passwordLength">Length</label>
+              <input id="passwordLength" type="range" min="8" max="64" value="16">
+              <div class="check-grid">
+                <label><input id="optUppercase" type="checkbox" checked> Uppercase</label>
+                <label><input id="optLowercase" type="checkbox" checked> Lowercase</label>
+                <label><input id="optNumbers" type="checkbox" checked> Numbers</label>
+                <label><input id="optSymbols" type="checkbox" checked> Symbols</label>
+              </div>
+            </div>
+
+            <div id="passphraseControls" class="hidden">
+              <label class="field-label" for="wordCount">Word count</label>
+              <input id="wordCount" type="range" min="3" max="10" value="4">
+              <div class="check-grid">
+                <label><input id="optCapitalize" type="checkbox" checked> Capitalize</label>
+                <label class="stacked-label">
+                  Separator
+                  <select id="separatorSelect">
+                    <option value="-">Hyphen</option>
+                    <option value=".">Dot</option>
+                    <option value="_">Underscore</option>
+                    <option value=" ">Space</option>
+                    <option value="">None</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="regenerateBtn" class="primary-button">Regenerate</button>
+              <div id="strengthPill" class="status-pill quiet">Strength</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Vault</h2>
+            <div class="field-stack">
+              <input id="serviceNameInput" type="text" placeholder="Service name">
+              <input id="usernameInput" type="text" placeholder="Username or email">
+              <input id="masterPinInput" type="password" placeholder="Master PIN">
+            </div>
+            <div class="button-row">
+              <button id="saveVaultBtn" class="primary-button">Save to vault</button>
+              <button id="exportVaultBtn" class="ghost-button">Export</button>
+            </div>
+            <label class="import-label">
+              <span>Import vault</span>
+              <input id="importVaultInput" type="file" accept="application/json">
+            </label>
+            <div id="vaultList" class="list-block empty">No vault entries yet.</div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="meetPanel">
+          <div class="card">
+            <h2>Meet capture</h2>
+            <p class="supporting-copy">Open a Google Meet tab with captions enabled, then capture transcript lines here.</p>
+            <div class="button-row">
+              <button id="toggleMeetBtn" class="primary-button">Pause capture</button>
+              <button id="snapshotMeetBtn" class="ghost-button">Capture now</button>
+              <button id="clearMeetBtn" class="ghost-button">Clear</button>
+            </div>
+            <div class="meet-metrics">
+              <div class="metric-card">
+                <span class="metric-label">Lines</span>
+                <strong id="meetLineCount">0</strong>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Updated</span>
+                <strong id="meetUpdatedAt">Never</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Summary</h2>
+            <p id="meetSummary" class="summary-copy">No transcript captured yet.</p>
+          </div>
+
+          <div class="card">
+            <h2>Action items</h2>
+            <div id="meetActions" class="list-block empty">No action items detected yet.</div>
+          </div>
+
+          <div class="card">
+            <h2>Transcript</h2>
+            <div id="meetTranscript" class="list-block empty">No transcript captured yet.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+  </html>
