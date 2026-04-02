@@ -82,13 +82,6 @@ const MainPortal: React.FC = () => {
           <div className="app-badge">Productivity</div>
         </div>
 
-        <div className="app-card" onClick={() => navigate('/meet-summarizer')}>
-          <div className="app-icon">📹</div>
-          <h2>Meet Summarizer</h2>
-          <p>Google Meet extension to capture captions, generate AI summaries, and sync tasks.</p>
-          <div className="app-badge">Extension</div>
-        </div>
-
         <div className="app-card disabled">
           <div className="app-icon">📊</div>
           <h2>FinanceTracker</h2>

@@ -6,7 +6,7 @@ import VoiceNotes from './components/VoiceNotes';
 import PasswordGenerator from './components/PasswordGenerator';
 import AppleTimer from './components/AppleTimer';
 import LegalPages from './components/LegalPages';
-import MeetSummarizerLanding from './components/MeetSummarizerLanding';
+import ShieldGenExtensionLanding from './components/ShieldGenExtensionLanding';
 
 function App() {
   return (
@@ -17,8 +17,8 @@ function App() {
         <Route path="/portal" element={<MainPortal />} />
         <Route path="/voicenotes" element={<VoiceNotes />} />
         <Route path="/password" element={<PasswordGenerator />} />
+        <Route path="/shield-extension" element={<ShieldGenExtensionLanding />} />
         <Route path="/timer" element={<AppleTimer />} />
-        <Route path="/meet-summarizer" element={<MeetSummarizerLanding />} />
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>

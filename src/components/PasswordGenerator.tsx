@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
 import { 
@@ -57,6 +58,7 @@ const saveLocalVaultEntries = (entries: VaultEntry[], userId?: string) => {
 const DRIVE_VAULT_BACKUP_FILE = 'endeavor_vault_backup.json';
 
 const PasswordGenerator: React.FC = () => {
+  const navigate = useNavigate();
   const { user, login, logout, loading: authLoading, googleAccessToken } = useAuth();
   const { saveToDrive, getFromDrive, isSyncing } = useDriveSync();
   const [mode, setMode] = useState<'password' | 'passphrase'>('password');
@@ -401,6 +403,9 @@ const PasswordGenerator: React.FC = () => {
           <header className="pg-header">
             <h1>Shield <span className="brand-name">Gen</span></h1>
             <p>Generate secure, random passwords in an instant.</p>
+            <button className="extension-guide-btn" onClick={() => navigate('/shield-extension')}>
+              Shield Gen Extension Guide
+            </button>
           </header>
 
           <div className="mode-switcher">

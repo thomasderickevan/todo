@@ -44,6 +44,10 @@ body {
   gap: 10px;
 }
 
+.wrap-row {
+  flex-wrap: wrap;
+}
+
 .app-header,
 .button-row,
 .meet-metrics {
@@ -75,6 +79,12 @@ h1 {
 h2 {
   font-size: 18px;
   margin-bottom: 12px;
+  font-weight: 800;
+}
+
+h3 {
+  font-size: 15px;
+  margin: 0 0 10px;
   font-weight: 800;
 }
 
@@ -128,6 +138,14 @@ h2 {
   backdrop-filter: blur(14px);
 }
 
+.subcard {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--line);
+}
+
 .field-label,
 .supporting-copy,
 .metric-label,
@@ -139,6 +157,11 @@ h2 {
 .supporting-copy {
   margin-bottom: 12px;
   line-height: 1.55;
+}
+
+.inline-status {
+  margin-top: 10px;
+  margin-bottom: 0;
 }
 
 input[type="text"],
@@ -239,6 +262,13 @@ input[type="range"] {
   background: var(--accent-soft);
   color: var(--good);
   border: 1px solid rgba(15, 118, 110, 0.12);
+}
+
+.primary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .hidden {

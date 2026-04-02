@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>endeavor Shield + Meet</title>
+    <title>endeavor Shield Gen</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -11,186 +11,181 @@
       <header class="app-header">
         <div>
           <p class="eyebrow">endeavor extension</p>
-          <h1>Shield + Meet</h1>
+          <h1>Shield Gen</h1>
         </div>
-        <div class="status-pill" id="meetLiveStatus">Meet idle</div>
+        <div class="status-pill quiet" id="accountStatusPill">Signed out</div>
       </header>
 
-      <div class="tab-row">
-        <button class="tab-button active" data-tab="shield">Shield Gen</button>
-        <button class="tab-button" data-tab="meet">Meet</button>
-      </div>
-
       <main>
-        <section class="tab-panel active" id="shieldPanel">
-          <div class="card" id="shieldSetupView">
-            <h2>Set up Shield Vault</h2>
-            <p class="supporting-copy">Create one master PIN for this extension. The popup stays locked until you unlock it, similar to a password manager.</p>
-            <div class="field-stack">
-              <input id="setupPinInput" type="password" placeholder="Create master PIN">
-              <input id="setupPinConfirmInput" type="password" placeholder="Confirm master PIN">
+        <section class="card">
+          <div class="entry-header">
+            <div>
+              <h2>Google account</h2>
+              <p class="supporting-copy">Sign in to sync the vault to Google Drive and enable email-based PIN recovery.</p>
             </div>
-            <div class="button-row">
-              <button id="createVaultBtn" class="primary-button">Create vault</button>
-            </div>
+            <span class="site-badge" id="accountSyncBadge">Local only</span>
           </div>
-
-          <div class="card hidden" id="shieldUnlockView">
-            <h2>Unlock Shield</h2>
-            <p class="supporting-copy">Enter your master PIN to access saved logins and autofill the current site.</p>
-            <div class="field-stack">
-              <input id="unlockPinInput" type="password" placeholder="Master PIN">
-            </div>
-            <div class="button-row">
-              <button id="unlockVaultBtn" class="primary-button">Unlock</button>
-            </div>
+          <div class="field-stack compact">
+            <input id="accountEmailInput" type="text" readonly placeholder="No Google account connected">
           </div>
+          <div class="button-row wrap-row">
+            <button id="signInBtn" class="primary-button">Sign in with Google</button>
+            <button id="signOutBtn" class="ghost-button">Sign out</button>
+            <button id="syncVaultBtn" class="ghost-button">Sync</button>
+            <button id="restoreVaultBtn" class="ghost-button">Restore</button>
+          </div>
+          <p class="supporting-copy inline-status" id="syncStatusText">Vault stays local until you sign in and sync.</p>
+        </section>
 
-          <div class="hidden" id="shieldUnlockedView">
-            <div class="card">
-              <div class="entry-header">
-                <div>
-                  <h2>Current site</h2>
-                  <p class="supporting-copy" id="activeSiteLabel">No active webpage</p>
-                </div>
-                <div class="entry-actions">
-                  <span class="site-badge" id="vaultStateBadge">Unlocked</span>
-                  <button id="lockVaultBtn" class="ghost-button">Lock</button>
-                </div>
-              </div>
-            </div>
+        <section class="card" id="shieldSetupView">
+          <h2>Set up Shield Vault</h2>
+          <p class="supporting-copy">Create a master PIN. Shield Gen will derive a lock key from it and protect a separate vault key for your saved passwords.</p>
+          <div class="field-stack">
+            <input id="setupPinInput" type="password" placeholder="Create master PIN">
+            <input id="setupPinConfirmInput" type="password" placeholder="Confirm master PIN">
+          </div>
+          <div class="button-row">
+            <button id="createVaultBtn" class="primary-button">Create vault</button>
+          </div>
+        </section>
 
-            <div class="card">
-              <div class="entry-header">
-                <div>
-                  <h2>Generator</h2>
-                  <p class="supporting-copy">Generate a credential, then save it for this site.</p>
-                </div>
-                <div id="strengthPill" class="status-pill quiet">Strength</div>
-              </div>
-
-              <div class="mode-row">
-                <button class="mode-button active" data-mode="password">Password</button>
-                <button class="mode-button" data-mode="passphrase">Passphrase</button>
-              </div>
-
-              <label class="field-label" for="generatedValue">Generated secret</label>
-              <div class="inline-field">
-                <input id="generatedValue" type="text" readonly>
-                <button id="copyGeneratedBtn" class="ghost-button">Copy</button>
-              </div>
-
-              <div id="passwordControls">
-                <label class="field-label" for="passwordLength">Length</label>
-                <input id="passwordLength" type="range" min="8" max="64" value="16">
-                <div class="check-grid">
-                  <label><input id="optUppercase" type="checkbox" checked> Uppercase</label>
-                  <label><input id="optLowercase" type="checkbox" checked> Lowercase</label>
-                  <label><input id="optNumbers" type="checkbox" checked> Numbers</label>
-                  <label><input id="optSymbols" type="checkbox" checked> Symbols</label>
-                </div>
-              </div>
-
-              <div id="passphraseControls" class="hidden">
-                <label class="field-label" for="wordCount">Word count</label>
-                <input id="wordCount" type="range" min="3" max="10" value="4">
-                <div class="check-grid">
-                  <label><input id="optCapitalize" type="checkbox" checked> Capitalize</label>
-                  <label class="stacked-label">
-                    Separator
-                    <select id="separatorSelect">
-                      <option value="-">Hyphen</option>
-                      <option value=".">Dot</option>
-                      <option value="_">Underscore</option>
-                      <option value=" ">Space</option>
-                      <option value="">None</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              <div class="button-row">
-                <button id="regenerateBtn" class="primary-button">Regenerate</button>
-                <button id="fillGeneratedBtn" class="ghost-button">Fill on page</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <h2>Save login</h2>
+        <section class="card hidden" id="shieldUnlockView">
+          <h2>Unlock Shield</h2>
+          <p class="supporting-copy">Enter your master PIN to unwrap the vault key and access saved logins.</p>
+          <div class="field-stack">
+            <input id="unlockPinInput" type="password" placeholder="Master PIN">
+          </div>
+          <div class="button-row wrap-row">
+            <button id="unlockVaultBtn" class="primary-button">Unlock</button>
+            <button id="showResetBtn" class="ghost-button">Forgot PIN</button>
+          </div>
+          <div class="hidden" id="resetPinPanel">
+            <div class="subcard">
+              <h3>Email reset</h3>
+              <p class="supporting-copy">Use the Google account email that owns this synced vault. You still need the synced vault data on this device.</p>
               <div class="field-stack">
-                <input id="serviceNameInput" type="text" placeholder="Service name">
-                <input id="usernameInput" type="text" placeholder="Username or email">
-                <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
+                <input id="resetEmailInput" type="text" placeholder="Email for reset code">
+                <input id="resetCodeInput" type="text" placeholder="Reset code">
+                <input id="resetNewPinInput" type="password" placeholder="New master PIN">
+                <input id="resetConfirmPinInput" type="password" placeholder="Confirm new master PIN">
               </div>
-              <div class="button-row">
-                <button id="saveVaultBtn" class="primary-button">Save login</button>
+              <div class="button-row wrap-row">
+                <button id="requestResetBtn" class="ghost-button">Send code</button>
+                <button id="completeResetBtn" class="primary-button">Reset PIN</button>
               </div>
-            </div>
-
-            <div class="card">
-              <div class="entry-header">
-                <div>
-                  <h2>Matches for this site</h2>
-                  <p class="supporting-copy">Closest thing to the Bitwarden flow: logins relevant to the current page are surfaced first.</p>
-                </div>
-              </div>
-              <div id="siteVaultList" class="list-block empty">No saved logins match this site yet.</div>
-            </div>
-
-            <div class="card">
-              <div class="entry-header">
-                <div>
-                  <h2>Vault</h2>
-                  <p class="supporting-copy">Search and manage all saved logins.</p>
-                </div>
-                <div class="entry-actions">
-                  <button id="exportVaultBtn" class="ghost-button">Export</button>
-                  <label class="ghost-button inline-upload" for="importVaultInput">Import</label>
-                  <input id="importVaultInput" type="file" accept="application/json" hidden>
-                </div>
-              </div>
-              <div class="field-stack compact">
-                <input id="vaultSearchInput" type="text" placeholder="Search service, username, or site">
-              </div>
-              <div id="vaultList" class="list-block empty">No vault entries yet.</div>
+              <p class="supporting-copy inline-status" id="resetStatusText">Reset codes are sent by the recovery backend after Google sync has registered this vault.</p>
             </div>
           </div>
         </section>
 
-        <section class="tab-panel" id="meetPanel">
+        <section class="hidden" id="shieldUnlockedView">
           <div class="card">
-            <h2>Meet capture</h2>
-            <p class="supporting-copy">Open a Google Meet tab with captions enabled, then capture transcript lines here.</p>
+            <div class="entry-header">
+              <div>
+                <h2>Current site</h2>
+                <p class="supporting-copy" id="activeSiteLabel">No active webpage</p>
+              </div>
+              <div class="entry-actions">
+                <span class="site-badge" id="vaultStateBadge">Unlocked</span>
+                <button id="lockVaultBtn" class="ghost-button">Lock</button>
+              </div>
+            </div>
+            <p class="supporting-copy inline-status" id="vaultMetaText">Vault key is loaded locally.</p>
+          </div>
+
+          <div class="card">
+            <div class="entry-header">
+              <div>
+                <h2>Generator</h2>
+                <p class="supporting-copy">Generate a credential, then save it for this site.</p>
+              </div>
+              <div id="strengthPill" class="status-pill quiet">Strength</div>
+            </div>
+
+            <div class="mode-row">
+              <button class="mode-button active" data-mode="password">Password</button>
+              <button class="mode-button" data-mode="passphrase">Passphrase</button>
+            </div>
+
+            <label class="field-label" for="generatedValue">Generated secret</label>
+            <div class="inline-field">
+              <input id="generatedValue" type="text" readonly>
+              <button id="copyGeneratedBtn" class="ghost-button">Copy</button>
+            </div>
+
+            <div id="passwordControls">
+              <label class="field-label" for="passwordLength">Length</label>
+              <input id="passwordLength" type="range" min="8" max="64" value="16">
+              <div class="check-grid">
+                <label><input id="optUppercase" type="checkbox" checked> Uppercase</label>
+                <label><input id="optLowercase" type="checkbox" checked> Lowercase</label>
+                <label><input id="optNumbers" type="checkbox" checked> Numbers</label>
+                <label><input id="optSymbols" type="checkbox" checked> Symbols</label>
+              </div>
+            </div>
+
+            <div id="passphraseControls" class="hidden">
+              <label class="field-label" for="wordCount">Word count</label>
+              <input id="wordCount" type="range" min="3" max="10" value="4">
+              <div class="check-grid">
+                <label><input id="optCapitalize" type="checkbox" checked> Capitalize</label>
+                <label class="stacked-label">
+                  Separator
+                  <select id="separatorSelect">
+                    <option value="-">Hyphen</option>
+                    <option value=".">Dot</option>
+                    <option value="_">Underscore</option>
+                    <option value=" ">Space</option>
+                    <option value="">None</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="button-row wrap-row">
+              <button id="regenerateBtn" class="primary-button">Regenerate</button>
+              <button id="fillGeneratedBtn" class="ghost-button">Fill on page</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Save login</h2>
+            <div class="field-stack">
+              <input id="serviceNameInput" type="text" placeholder="Service name">
+              <input id="usernameInput" type="text" placeholder="Username or email">
+              <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
+            </div>
             <div class="button-row">
-              <button id="toggleMeetBtn" class="primary-button">Pause capture</button>
-              <button id="snapshotMeetBtn" class="ghost-button">Capture now</button>
-              <button id="clearMeetBtn" class="ghost-button">Clear</button>
-            </div>
-            <div class="meet-metrics">
-              <div class="metric-card">
-                <span class="metric-label">Lines</span>
-                <strong id="meetLineCount">0</strong>
-              </div>
-              <div class="metric-card">
-                <span class="metric-label">Updated</span>
-                <strong id="meetUpdatedAt">Never</strong>
-              </div>
+              <button id="saveVaultBtn" class="primary-button">Save login</button>
             </div>
           </div>
 
           <div class="card">
-            <h2>Summary</h2>
-            <p id="meetSummary" class="summary-copy">No transcript captured yet.</p>
+            <div class="entry-header">
+              <div>
+                <h2>Matches for this site</h2>
+                <p class="supporting-copy">Closest thing to the Bitwarden flow: logins relevant to the current page are surfaced first.</p>
+              </div>
+            </div>
+            <div id="siteVaultList" class="list-block empty">No saved logins match this site yet.</div>
           </div>
 
           <div class="card">
-            <h2>Action items</h2>
-            <div id="meetActions" class="list-block empty">No action items detected yet.</div>
-          </div>
-
-          <div class="card">
-            <h2>Transcript</h2>
-            <div id="meetTranscript" class="list-block empty">No transcript captured yet.</div>
+            <div class="entry-header">
+              <div>
+                <h2>Vault</h2>
+                <p class="supporting-copy">Search and manage all saved logins.</p>
+              </div>
+              <div class="entry-actions">
+                <button id="exportVaultBtn" class="ghost-button">Export</button>
+                <label class="ghost-button inline-upload" for="importVaultInput">Import</label>
+                <input id="importVaultInput" type="file" accept="application/json" hidden>
+              </div>
+            </div>
+            <div class="field-stack compact">
+              <input id="vaultSearchInput" type="text" placeholder="Search service, username, or site">
+            </div>
+            <div id="vaultList" class="list-block empty">No vault entries yet.</div>
           </div>
         </section>
       </main>

@@ -1,33 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "endeavor Shield + Meet",
+  "name": "endeavor Shield Gen",
   "version": "0.1.0",
-  "description": "Shield Gen password vault and Google Meet caption capture for endeavor.",
+  "description": "Shield Gen password vault for endeavor.",
   "permissions": [
+    "identity",
     "storage",
     "tabs",
     "scripting",
     "activeTab"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "https://www.googleapis.com/*"
   ],
-  "background": {
-    "service_worker": "background.js"
+  "oauth2": {
+    "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/drive.file"
+    ]
   },
   "action": {
-    "default_title": "endeavor Shield + Meet",
+    "default_title": "endeavor Shield Gen",
     "default_popup": "popup.html"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://meet.google.com/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ]
+  }
 }
