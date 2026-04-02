@@ -31,8 +31,8 @@ function bindEvents(){
   document.getElementById("fillGeneratedBtn").addEventListener("click",fillGeneratedSecret);
   document.getElementById("scanQrBtn").addEventListener("click",runTask(scanQrFromActivePage));
   elements.scanQrSecondaryBtn.addEventListener("click",runTask(scanQrFromActivePage));
-  elements.copyOtpViewerBtn.addEventListener("click",()=>navigator.clipboard.writeText((elements.otpViewerCode.textContent||"").replace(/\s+/g,"")));
-  elements.closeOtpViewerBtn.addEventListener("click",hideOtpViewer);
+  elements.copyOtpViewerBtn?.addEventListener("click",()=>navigator.clipboard.writeText((elements.otpViewerCode?.textContent||"").replace(/\s+/g,"")));
+  elements.closeOtpViewerBtn?.addEventListener("click",hideOtpViewer);
   document.getElementById("saveVaultBtn").addEventListener("click",saveLogin);
   document.getElementById("exportVaultBtn").addEventListener("click",exportVault);
   elements.importVaultInput.addEventListener("change",importVault);
@@ -102,6 +102,7 @@ function renderAuthenticatorList(){
   for(const entry of authenticatorEntries){const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")}</div></div><span class="site-badge">Authenticator</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="view-otp" data-id="${entry.id}">View code</button><button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button><button class="ghost-button" data-action="copy-secret" data-id="${entry.id}">Copy secret</button></div>`;wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="view-otp")await showOtpViewer(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="copy-secret")await copyEntryTotpSecret(id);}));elements.authenticatorList.appendChild(wrapper);}
 }
 function renderOtpViewer(){
+  if(!elements.otpViewerCard||!elements.otpViewerTitle||!elements.otpViewerSubtitle||!elements.otpSecondsRemaining||!elements.otpViewerCode||!elements.otpRingProgress)return;
   const activeEntry=state.vaultEntries.find((entry)=>entry.id===state.otpViewerEntryId);
   if(!state.otpViewerSecret||!activeEntry||!state.isUnlocked){elements.otpViewerCard.classList.add("hidden");return;}
   elements.otpViewerCard.classList.remove("hidden");
@@ -371,7 +372,7 @@ async function registerRecoveryProfileIfPossible(options={}){
   return true;
 }
 function runTask(task){return async()=>{try{await task();}catch(error){console.error(error);window.alert(error?.message||"Request failed.");}};}
-function bindEnterSubmit(ids,handler){ids.forEach((id)=>document.getElementById(id)?.addEventListener("keyup",async(event)=>{if(event.key==="Enter"||event.code==="NumpadEnter"){event.preventDefault();await handler();}}));}
+function bindEnterSubmit(ids,handler){ids.forEach((id)=>document.getElementById(id)?.addEventListener("keydown",async(event)=>{if(event.key==="Enter"||event.code==="NumpadEnter"){event.preventDefault();await handler();}}));}
 function startOtpTicker(){stopOtpTicker();state.otpTickHandle=window.setInterval(renderOtpViewer,1000);}
 function stopOtpTicker(){if(state.otpTickHandle){window.clearInterval(state.otpTickHandle);state.otpTickHandle=null;}}
 function normalizeTotpSecret(value){return String(value||"").replaceAll(/\s+/g,"").toUpperCase();}

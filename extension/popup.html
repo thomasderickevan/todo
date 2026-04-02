@@ -188,6 +188,33 @@
             <p class="supporting-copy inline-status" id="authenticatorStatusText">Unlock the vault to use saved authenticator entries.</p>
           </section>
 
+          <section class="card hidden" id="otpViewerCard">
+            <div class="entry-header">
+              <div>
+                <h2 id="otpViewerTitle">Authenticator code</h2>
+                <p class="supporting-copy" id="otpViewerSubtitle">Current 6-digit code</p>
+              </div>
+              <span class="site-badge" id="otpViewerBadge">Live</span>
+            </div>
+            <div class="otp-viewer-shell">
+              <div class="otp-ring">
+                <svg viewBox="0 0 120 120" aria-hidden="true">
+                  <circle class="otp-ring-track" cx="60" cy="60" r="52"></circle>
+                  <circle class="otp-ring-progress" id="otpRingProgress" cx="60" cy="60" r="52"></circle>
+                </svg>
+                <div class="otp-ring-center">
+                  <span class="otp-seconds" id="otpSecondsRemaining">30</span>
+                  <span class="otp-label">seconds left</span>
+                </div>
+              </div>
+              <div class="otp-code" id="otpViewerCode">000 000</div>
+            </div>
+            <div class="button-row wrap-row">
+              <button id="copyOtpViewerBtn" class="ghost-button">Copy code</button>
+              <button id="closeOtpViewerBtn" class="ghost-button">Close</button>
+            </div>
+          </section>
+
           <section class="card">
             <h2>Saved authenticators</h2>
             <div id="authenticatorList" class="list-block empty">No authenticator entries saved yet.</div>
