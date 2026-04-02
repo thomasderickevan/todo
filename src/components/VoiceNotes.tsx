@@ -209,22 +209,28 @@ const VoiceNotes: React.FC = () => {
   }, [handleStopAndSave]);
 
   const deleteNote = useCallback(async (note: VoiceNote) => {
-    if (user && note.userId === user.uid) {
-      try {
+    console.log("Attempting to delete note:", note.id, "Owner:", note.userId);
+    
+    try {
+      if (user && note.userId === user.uid) {
+        console.log("Deleting Firestore note...");
         await deleteDoc(doc(db, "voice_notes", note.id));
-        console.log("Firestore note deleted:", note.id);
-      } catch (err) {
-        console.error("Error deleting from Firestore:", err);
+        // State will be updated by onSnapshot listener
+      } else {
+        console.log("Deleting local/guest note...");
+        setNotes(prev => {
+          const updated = prev.filter(n => n.id !== note.id);
+          if (!user) {
+            localStorage.setItem('local_voice_notes', JSON.stringify(updated));
+          }
+          return updated;
+        });
       }
-    } else {
-      // Guest note or local note
-      const updatedNotes = notes.filter(n => n.id !== note.id);
-      setNotes(updatedNotes);
-      if (!user) {
-        localStorage.setItem('local_voice_notes', JSON.stringify(updatedNotes));
-      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Could not delete note. Please try again.");
     }
-  }, [user, notes]);
+  }, [user]);
 
   const summarizeNote = async (note: VoiceNote) => {
     setIsAnalyzing(note.id);
