@@ -1,14 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: #f3efe6;
-  --panel: #fff8ee;
-  --ink: #1f2a24;
-  --muted: #6d736d;
-  --accent: #b45309;
-  --accent-strong: #8a3412;
-  --line: #d8c7a7;
+  --bg: #f6f1e7;
+  --panel: rgba(255, 252, 246, 0.84);
+  --panel-soft: rgba(255, 255, 255, 0.72);
+  --ink: #1f1f1a;
+  --muted: #5f665f;
+  --accent: #0f766e;
+  --accent-strong: #155e75;
+  --accent-soft: rgba(15, 118, 110, 0.12);
+  --line: rgba(31, 41, 55, 0.1);
+  --amber: #b45309;
   --good: #0f766e;
-  --shadow: 0 14px 32px rgba(68, 47, 20, 0.16);
+  --shadow: 0 24px 60px rgba(31, 41, 55, 0.14);
 }
 
 * {
@@ -17,17 +20,18 @@
 
 body {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background:
-    radial-gradient(circle at top right, rgba(180, 83, 9, 0.2), transparent 35%),
-    linear-gradient(160deg, #f5efe4 0%, #e7dcc8 100%);
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.22), transparent 32%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 24%),
+    linear-gradient(180deg, #f6f1e7 0%, #ece4d7 100%);
   color: var(--ink);
 }
 
 .app-shell {
   width: 420px;
   min-height: 640px;
-  padding: 16px;
+  padding: 18px;
 }
 
 .app-header,
@@ -50,9 +54,10 @@ body {
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   font-size: 11px;
-  color: var(--muted);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 h1,
@@ -62,12 +67,15 @@ p {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 0.96;
+  font-weight: 900;
 }
 
 h2 {
   font-size: 18px;
   margin-bottom: 12px;
+  font-weight: 800;
 }
 
 .tab-row,
@@ -88,16 +96,18 @@ h2 {
 .tab-button,
 .mode-button {
   flex: 1;
-  padding: 10px 14px;
-  background: rgba(255, 248, 238, 0.75);
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.58);
   color: var(--muted);
+  backdrop-filter: blur(10px);
 }
 
 .tab-button.active,
 .mode-button.active {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: #fff;
   border-color: var(--accent);
+  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.2);
 }
 
 .tab-panel {
@@ -109,12 +119,13 @@ h2 {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(255, 248, 238, 0.96), rgba(255, 245, 232, 0.96));
-  border: 1px solid rgba(216, 199, 167, 0.85);
-  border-radius: 24px;
-  padding: 16px;
-  margin-bottom: 14px;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.8), rgba(255, 248, 239, 0.88));
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 18px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
 }
 
 .field-label,
@@ -127,22 +138,32 @@ h2 {
 
 .supporting-copy {
   margin-bottom: 12px;
-  line-height: 1.4;
+  line-height: 1.55;
 }
 
 input[type="text"],
 input[type="password"],
 select {
   width: 100%;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid var(--line);
-  padding: 11px 12px;
-  background: #fffdf8;
+  padding: 12px 13px;
+  background: rgba(255, 255, 255, 0.78);
   color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+  outline: 2px solid rgba(15, 118, 110, 0.18);
+  outline-offset: 1px;
+  border-color: rgba(15, 118, 110, 0.32);
 }
 
 input[type="range"] {
   width: 100%;
+  accent-color: var(--accent);
 }
 
 .inline-field input {
@@ -162,9 +183,16 @@ input[type="range"] {
 .check-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  gap: 12px;
+  margin-top: 12px;
   font-size: 13px;
+}
+
+.check-grid label {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel-soft);
 }
 
 .stacked-label {
@@ -174,39 +202,43 @@ input[type="range"] {
 
 .primary-button,
 .ghost-button {
-  padding: 10px 14px;
-  font-weight: 600;
+  padding: 10px 15px;
+  font-weight: 700;
 }
 
 .primary-button {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: #fff;
   border-color: var(--accent);
+  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.2);
 }
 
 .ghost-button {
-  background: transparent;
-  color: var(--accent-strong);
+  background: rgba(255, 255, 255, 0.62);
+  color: #1f2937;
+  backdrop-filter: blur(8px);
 }
 
 .primary-button:hover,
 .ghost-button:hover,
 .tab-button:hover,
 .mode-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .status-pill {
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 12px;
-  background: #efe0c2;
-  color: var(--accent-strong);
+  background: rgba(180, 83, 9, 0.14);
+  color: var(--amber);
+  border: 1px solid rgba(180, 83, 9, 0.12);
 }
 
 .status-pill.quiet {
-  background: rgba(15, 118, 110, 0.12);
+  background: var(--accent-soft);
   color: var(--good);
+  border: 1px solid rgba(15, 118, 110, 0.12);
 }
 
 .hidden {
@@ -229,9 +261,10 @@ input[type="range"] {
 .transcript-entry,
 .action-entry {
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.72);
+  border-radius: 20px;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .entry-header,
@@ -244,6 +277,7 @@ input[type="range"] {
 
 .entry-service {
   font-weight: 700;
+  font-size: 14px;
 }
 
 .entry-meta,
@@ -268,9 +302,9 @@ input[type="range"] {
 .metric-card {
   flex: 1;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.68);
+  border-radius: 22px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.74);
 }
 
 .metric-card strong {
@@ -294,11 +328,21 @@ input[type="range"] {
   border-radius: 999px;
   padding: 7px 10px;
   font-size: 12px;
-  background: rgba(15, 118, 110, 0.12);
+  background: var(--accent-soft);
   color: var(--good);
+  border: 1px solid rgba(15, 118, 110, 0.12);
 }
 
 .inline-upload {
   display: inline-flex;
   align-items: center;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(31, 41, 55, 0.18);
+  border-radius: 999px;
 }

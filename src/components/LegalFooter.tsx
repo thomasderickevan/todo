@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import './LegalFooter.css';
 
 const LegalFooter: React.FC = () => {
@@ -12,9 +11,9 @@ const LegalFooter: React.FC = () => {
   return (
     <>
       <footer className="legal-footer">
-        <Link to="/privacy">Privacy Policy</Link>
+        <a href="/privacy">Privacy Policy</a>
         <span className="dot">•</span>
-        <Link to="/terms">Terms of Service</Link>
+        <a href="/terms">Terms of Service</a>
         <span className="dot">•</span>
         <button className="sarcasm-toggle" onClick={() => setShowSarcasm(true)}>Legal Nerd? 🤓</button>
       </footer>

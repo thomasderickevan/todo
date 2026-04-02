@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
 import './MeetSummarizerLanding.css';
@@ -26,8 +26,6 @@ const featureList = [
 ];
 
 const MeetSummarizerLanding: React.FC = () => {
-  const [showInstallGuide, setShowInstallGuide] = useState(false);
-
   const installMode = useMemo(
     () => (CHROME_WEB_STORE_URL ? 'web-store' : 'manual'),
     []
@@ -36,18 +34,6 @@ const MeetSummarizerLanding: React.FC = () => {
   React.useEffect(() => {
     document.title = 'Meet Summarizer • endeavor';
   }, []);
-
-  const handleAddToChrome = () => {
-    if (CHROME_WEB_STORE_URL) {
-      window.open(CHROME_WEB_STORE_URL, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    setShowInstallGuide(true);
-    window.setTimeout(() => {
-      document.getElementById('install-guide')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
 
   return (
     <>
@@ -61,10 +47,7 @@ const MeetSummarizerLanding: React.FC = () => {
               Capture Google Meet captions, build a transcript, extract action items, and keep the meeting useful after the call ends.
             </p>
             <div className="meet-hero-actions">
-              <button className="meet-primary-btn" onClick={handleAddToChrome}>
-                Add to Chrome
-              </button>
-              <a className="meet-secondary-btn meet-secondary-link" href={EXTENSION_DOWNLOAD_URL} download>
+              <a className="meet-primary-btn meet-secondary-link" href={EXTENSION_DOWNLOAD_URL} download>
                 Download Extension
               </a>
               <button
@@ -79,7 +62,7 @@ const MeetSummarizerLanding: React.FC = () => {
             <p className="meet-install-note">
               {installMode === 'web-store'
                 ? 'Installs through the Chrome Web Store.'
-                : 'Chrome Web Store link is not set yet, so this button opens the current install guide.'}
+                : 'Chrome Web Store link is not set yet, so this button downloads the extension.'}
             </p>
           </div>
 
@@ -128,12 +111,12 @@ const MeetSummarizerLanding: React.FC = () => {
                 <p className="meet-kicker">Install</p>
                 <h2>Get it into Chrome</h2>
               </div>
-              <button className="meet-secondary-btn" onClick={handleAddToChrome}>
-                Add to Chrome
-              </button>
+              <a className="meet-secondary-btn meet-secondary-link" href={EXTENSION_DOWNLOAD_URL} download>
+                Download Extension
+              </a>
             </div>
 
-            {(showInstallGuide || installMode === 'manual') && (
+            {installMode === 'manual' && (
               <div className="meet-install-guide">
                 <p>
                   One-click browser install only works after this extension has a real Chrome Web Store listing.
