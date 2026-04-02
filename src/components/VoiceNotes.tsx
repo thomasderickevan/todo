@@ -306,94 +306,119 @@ const VoiceNotes: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="voice-container">
-        {!user && (
-          <GuestStorageNotice
-            storageKey="guest_notice_voice_notes"
-            message="You are not signed in. Voice notes created here stay only on this browser and may be lost if you clear local data or switch devices."
-          />
-        )}
-        <div className="voice-auth-header">
-          {!authLoading && (
-            user ? (
-              <div className="user-pill">
-                <button 
-                  className="sync-pill-btn" 
-                  onClick={handleSyncAllToDrive} 
-                  disabled={isSyncing || notes.length === 0}
-                >
-                  {isSyncing ? 'Syncing...' : 'Sync All'}
-                </button>
-                <img 
-                  src={user.photoURL || guestUserIcon} 
-                  alt="Profile" 
-                  className="user-pill-avatar" 
-                  referrerPolicy="no-referrer"
-                />
-                <span className="user-pill-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                <button className="logout-pill-btn" onClick={() => logout()}>Sign Out</button>
+      <div className="home-showcase modern-critical app-theme">
+        <div className="mc-bg-overlay">
+          <div className="mc-dot-grid"></div>
+          <div className="mc-scanlines"></div>
+          <div className="mc-noise"></div>
+        </div>
+
+        <div className="mc-bg-deco-text">VOICENOTES</div>
+
+        <div className="mc-app-container">
+          {!user && (
+            <GuestStorageNotice
+              storageKey="guest_notice_voice_notes"
+              title="GUEST_MODE_ACTIVE"
+              message="You are not signed in. Voice notes created here stay only on this browser."
+            />
+          )}
+
+          <div className="mc-app-card" style={{ '--app-color': '#00E5FF' } as React.CSSProperties}>
+            <header className="mc-app-header">
+              <div className="mc-header-top">
+                <div className="mc-user-badge">
+                  <img 
+                    src={user?.photoURL || guestUserIcon} 
+                    alt="P" 
+                    className="mc-mini-avatar" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="mc-user-info">
+                    <span className="mc-username">{user?.displayName?.split(' ')[0] || 'GUEST'}</span>
+                    <span className="mc-status-indicator"></span>
+                  </div>
+                </div>
+                <div className="mc-header-actions">
+                  {user ? (
+                    <div className="mc-pill-group">
+                      <button 
+                        className="mc-status-btn" 
+                        onClick={handleSyncAllToDrive} 
+                        disabled={isSyncing || notes.length === 0}
+                      >
+                        {isSyncing ? 'SYNCING...' : 'SYNC_ALL'}
+                      </button>
+                      <button className="mc-action-icon" onClick={() => logout()}>🚪</button>
+                    </div>
+                  ) : (
+                    <button className="mc-cta-btn" onClick={() => login()}>AUTHENTICATE</button>
+                  )}
+                </div>
               </div>
-            ) : (
-              <button className="login-pill-btn" onClick={() => login()}>Sign In with Google</button>
-            )
-          )}
-        </div>
 
-        <div className="recording-section">
-          <div 
-            className={`record-button ${isRecording ? 'recording' : ''}`} 
-            onClick={() => isRecording ? handleStopAndSave() : startRecording()}
-          >
-            <div className="record-icon">🎤</div>
-            <div className="pulse"></div>
-          </div>
-          <p className="record-status">{isRecording ? "Listening... Tap to stop" : "Tap to start recording"}</p>
-          {!isRecording && !googleAccessToken && user && (
-            <p className="auth-warning">⚠️ Drive access expired. Sign out and in to fix.</p>
-          )}
-          {isRecording && transcript && (
-            <div className="live-transcript">
-              {transcript}
-            </div>
-          )}
-        </div>
+              <div className="mc-app-title-group">
+                <span className="mc-app-kicker">SPEAK_FIRST // REFINE_LATER</span>
+                <h1 className="mc-app-main-title">VOICENOTES</h1>
+              </div>
+            </header>
 
-        <div className="notes-list">
-          {notes.map(note => (
-            <div key={note.id} className="note-card">
-              <div className="note-date">{new Date(note.createdAt).toLocaleString()}</div>
-              <div className="note-text">{note.text}</div>
-              {note.summary && (
-                <div className="note-summary">
-                  <strong>✨ AI Insight:</strong> {note.summary}
+            <div className="mc-recording-zone">
+              <div 
+                className={`mc-record-btn ${isRecording ? 'recording' : ''}`} 
+                onClick={() => isRecording ? handleStopAndSave() : startRecording()}
+              >
+                <div className="mc-record-icon">🎙️</div>
+                <div className="mc-record-pulse"></div>
+              </div>
+              <p className="mc-record-hint">{isRecording ? "LISTENING... TAP_TO_SAVE" : "INITIALIZE_VOICE_CAPTURE"}</p>
+              
+              {isRecording && transcript && (
+                <div className="mc-live-transcript">
+                  {transcript}
                 </div>
               )}
-              <div className="note-actions">
-                {!note.summary && (
-                  <button 
-                    className="ai-btn" 
-                    onClick={() => summarizeNote(note)}
-                    disabled={isAnalyzing === note.id}
-                  >
-                    {isAnalyzing === note.id ? "Analyzing..." : "Summarize with AI"}
-                  </button>
-                )}
-                <button 
-                  className="sync-btn" 
-                  onClick={() => handleSyncToDrive(note)}
-                  disabled={syncingId === note.id}
-                >
-                  {syncingId === note.id ? "Syncing..." : "Sync to Drive"}
-                </button>
-                <button className="del-btn" onClick={() => deleteNote(note)}>Delete</button>
-              </div>
             </div>
-          ))}
-          {notes.length === 0 && !isRecording && (
-            <div className="empty-voice-state">
-              <p>No voice notes yet. Speak your mind!</p>
+
+            <div className="mc-notes-grid">
+              {notes.map(note => (
+                <div key={note.id} className="mc-note-entry">
+                  <div className="mc-note-meta">{new Date(note.createdAt).toLocaleString().toUpperCase()}</div>
+                  <div className="mc-note-content">{note.text}</div>
+                  {note.summary && (
+                    <div className="mc-note-ai-box">
+                      <span className="mc-ai-label">AI_INSIGHT //</span> {note.summary}
+                    </div>
+                  )}
+                  <div className="mc-note-footer">
+                    {!note.summary && (
+                      <button 
+                        className="mc-note-action" 
+                        onClick={() => summarizeNote(note)}
+                        disabled={isAnalyzing === note.id}
+                      >
+                        {isAnalyzing === note.id ? "ANALYZING..." : "AI_SUMMARIZE"}
+                      </button>
+                    )}
+                    <button 
+                      className="mc-note-action" 
+                      onClick={() => handleSyncToDrive(note)}
+                      disabled={syncingId === note.id}
+                    >
+                      {syncingId === note.id ? "SYNCING..." : "SYNC_DRIVE"}
+                    </button>
+                    <button className="mc-note-action del" onClick={() => deleteNote(note)}>DELETE</button>
+                  </div>
+                </div>
+              ))}
+              
+              {notes.length === 0 && !isRecording && (
+                <div className="mc-empty-state">
+                  <p>NO_VOICE_NOTES_INITIALIZED</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
         <LegalFooter />
       </div>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import brandLogo from '../assets/logo-only.png';
+import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
+
+const logoE = '/endeavor-e.png';
 
 interface NavbarProps {
   showLinks?: boolean;
@@ -9,62 +10,20 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ showLinks = true }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleLinkClick = (id: string, highlightClass: string) => {
-    if (location.pathname !== '/todo') {
-      navigate('/todo');
-      // After navigation, we need to wait for the component to mount before scrolling.
-      // A small timeout or a check in TodoApp's useEffect would be better, 
-      // but for simple cases, a hash check in TodoApp works well.
-      return;
-    }
-    
-    scrollToAndHighlight(id, highlightClass);
-  };
-
-  const scrollToAndHighlight = (id: string, highlightClass: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      element.classList.remove(highlightClass);
-      void (element as any).offsetWidth; // Trigger reflow
-      element.classList.add(highlightClass);
-      
-      setTimeout(() => {
-        element.classList.remove(highlightClass);
-      }, 1500);
-    }
-  };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-content">
-        <div className="navbar-left" onClick={() => navigate('/')}>
-          <div className="brand-logo">
-            <img src={brandLogo} alt="endeavor logo" className="logo-image" />
-          </div>
+    <nav className="mc-navbar">
+      <div className="mc-navbar-content">
+        <div className="mc-navbar-left" onClick={() => navigate('/')}>
+          <img src={logoE} alt="e" className="mc-navbar-logo" />
+          <span className="mc-navbar-brand">ENDEAVOR_</span>
         </div>
         
         {showLinks && (
-          <div className="navbar-right">
-            <ul className="nav-links">
-              <li>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-                   Portal
-                </a>
-              </li>
-              <li>
-                <a href="#" onClick={(e) => { e.preventDefault(); handleLinkClick('tasks-section', 'highlight-tasks'); }}>
-                  Tasks
-                </a>
-              </li>
-              <li>
-                <a href="#" onClick={(e) => { e.preventDefault(); handleLinkClick('assistant-section', 'highlight-assistant'); }}>
-                  AI Helper
-                </a>
-              </li>
+          <div className="mc-navbar-right">
+            <ul className="mc-nav-links">
+              <li><button onClick={() => navigate('/portal')}>PORTAL</button></li>
+              <li><button onClick={() => navigate('/')}>SYSTEM_HOME</button></li>
             </ul>
           </div>
         )}

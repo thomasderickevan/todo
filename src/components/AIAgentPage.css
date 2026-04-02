@@ -1,0 +1,74 @@
+.ai-agent-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 10% 20%, rgba(248, 113, 113, 0.25), transparent 45%),
+              radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.25), transparent 35%),
+              #020617;
+  color: #f8fafc;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.ai-agent-hero {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ai-agent-kicker {
+  letter-spacing: 0.3em;
+  font-size: 0.75rem;
+  color: #f472b6;
+  margin-bottom: 0.5rem;
+}
+
+.ai-agent-hero h1 {
+  font-size: clamp(2.8rem, 4vw, 4.2rem);
+  margin-bottom: 1rem;
+}
+
+.ai-agent-hero p {
+  max-width: 640px;
+  margin: 0 auto;
+  color: rgba(248, 250, 252, 0.8);
+  font-size: 1.1rem;
+}
+
+.ai-agent-links {
+  margin-top: 1.75rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ai-agent-link {
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ec4899, #f97316);
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  font-size: 0.75rem;
+}
+
+.ai-agent-link.subtle {
+  background: transparent;
+  border: 1px solid rgba(248, 250, 252, 0.5);
+}
+
+.ai-agent-core {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .ai-agent-links {
+    flex-direction: column;
+  }
+}

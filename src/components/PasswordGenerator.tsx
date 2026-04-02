@@ -359,263 +359,251 @@ const PasswordGenerator: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="pg-container">
-        {!user && (
-          <GuestStorageNotice
-            storageKey="guest_notice_password"
-            message="You are not signed in. Generated passwords and any local vault data on this page are only stored on this device and will not sync to your account."
-          />
-        )}
-        <div className="pg-auth-header">
-          {!authLoading && (
-            user ? (
-              <div className="user-pill">
-                <button 
-                  className="restore-pill-btn" 
-                  onClick={handleRestoreFromDrive} 
-                  disabled={isSyncing}
-                >
-                  {isSyncing ? 'Wait...' : 'Restore'}
-                </button>
-                <button 
-                  className="sync-pill-btn" 
-                  onClick={handleSyncToDrive} 
-                  disabled={isSyncing || vaultEntries.length === 0}
-                >
-                  {isSyncing ? 'Syncing...' : 'Sync Vault'}
-                </button>
-                <img 
-                  src={user.photoURL || guestUserIcon} 
-                  alt="Profile" 
-                  className="user-pill-avatar" 
-                  referrerPolicy="no-referrer"
-                />
-                <span className="user-pill-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                <button className="logout-pill-btn" onClick={() => logout()}>Sign Out</button>
-              </div>
-            ) : (
-              <button className="login-pill-btn" onClick={() => login()}>Sign In with Google</button>
-            )
-          )}
+      <div className="home-showcase modern-critical app-theme">
+        <div className="mc-bg-overlay">
+          <div className="mc-dot-grid"></div>
+          <div className="mc-scanlines"></div>
+          <div className="mc-noise"></div>
         </div>
 
-        <div className="pg-card">
-          <header className="pg-header">
-            <h1>Shield <span className="brand-name">Gen</span></h1>
-            <p>Generate secure, random passwords in an instant.</p>
-            <button className="extension-guide-btn" onClick={() => navigate('/shield-extension')}>
-              Shield Gen Extension Guide
-            </button>
-          </header>
+        <div className="mc-bg-deco-text">SHIELDGEN</div>
 
-          <div className="mode-switcher">
-            <button 
-              className={mode === 'password' ? 'active' : ''} 
-              onClick={() => setMode('password')}
-            >
-              Password
-            </button>
-            <button 
-              className={mode === 'passphrase' ? 'active' : ''} 
-              onClick={() => setMode('passphrase')}
-            >
-              Passphrase
-            </button>
-          </div>
+        <div className="mc-app-container">
+          {!user && (
+            <GuestStorageNotice
+              storageKey="guest_notice_password"
+              title="GUEST_MODE_ACTIVE"
+              message="You are not signed in. Vault data is stored locally in this browser."
+            />
+          )}
 
-          <div className="pg-display-section">
-            <div className="password-display">
-              <input 
-                type="text" 
-                value={password} 
-                readOnly 
-                className={password === 'Select at least one option' ? 'error' : ''}
-              />
-              <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={() => copyToClipboard(password)}>
-                {copied ? '✅' : '📋'}
+          <div className="mc-app-card" style={{ '--app-color': '#FF003C' } as React.CSSProperties}>
+            <header className="mc-app-header">
+              <div className="mc-header-top">
+                <div className="mc-user-badge">
+                  <img 
+                    src={user?.photoURL || guestUserIcon} 
+                    alt="P" 
+                    className="mc-mini-avatar" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="mc-user-info">
+                    <span className="mc-username">{user?.displayName?.split(' ')[0] || 'GUEST'}</span>
+                    <span className="mc-status-indicator" style={{ background: '#FF003C', boxShadow: '0 0 5px #FF003C' }}></span>
+                  </div>
+                </div>
+                <div className="mc-header-actions">
+                  {user ? (
+                    <div className="mc-pill-group">
+                      <button 
+                        className="mc-status-btn" 
+                        onClick={handleRestoreFromDrive} 
+                        disabled={isSyncing}
+                      >
+                        {isSyncing ? 'WAIT...' : 'RESTORE_VAULT'}
+                      </button>
+                      <button 
+                        className="mc-status-btn" 
+                        onClick={handleSyncToDrive} 
+                        disabled={isSyncing || vaultEntries.length === 0}
+                      >
+                        {isSyncing ? 'SYNCING...' : 'SYNC_VAULT'}
+                      </button>
+                      <button className="mc-action-icon" onClick={() => logout()}>🚪</button>
+                    </div>
+                  ) : (
+                    <button className="mc-cta-btn" onClick={() => login()}>AUTHENTICATE</button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mc-app-title-group">
+                <span className="mc-app-kicker">IRONCLAD // SECURITY</span>
+                <h1 className="mc-app-main-title">SHIELD GEN</h1>
+                <button className="mc-text-link-btn" onClick={() => navigate('/shield-extension')}>
+                  [VIEW_EXTENSION_GUIDE]
+                </button>
+              </div>
+            </header>
+
+            <div className="mc-pg-mode-selector">
+              <button 
+                className={mode === 'password' ? 'active' : ''} 
+                onClick={() => setMode('password')}
+              >
+                RANDOM_PASSWORD
+              </button>
+              <button 
+                className={mode === 'passphrase' ? 'active' : ''} 
+                onClick={() => setMode('passphrase')}
+              >
+                MEMORABLE_PASSPHRASE
               </button>
             </div>
-            <div className={`strength-meter ${strength.toLowerCase().replace(' ', '-')}`}>
-              Strength: <span>{strength}</span>
+
+            <div className="mc-pg-display">
+              <div className="mc-display-row">
+                <input 
+                  type="text" 
+                  value={password} 
+                  readOnly 
+                  className={password === 'Select at least one option' ? 'error' : ''}
+                />
+                <button className={`mc-copy-btn ${copied ? 'copied' : ''}`} onClick={() => copyToClipboard(password)}>
+                  {copied ? 'CONFIRMED' : 'COPY'}
+                </button>
+              </div>
+              <div className="mc-strength-section">
+                <div className={`mc-strength-meter ${strength.toLowerCase().replace(' ', '-')}`}>
+                  ENTROPY_LEVEL: <span>{strength.toUpperCase()}</span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="pg-controls">
-            {mode === 'password' ? (
-              <>
-                <div className="control-group">
-                  <div className="control-header">
-                    <label>Password Length</label>
-                    <span className="length-value">{length}</span>
+            <div className="mc-pg-controls">
+              {mode === 'password' ? (
+                <>
+                  <div className="mc-control-row">
+                    <div className="mc-label-group">
+                      <label>LENGTH</label>
+                      <span className="mc-value">{length}</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="8" 
+                      max="64" 
+                      value={length} 
+                      onChange={(e) => setLength(parseInt(e.target.value))}
+                    />
                   </div>
-                  <input 
-                    type="range" 
-                    min="8" 
-                    max="64" 
-                    value={length} 
-                    onChange={(e) => setLength(parseInt(e.target.value))}
-                    className="length-slider"
-                  />
-                </div>
 
-                <div className="options-grid">
-                  <label className="checkbox-container">
-                    <input 
-                      type="checkbox" 
-                      checked={options.uppercase} 
-                      onChange={() => setOptions(prev => ({ ...prev, uppercase: !prev.uppercase }))}
-                    />
-                    <span className="checkmark"></span>
-                    Uppercase
-                  </label>
-                  <label className="checkbox-container">
-                    <input 
-                      type="checkbox" 
-                      checked={options.lowercase} 
-                      onChange={() => setOptions(prev => ({ ...prev, lowercase: !prev.lowercase }))}
-                    />
-                    <span className="checkmark"></span>
-                    Lowercase
-                  </label>
-                  <label className="checkbox-container">
-                    <input 
-                      type="checkbox" 
-                      checked={options.numbers} 
-                      onChange={() => setOptions(prev => ({ ...prev, numbers: !prev.numbers }))}
-                    />
-                    <span className="checkmark"></span>
-                    Numbers
-                  </label>
-                  <label className="checkbox-container">
-                    <input 
-                      type="checkbox" 
-                      checked={options.symbols} 
-                      onChange={() => setOptions(prev => ({ ...prev, symbols: !prev.symbols }))}
-                    />
-                    <span className="checkmark"></span>
-                    Symbols
-                  </label>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="control-group">
-                  <div className="control-header">
-                    <label>Number of Words</label>
-                    <span className="length-value">{wordCount}</span>
+                  <div className="mc-options-grid">
+                    {(['uppercase', 'lowercase', 'numbers', 'symbols'] as const).map(opt => (
+                      <label key={opt} className="mc-checkbox-label">
+                        <input 
+                          type="checkbox" 
+                          checked={options[opt]} 
+                          onChange={() => setOptions(prev => ({ ...prev, [opt]: !prev[opt] }))}
+                        />
+                        <span className="mc-custom-check"></span>
+                        {opt.toUpperCase()}
+                      </label>
+                    ))}
                   </div>
-                  <input 
-                    type="range" 
-                    min="3" 
-                    max="10" 
-                    value={wordCount} 
-                    onChange={(e) => setWordCount(parseInt(e.target.value))}
-                    className="length-slider"
-                  />
-                </div>
+                </>
+              ) : (
+                <>
+                  <div className="mc-control-row">
+                    <div className="mc-label-group">
+                      <label>WORD_COUNT</label>
+                      <span className="mc-value">{wordCount}</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="3" 
+                      max="10" 
+                      value={wordCount} 
+                      onChange={(e) => setWordCount(parseInt(e.target.value))}
+                    />
+                  </div>
 
-                <div className="options-grid passphrase-options">
-                  <div className="pg-option-group">
-                    <label className="pg-label">Word Styling</label>
-                    <label className="checkbox-container">
+                  <div className="mc-options-grid">
+                    <label className="mc-checkbox-label">
                       <input 
                         type="checkbox" 
                         checked={options.capitalize} 
                         onChange={() => setOptions(prev => ({ ...prev, capitalize: !prev.capitalize }))}
                       />
-                      <span className="checkmark"></span>
-                      Capitalize
+                      <span className="mc-custom-check"></span>
+                      CAPITALIZE
                     </label>
+                    <div className="mc-select-group">
+                      <label>SEPARATOR</label>
+                      <select 
+                        value={options.separator} 
+                        onChange={(e) => setOptions(prev => ({ ...prev, separator: e.target.value }))}
+                      >
+                        <option value="-">HYPHEN (-)</option>
+                        <option value=".">DOT (.)</option>
+                        <option value="_">UNDERSCORE (_)</option>
+                        <option value=" ">SPACE ( )</option>
+                        <option value="">NONE</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="pg-option-group">
-                    <label className="pg-label">Separator</label>
-                    <select 
-                      className="pg-select"
-                      value={options.separator} 
-                      onChange={(e) => setOptions(prev => ({ ...prev, separator: e.target.value }))}
-                    >
-                      <option value="-">Hyphen (-)</option>
-                      <option value=".">Dot (.)</option>
-                      <option value="_">Underscore (_)</option>
-                      <option value=" ">Space ( )</option>
-                      <option value="">None</option>
-                    </select>
-                  </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
 
-            <button className="generate-btn" onClick={generate}>
-              Regenerate {mode === 'password' ? 'Password' : 'Passphrase'}
-            </button>
-          </div>
-
-          <div className="vault-action-section">
-            <h3>🔐 Shield Vault</h3>
-            <div className="vault-inputs">
-              <input 
-                type="text" 
-                placeholder="Service (e.g. Netflix)" 
-                value={serviceName}
-                onChange={(e) => setServiceName(e.target.value)}
-                className="pg-input"
-              />
-              <input 
-                type="text" 
-                placeholder="Username (optional)" 
-                value={vaultUsername}
-                onChange={(e) => setVaultUsername(e.target.value)}
-                className="pg-input"
-              />
-              <input 
-                type="password" 
-                placeholder="Set Master PIN" 
-                value={masterPin}
-                onChange={(e) => setMasterPin(e.target.value)}
-                className="pg-input"
-              />
-              <button 
-                className="vault-lock-btn" 
-                onClick={saveToVault}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Encrypting...' : 'Lock in Vault'}
+              <button className="mc-regen-btn" onClick={generate}>
+                REGENERATE_ENTROPY
               </button>
             </div>
-            {vaultEntries.length > 0 && (
-              <button 
-                className="view-vault-toggle" 
-                onClick={() => setShowVault(!showVault)}
-              >
-                {showVault ? 'Hide Vault' : `View Vault (${vaultEntries.length})`}
-              </button>
-            )}
-          </div>
-        </div>
 
-        {showVault && (
-          <div className="vault-list">
-            {vaultEntries.map(entry => (
-              <div key={entry.id} className="vault-entry">
-                <div className="entry-info">
-                  <div className="entry-service">{entry.serviceName}</div>
-                  <div className="entry-user">{entry.username || 'No username'}</div>
-                </div>
-                <div className="entry-actions">
-                  {revealedIds[entry.id] ? (
-                    <div className="revealed-pw">
-                      <code>{revealedIds[entry.id]}</code>
-                      <button onClick={() => copyToClipboard(revealedIds[entry.id])}>📋</button>
-                    </div>
-                  ) : (
-                    <button className="reveal-btn" onClick={() => revealPassword(entry)}>Reveal</button>
-                  )}
-                  <button className="delete-entry-btn" onClick={() => deleteEntry(entry)}>🗑️</button>
-                </div>
+            <section className="mc-vault-section">
+              <h3 className="mc-section-divider">SHIELD_VAULT // ENCRYPTED_STORAGE</h3>
+              <div className="mc-vault-form">
+                <input 
+                  type="text" 
+                  placeholder="SERVICE_NAME" 
+                  value={serviceName}
+                  onChange={(e) => setServiceName(e.target.value)}
+                />
+                <input 
+                  type="text" 
+                  placeholder="IDENTITY_USERNAME" 
+                  value={vaultUsername}
+                  onChange={(e) => setVaultUsername(e.target.value)}
+                />
+                <input 
+                  type="password" 
+                  placeholder="MASTER_PIN" 
+                  value={masterPin}
+                  onChange={(e) => setMasterPin(e.target.value)}
+                />
+                <button 
+                  className="mc-vault-add" 
+                  onClick={saveToVault}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'ENCRYPTING...' : 'LOCK_IN_VAULT'}
+                </button>
               </div>
-            ))}
+
+              {vaultEntries.length > 0 && (
+                <button 
+                  className="mc-vault-toggle" 
+                  onClick={() => setShowVault(!showVault)}
+                >
+                  {showVault ? 'CLOSE_VAULT_ACCESS' : `ACCESS_VAULT_DATABASE [${vaultEntries.length}]`}
+                </button>
+              )}
+            </section>
           </div>
-        )}
+
+          {showVault && (
+            <div className="mc-vault-list">
+              {vaultEntries.map(entry => (
+                <div key={entry.id} className="mc-vault-item">
+                  <div className="mc-item-meta">
+                    <span className="mc-service">{entry.serviceName.toUpperCase()}</span>
+                    <span className="mc-user">{entry.username || 'NO_IDENTITY'}</span>
+                  </div>
+                  <div className="mc-item-actions">
+                    {revealedIds[entry.id] ? (
+                      <div className="mc-revealed-block">
+                        <code>{revealedIds[entry.id]}</code>
+                        <button onClick={() => copyToClipboard(revealedIds[entry.id])}>[COPY]</button>
+                      </div>
+                    ) : (
+                      <button className="mc-reveal-btn" onClick={() => revealPassword(entry)}>REVEAL_KEY</button>
+                    )}
+                    <button className="mc-delete-btn" onClick={() => deleteEntry(entry)}>TERMINATE</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <LegalFooter />
       </div>
     </>

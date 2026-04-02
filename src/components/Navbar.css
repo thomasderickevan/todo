@@ -1,125 +1,74 @@
-.navbar {
-  position: fixed;
+/* ==========================================================================
+   Modern Critical Navbar
+   ========================================================================== */
+
+.mc-navbar {
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
-  background: var(--card-bg);
+  background: rgba(5, 5, 5, 0.9);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #1A1A1A;
   z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme='dark'] .navbar {
-  background: rgba(30, 41, 59, 0.85);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-}
-
-.navbar:hover {
-  height: 75px;
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
-  border-bottom-color: var(--primary-color);
-}
-
-.navbar-content {
-  width: 100%;
-  max-width: 1200px;
   padding: 0 2rem;
+}
+
+.mc-navbar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.navbar-left {
+.mc-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   cursor: pointer;
 }
 
-.brand-logo {
+.mc-navbar-logo {
+  height: 24px;
+  width: auto;
+}
+
+.mc-navbar-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: 1rem;
+  color: #FFF;
+}
+
+.mc-navbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: transform 0.3s ease;
 }
 
-.brand-logo:hover {
-  transform: scale(1.05);
-}
-
-.logo-image {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-}
-
-.brand-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -1px;
-  color: var(--text-main);
-  background: linear-gradient(135deg, var(--primary-color), #818cf8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.nav-links {
-  display: flex;
+.mc-nav-links {
   list-style: none;
-  gap: 2.5rem;
+  display: flex;
+  gap: 2rem;
   margin: 0;
   padding: 0;
 }
 
-.nav-links li a {
-  text-decoration: none;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  transition: color 0.3s ease;
+.mc-nav-links button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0.5rem 0;
 }
 
-.nav-links li a:hover {
-  color: var(--primary-color);
-}
-
-.nav-links li a::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--primary-color);
-  transition: width 0.3s ease;
-  border-radius: 2px;
-}
-
-.nav-links li a:hover::after {
-  width: 100%;
-}
-
-.nav-icon {
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-}
-
-.nav-links li a:hover .nav-icon {
-  transform: translateY(-3px) scale(1.2);
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    gap: 1.5rem;
-  }
-  .brand-name {
-    display: none;
-  }
+.mc-nav-links button:hover {
+  color: #FFF;
 }

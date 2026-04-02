@@ -227,149 +227,150 @@ const AppleTimer: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="at-container">
-        {!user && (
-          <GuestStorageNotice
-            storageKey="guest_notice_timer"
-            message="You are not signed in. Timer settings and session progress are only stored locally in this browser and will not follow you to another device."
-          />
-        )}
-        <div className="at-card">
-          <header className="at-header">
-            <div className="at-title-row">
-              <h1>Apple <span className="brand-name">Timer</span></h1>
-            </div>
-            <p>Focus deeply, rest purposefully.</p>
-          </header>
+      <div className="home-showcase modern-critical app-theme">
+        <div className="mc-bg-overlay">
+          <div className="mc-dot-grid"></div>
+          <div className="mc-scanlines"></div>
+          <div className="mc-noise"></div>
+        </div>
 
-          <div className="mode-selector">
-            <button 
-              className={mode === 'focus' ? 'active' : ''} 
-              onClick={() => switchMode('focus')}
-            >
-              Focus
-            </button>
-            <button 
-              className={mode === 'short' ? 'active' : ''} 
-              onClick={() => switchMode('short')}
-            >
-              Short Break
-            </button>
-            <button 
-              className={mode === 'long' ? 'active' : ''} 
-              onClick={() => switchMode('long')}
-            >
-              Long Break
-            </button>
-          </div>
+        <div className="mc-bg-deco-text">APPLE_TIMER</div>
 
-          <div className="timer-display-section">
-            <div className="progress-ring">
-              <svg width="240" height="240" className="progress-ring-svg">
-                <circle
-                  className="progress-ring-bg"
-                  stroke="#e5e7eb"
-                  strokeWidth="8"
-                  fill="transparent"
-                  r="110"
-                  cx="120"
-                  cy="120"
-                />
-                <circle
-                  className="progress-ring-bar"
-                  stroke="#10b981"
-                  strokeWidth="8"
-                  strokeDasharray={`${2 * Math.PI * 110}`}
-                  strokeDashoffset={`${2 * Math.PI * 110 * (1 - progress / 100)}`}
-                  strokeLinecap="round"
-                  fill="transparent"
-                  r="110"
-                  cx="120"
-                  cy="120"
-                />
-              </svg>
-              <div className="timer-content-overlay">
-                {renderAppleLifecycle()}
-                <div className="timer-text">{formatTime(timeLeft)}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="at-controls">
-            <button className={`start-btn ${isActive ? 'pause' : ''}`} onClick={toggleTimer}>
-              {isActive ? 'Pause' : 'Start Focus'}
-            </button>
-            <button className={`settings-toggle-btn ${isSettingsOpen ? 'active' : ''}`} onClick={() => setIsSettingsOpen(!isSettingsOpen)}>
-              {isSettingsOpen ? '✕' : '⚙️'}
-            </button>
-            <button className="reset-btn" onClick={resetTimer}>
-              Reset
-            </button>
-          </div>
-
-          {isSettingsOpen && (
-            <div className="at-settings">
-              <div className="settings-section">
-                <h3>Durations (min)</h3>
-                <div className="settings-grid">
-                  <div className="setting-item">
-                    <label>Focus</label>
-                    <input 
-                      type="number" 
-                      value={durations.focus} 
-                      onChange={(e) => updateDuration('focus', Math.max(1, parseInt(e.target.value) || 1))}
-                    />
-                  </div>
-                  <div className="setting-item">
-                    <label>Short</label>
-                    <input 
-                      type="number" 
-                      value={durations.short} 
-                      onChange={(e) => updateDuration('short', Math.max(1, parseInt(e.target.value) || 1))}
-                    />
-                  </div>
-                  <div className="setting-item">
-                    <label>Long</label>
-                    <input 
-                      type="number" 
-                      value={durations.long} 
-                      onChange={(e) => updateDuration('long', Math.max(1, parseInt(e.target.value) || 1))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="settings-section sound-settings">
-                <h3>Alarm Sound</h3>
-                <div className="sound-selector-row">
-                  <select 
-                    className="pg-select" 
-                    value={selectedSound} 
-                    onChange={(e) => updateSound(e.target.value)}
-                  >
-                    <option value="chime">Apple Chime</option>
-                    <option value="digital">Digital Beep</option>
-                    <option value="bell">Zen Bell</option>
-                    <option value="wood">Wood Block</option>
-                  </select>
-                  <button className="preview-btn" onClick={() => playSound()}>Test</button>
-                </div>
-              </div>
-            </div>
+        <div className="mc-app-container">
+          {!user && (
+            <GuestStorageNotice
+              storageKey="guest_notice_timer"
+              title="GUEST_MODE_ACTIVE"
+              message="You are not signed in. Settings are stored locally."
+            />
           )}
 
-          <div className="session-counter">
-            Sessions completed: <span>{sessions}</span>
+          <div className="mc-app-card" style={{ '--app-color': '#FFEA00' } as React.CSSProperties}>
+            <header className="mc-app-header">
+              <div className="mc-header-top">
+                <div className="mc-user-badge">
+                  <div className="mc-user-info">
+                    <span className="mc-username">{user?.displayName?.split(' ')[0] || 'SYSTEM'}</span>
+                    <span className="mc-status-indicator" style={{ background: '#FFEA00', boxShadow: '0 0 5px #FFEA00' }}></span>
+                  </div>
+                </div>
+                <div className="mc-header-actions">
+                  <button className={`mc-action-icon ${isSettingsOpen ? 'active' : ''}`} onClick={() => setIsSettingsOpen(!isSettingsOpen)}>
+                    {isSettingsOpen ? '✕' : '⚙️'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mc-app-title-group">
+                <span className="mc-app-kicker">DEEP_WORK // RHYTHM</span>
+                <h1 className="mc-app-main-title">APPLE TIMER</h1>
+              </div>
+            </header>
+
+            <div className="mc-timer-modes">
+              {(['focus', 'short', 'long'] as const).map(m => (
+                <button 
+                  key={m}
+                  className={mode === m ? 'active' : ''} 
+                  onClick={() => switchMode(m)}
+                >
+                  {m.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <div className="mc-timer-display-zone">
+              <div className="mc-progress-circle">
+                <svg width="240" height="240" viewBox="0 0 240 240">
+                  <circle
+                    className="mc-circle-bg"
+                    cx="120"
+                    cy="120"
+                    r="110"
+                    stroke="#1A1A1A"
+                    strokeWidth="4"
+                    fill="transparent"
+                  />
+                  <circle
+                    className="mc-circle-fill"
+                    cx="120"
+                    cy="120"
+                    r="110"
+                    stroke="#FFEA00"
+                    strokeWidth="4"
+                    fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 110}`}
+                    strokeDashoffset={`${2 * Math.PI * 110 * (1 - progress / 100)}`}
+                    strokeLinecap="square"
+                    transform="rotate(-90 120 120)"
+                  />
+                </svg>
+                <div className="mc-timer-overlay">
+                  {renderAppleLifecycle()}
+                  <div className="mc-timer-time">{formatTime(timeLeft)}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mc-timer-controls">
+              <button className={`mc-timer-main-btn ${isActive ? 'pause' : 'start'}`} onClick={toggleTimer}>
+                {isActive ? 'HALT_SESSION' : 'INITIALIZE_FOCUS'}
+              </button>
+              <button className="mc-timer-reset" onClick={resetTimer}>
+                RESET_CORE
+              </button>
+            </div>
+
+            {isSettingsOpen && (
+              <div className="mc-timer-settings">
+                <div className="mc-settings-group">
+                  <h3>CONFIG_DURATIONS</h3>
+                  <div className="mc-settings-row">
+                    {Object.keys(durations).map((d) => (
+                      <div key={d} className="mc-setting-input">
+                        <label>{d.toUpperCase()}</label>
+                        <input 
+                          type="number" 
+                          value={durations[d as keyof typeof durations]} 
+                          onChange={(e) => updateDuration(d as any, Math.max(1, parseInt(e.target.value) || 1))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mc-settings-group">
+                  <h3>ALARM_INTERFACE</h3>
+                  <div className="mc-settings-row">
+                    <select 
+                      className="mc-select" 
+                      value={selectedSound} 
+                      onChange={(e) => updateSound(e.target.value)}
+                    >
+                      <option value="chime">CHIME</option>
+                      <option value="digital">DIGITAL</option>
+                      <option value="bell">BELL</option>
+                      <option value="wood">WOOD</option>
+                    </select>
+                    <button className="mc-test-btn" onClick={() => playSound()}>TEST</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mc-session-tracker">
+              COMPLETED_SESSIONS: <span>{sessions}</span>
+            </div>
           </div>
         </div>
 
         {isModalOpen && (
-          <div className="at-modal-overlay">
-            <div className="at-modal">
-              <div className="modal-icon">{mode === 'focus' ? '🍏' : '☕'}</div>
-              <h2>Timer Finished!</h2>
-              <p>{modalMessage}</p>
-              <button onClick={() => setIsModalOpen(false)}>Continue</button>
+          <div className="mc-modal-overlay">
+            <div className="mc-modal-box">
+              <div className="mc-modal-icon">{mode === 'focus' ? '🍏' : '☕'}</div>
+              <h2>CYCLE_COMPLETE</h2>
+              <p>{modalMessage.toUpperCase()}</p>
+              <button onClick={() => setIsModalOpen(false)}>CONTINUE_SYSTEM</button>
             </div>
           </div>
         )}

@@ -1,0 +1,111 @@
+.ai-monitor-shell {
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #0f172a 0%, #020617 60%);
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.ai-monitor-header {
+  text-align: center;
+  max-width: 720px;
+}
+
+.ai-monitor-kicker {
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #22d3ee;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.ai-monitor-header h1 {
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.ai-monitor-subtext {
+  color: #cbd5f5;
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.ai-monitor-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.ai-monitor-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 30px 60px rgba(2, 6, 23, 0.5);
+}
+
+.ai-monitor-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+
+.ai-monitor-card strong {
+  display: block;
+  font-size: 2rem;
+  margin: 0.75rem 0;
+  color: #fef3c7;
+}
+
+.ai-monitor-card p {
+  margin: 0;
+  color: #cbd5f5;
+  font-size: 0.9rem;
+}
+
+.ai-monitor-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.ai-monitor-primary,
+.ai-monitor-secondary {
+  border: none;
+  padding: 0.9rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+}
+
+.ai-monitor-primary {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: white;
+  box-shadow: 0 15px 30px rgba(239, 68, 68, 0.4);
+}
+
+.ai-monitor-secondary {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  color: #e2e8f0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .ai-monitor-actions {
+    flex-direction: column;
+  }
+}

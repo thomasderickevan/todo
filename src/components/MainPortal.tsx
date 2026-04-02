@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { useDriveSync } from '../hooks/useDriveSync';
 import guestUserIcon from '../assets/guest-user.svg';
-import brandLogo from '../assets/logo-only.png';
 import './MainPortal.css';
+
+const logoE = '/endeavor-e.png';
 
 const MainPortal: React.FC = () => {
   const navigate = useNavigate();
@@ -12,90 +13,112 @@ const MainPortal: React.FC = () => {
   const { saveToDrive, isSyncing } = useDriveSync();
 
   React.useEffect(() => {
-    document.title = 'Portal • endeavor';
+    document.title = 'PORTAL // ENDEAVOR';
   }, []);
 
   const handleSyncAll = async () => {
-    // In a full implementation, you'd fetch all Firestore data 
-    // and package it into a file for Google Drive.
     await saveToDrive('endeavor_backup.json', JSON.stringify({ date: new Date().toISOString() }, null, 2));
   };
 
+  const apps = [
+    { id: 'todo', title: 'TaskMaster', icon: '✅', desc: 'Organize your life, one task at a time. Secure, synced, and simple.', color: '#00FF41', badge: 'MOMENTUM' },
+    { id: 'voicenotes', title: 'VoiceNotes', icon: '🎙️', desc: 'Capture your thoughts with your voice. Transcription and AI analysis.', color: '#00E5FF', badge: 'CAPTURE' },
+    { id: 'password', title: 'Shield Gen', icon: '🔐', desc: 'Generate unbreakable passwords instantly. Customizable and secure.', color: '#FF003C', badge: 'SECURITY' },
+    { id: 'timer', title: 'Apple Timer', icon: '🍏', desc: 'Boost productivity with the focus technique. Focus and rest.', color: '#FFEA00', badge: 'FOCUS' },
+    { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' }
+  ];
+
   return (
-    <div className="portal-container">
-      <header className="portal-header">
-        <div className="user-nav">
+    <div className="home-showcase modern-critical portal-theme">
+      {/* Visual Layer: Background Texture & Noise */}
+      <div className="mc-bg-overlay">
+        <div className="mc-dot-grid"></div>
+        <div className="mc-scanlines"></div>
+        <div className="mc-noise"></div>
+      </div>
+
+      <div className="mc-bg-deco-text">PORTAL_ACCESS</div>
+
+      <nav className="mc-nav">
+        <div className="mc-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <img src={logoE} alt="e" className="mc-logo" />
+          <span className="mc-brand-text">ENDEAVOR_</span>
+        </div>
+        
+        <div className="mc-nav-links">
           {!loading && (
             user ? (
-              <div className="user-menu">
-                <button className="sync-btn-nav" onClick={handleSyncAll} disabled={isSyncing}>
-                  {isSyncing ? 'Syncing...' : 'Sync to Drive'}
+              <div className="portal-user-nav">
+                <button className="mc-status-btn" onClick={handleSyncAll} disabled={isSyncing}>
+                  {isSyncing ? 'SYNCING...' : 'SYNC_TO_DRIVE'}
                 </button>
-                <img 
-                  src={user.photoURL || guestUserIcon} 
-                  alt="Profile" 
-                  className="nav-avatar" 
-                  referrerPolicy="no-referrer"
-                />
-                <span className="user-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                <button className="logout-btn-nav" onClick={() => logout()}>Sign Out</button>
+                <div className="user-profile-mini">
+                  <img
+                    src={user.photoURL || guestUserIcon}
+                    alt="Profile"
+                    className="mc-mini-avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                  <span className="mc-user-name">{user.displayName?.split(' ')[0] || 'USER'}</span>
+                </div>
+                <button className="mc-logout-btn" onClick={() => logout()}>SIGNOUT</button>
               </div>
             ) : (
-              <button className="login-btn-nav" onClick={() => login()}>Sign In</button>
+              <button className="mc-cta-btn" onClick={() => login()}>AUTHENTICATE</button>
             )
           )}
         </div>
+      </nav>
 
-        <div className="portal-brand">
-          <img src={brandLogo} alt="endeavor logo" className="portal-logo" />
-          <h1>Apps by <span className="brand-name">endeavor</span></h1>
-        </div>
-        <p>Choose an application to get started.</p>
-      </header>
+      <main className="mc-portal-main">
+        <header className="mc-portal-header">
+          <span className="mc-app-kicker">SYSTEM_PORTAL // V2.0.4</span>
+          <h1 className="mc-title">CORE_MODULES</h1>
+          <p className="mc-subtitle">Select an interface to initialize your session.</p>
+        </header>
 
-      <main className="portal-grid">
-        <div className="app-card" onClick={() => navigate('/todo')}>
-          <div className="app-icon">✅</div>
-          <h2>TaskMaster</h2>
-          <p>Organize your life, one task at a time. Secure, synced, and simple.</p>
-          <div className="app-badge">Popular</div>
-        </div>
-
-        <div className="app-card" onClick={() => navigate('/voicenotes')}>
-          <div className="app-icon">🎙️</div>
-          <h2>VoiceNotes</h2>
-          <p>Capture your thoughts with your voice. Transcription and AI analysis included.</p>
-          <div className="app-badge">New</div>
-        </div>
-
-        <div className="app-card" onClick={() => navigate('/password')}>
-          <div className="app-icon">🔐</div>
-          <h2>Shield Gen</h2>
-          <p>Generate unbreakable passwords instantly. Customizable and secure.</p>
-          <div className="app-badge">Security</div>
-        </div>
-
-        <div className="app-card" onClick={() => navigate('/timer')}>
-          <div className="app-icon">🍏</div>
-          <h2>Apple Timer</h2>
-          <p>Boost productivity with the focus technique. Focus and rest.</p>
-          <div className="app-badge">Productivity</div>
-        </div>
-
-        <div className="app-card disabled">
-          <div className="app-icon">📊</div>
-          <h2>FinanceTracker</h2>
-          <p>Keep track of your expenses and savings. Smart insights for your wallet.</p>
-          <div className="app-badge coming-soon">WIP</div>
+        <div className="mc-portal-grid">
+          {apps.map((app) => (
+            <div 
+              key={app.id} 
+              className="mc-portal-card" 
+              onClick={() => navigate(`/${app.id === 'assistant' ? 'portal' : app.id}`)}
+              style={{ '--app-color': app.color } as React.CSSProperties}
+            >
+              <div className="mc-card-header">
+                <span className="mc-card-badge">{app.badge}</span>
+                <span className="mc-card-icon">{app.icon}</span>
+              </div>
+              <h2 className="mc-card-title">{app.title}</h2>
+              <p className="mc-card-desc">{app.desc}</p>
+              <div className="mc-card-footer">
+                <span className="mc-card-action">INITIALIZE_INTERFACE [→]</span>
+              </div>
+            </div>
+          ))}
+          
+          <div className="mc-portal-card disabled">
+            <div className="mc-card-header">
+              <span className="mc-card-badge">WIP</span>
+              <span className="mc-card-icon">📊</span>
+            </div>
+            <h2 className="mc-card-title">FINANCE_TRACKER</h2>
+            <p className="mc-card-desc">Coming soon: Smart insights for your wallet and global asset tracking.</p>
+          </div>
         </div>
       </main>
 
-      <footer className="portal-footer">
-        <p>&copy; 2026 endeavor. All rights reserved.</p>
-        <div className="portal-legal-links">
-          <Link to="/privacy">Privacy Policy</Link>
-          <span>•</span>
-          <Link to="/terms">Terms of Service</Link>
+      <footer className="mc-footer">
+        <div className="mc-footer-grid">
+          <div className="mc-footer-brand">
+            <img src={logoE} alt="e" />
+            <p>ENDEAVOR // PORTAL_ACTIVE</p>
+          </div>
+          <div className="mc-footer-links">
+            <Link to="/">HOME</Link>
+            <Link to="/privacy">PRIVACY</Link>
+            <Link to="/terms">TERMS</Link>
+          </div>
         </div>
       </footer>
     </div>

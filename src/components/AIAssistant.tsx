@@ -1,4 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import './AIAssistant.css';
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import { useVoiceAgent } from '../hooks/useVoiceAgent';
@@ -151,53 +153,64 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   return (
     <>
       {isUserMissing && isStudyMode && (
-        <div className="warning-overlay">
-          <div className="warning-content">
-            <h1>⚠️ CAUTION: USER MISSING</h1>
-            <p>RETURN TO YOUR DESK IMMEDIATELY</p>
-            <div className="warning-animation"></div>
+        <div className="mc-warning-overlay">
+          <div className="mc-warning-content">
+            <h1 className="glitch-text" data-text="CAUTION: USER_MISSING">CAUTION: USER_MISSING</h1>
+            <p>IMMEDIATE_RETURN_REQUIRED // MOMENTUM_AT_RISK</p>
+            <div className="mc-warning-scanner"></div>
           </div>
         </div>
       )}
-      <div className={`cyber-orb-card ${isStudyMode ? 'active' : ''}`} id="assistant-section">
-        <div className="glass-reflection"></div>
-        <div className="orb-container">
-          <div className={`orb ${status.toLowerCase()} ${isListening ? 'listening' : ''}`}>
-            <div className="orb-inner"></div>
-            <div className="orb-glow"></div>
+      
+      <div className={`mc-ai-card ${isStudyMode ? 'active' : ''}`} id="assistant-section" style={{ '--app-color': '#FF00FF' } as React.CSSProperties}>
+        <div className="mc-ai-header">
+          <span className="mc-ai-badge">AGENT_V1</span>
+          <div className={`mc-ai-status ${status.toLowerCase()}`}>
+            <span className="mc-status-dot"></span>
+            {status.toUpperCase()}
           </div>
         </div>
 
-        <div className="ai-info">
-          <div className="ai-label">STUDY AGENT</div>
-          <div className={`ai-status-text ${status.toLowerCase()}`}>{status}</div>
+        <div className="mc-orb-view">
+          <div className={`mc-orb ${status.toLowerCase()} ${isListening ? 'listening' : ''}`}>
+            <div className="mc-orb-core"></div>
+            <div className="mc-orb-ring"></div>
+          </div>
         </div>
 
-        <div className="video-viewport">
+        <div className="mc-video-feed">
           {isStudyMode ? (
             <video ref={videoRef} autoPlay muted playsInline />
           ) : (
-            <div className="video-off-icon">🛡️</div>
+            <div className="mc-feed-off">
+              <span className="mc-lock-icon">🔒</span>
+              <p>FEED_ENCRYPTED</p>
+            </div>
           )}
         </div>
 
         {lastResponse && (
-          <div className="cyber-response">
-            <p>{lastResponse}</p>
+          <div className="mc-ai-response">
+            <span className="mc-ai-cursor">»</span>
+            <p className="typewriter">{lastResponse.toUpperCase()}</p>
           </div>
         )}
 
-        <div className="cyber-controls">
+        <div className="mc-ai-controls">
           <button 
-            className={`cyber-toggle ${isStudyMode ? 'active' : ''}`}
+            className={`mc-ai-toggle ${isStudyMode ? 'active' : ''}`}
             onClick={() => setIsStudyMode(!isStudyMode)}
           >
-            {isStudyMode ? 'STOP SESSION' : 'START SESSION'}
+            {isStudyMode ? 'TERMINATE_SESSION' : 'INITIALIZE_AGENT'}
           </button>
           
-          <button className="cyber-voice-btn" onClick={triggerVoiceListen}>
-            <span className="mic-icon">🎤</span>
+          <button className={`mc-ai-voice ${isListening ? 'active' : ''}`} onClick={triggerVoiceListen}>
+            <span className="mc-mic-icon">🎤</span>
           </button>
+          
+          <Link to="/ai-monitor" className="mc-ai-monitor-link">
+            Open AI Monitor
+          </Link>
         </div>
       </div>
     </>

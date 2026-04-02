@@ -239,125 +239,143 @@ const TodoApp = () => {
   return (
     <>
       <Navbar />
-      <div className="todo-app-container">
-        <div className="container">
+      <div className="home-showcase modern-critical app-theme">
+        {/* Visual Layer: Background Texture & Noise */}
+        <div className="mc-bg-overlay">
+          <div className="mc-dot-grid"></div>
+          <div className="mc-scanlines"></div>
+          <div className="mc-noise"></div>
+        </div>
+
+        <div className="mc-bg-deco-text">TASKMASTER</div>
+        
+        <div className="mc-app-container">
           {!user && (
             <GuestStorageNotice
               storageKey="guest_notice_todo"
-              title="Guest Mode Active"
-              message="You are currently using TaskMaster without signing in. Your tasks and assistant activity will stay only on this device for now, so they may not be available later if you switch browsers, clear local data, or move to another device. Please sign in from the main portal if you would like your changes to be saved to your account."
+              title="GUEST_MODE_ACTIVE"
+              message="You are currently using TaskMaster without signing in. Your tasks and assistant activity will stay only on this device for now."
             />
           )}
-          <div className="todo-card" id="tasks-section">
-        <header className="main-header">
-          <div className="header-top">
-            <div className="user-profile">
-              <img 
-                src={user?.photoURL || guestUserIcon} 
-                alt="Profile" 
-                className="avatar" 
-                referrerPolicy="no-referrer"
+
+          <div className="mc-app-card" id="tasks-section" style={{ '--app-color': '#00FF41' } as React.CSSProperties}>
+            <header className="mc-app-header">
+              <div className="mc-header-top">
+                <div className="mc-user-badge">
+                  <img 
+                    src={user?.photoURL || guestUserIcon} 
+                    alt="P" 
+                    className="mc-mini-avatar" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="mc-user-info">
+                    <span className="mc-username">{user?.displayName?.split(' ')[0] || (user ? 'USER' : 'GUEST')}</span>
+                    <span className="mc-status-indicator"></span>
+                  </div>
+                </div>
+                <div className="mc-header-actions">
+                  <button className="mc-action-icon" onClick={toggleTheme} aria-label="Toggle Theme">
+                    {theme === 'light' ? '🌙' : '☀️'}
+                  </button>
+                  {user ? (
+                    <button className="mc-action-icon" onClick={handleLogout} title="Logout">
+                      🚪
+                    </button>
+                  ) : (
+                    <button className="mc-action-icon" onClick={handleLogin} title="Login with Google">
+                      🔑
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="mc-app-title-group">
+                <span className="mc-app-kicker">MOMENTUM // CLARITY</span>
+                <h1 className="mc-app-main-title">TASKMASTER</h1>
+              </div>
+
+              <div className="mc-progress-section">
+                <div className="mc-progress-track">
+                  <div className="mc-progress-fill" style={{ width: `${progressPercent}%`, backgroundColor: '#00FF41' }}></div>
+                </div>
+                <span className="mc-progress-label">{progressPercent}%_COMPLETE</span>
+              </div>
+            </header>
+
+            <div className="mc-search-bar">
+              <input
+                type="text"
+                placeholder="SEARCH_TASKS..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="user-info">
-                <span className="welcome">{user ? 'Welcome back,' : 'Guest Mode'}</span>
-                <span className="username">{user?.displayName?.split(' ')[0] || (user ? 'User' : 'Guest')}</span>
-              </div>
             </div>
-            <div className="header-actions">
-              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
-                {theme === 'light' ? '🌙' : '☀️'}
-              </button>
-              {user ? (
-                <button className="logout-btn" onClick={handleLogout} title="Logout">
-                  🚪
+
+            <form onSubmit={addTask} className="mc-input-form">
+              <input
+                type="text"
+                placeholder="ADD_NEW_TASK..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="mc-main-input"
+              />
+              <button type="submit" className="mc-add-btn">ADD [←]</button>
+            </form>
+
+            <div className="mc-filter-bar">
+              {(['All', 'Active', 'Completed'] as Filter[]).map(f => (
+                <button
+                  key={f}
+                  className={filter === f ? 'active' : ''}
+                  onClick={() => setFilter(f)}
+                >
+                  {f.toUpperCase()}
                 </button>
+              ))}
+            </div>
+
+            <ul className="mc-task-list">
+              {filteredTasks.map(task => (
+                <li key={task.id} className={`mc-task-item ${task.completed ? 'completed' : ''}`}>
+                  <div className="mc-task-inner" onClick={() => toggleTask(task)}>
+                    <span className="mc-checkbox"></span>
+                    <span className="mc-task-text">{task.text}</span>
+                  </div>
+                  <button className="mc-delete-task" onClick={() => deleteTask(task.id)}>
+                    &times;
+                  </button>
+                </li>
+              ))}
+              {filteredTasks.length === 0 && (
+                <li className="mc-empty-state">
+                  <p>{searchQuery ? 'NO_MATCHING_TASKS_FOUND' : 'ALL_CAUGHT_UP'}</p>
+                </li>
+              )}
+            </ul>
+
+            <footer className="mc-app-footer">
+              {tasks.length > 0 ? (
+                <>
+                  <span>{tasks.length - completedCount} ITEMS_REMAINING</span>
+                  {completedCount > 0 && (
+                    <button className="mc-clear-btn" onClick={clearCompleted}>
+                      CLEAR_COMPLETED
+                    </button>
+                  )}
+                </>
               ) : (
-                <button className="login-btn-small" onClick={handleLogin} title="Login with Google">
-                  🔑
-                </button>
+                <span className="mc-sync-status">
+                  {user ? '✨ SYNC_ACTIVE' : '📍 LOCAL_SAVE'}
+                </span>
               )}
-            </div>
+            </footer>
           </div>
-          <div className="progress-container">
-            <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
-            <span className="progress-text">{progressPercent}% Completed</span>
-          </div>
-        </header>
-
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search tasks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          
+          <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />
         </div>
-
-        <form onSubmit={addTask} className="input-group-vertical">
-          <div className="input-row">
-            <input
-              type="text"
-              placeholder="What needs to be done?"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="add-btn-large">Add Task</button>
-        </form>
-
-        <div className="filters">
-          {(['All', 'Active', 'Completed'] as Filter[]).map(f => (
-            <button
-              key={f}
-              className={filter === f ? 'active' : ''}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        <ul className="task-list">
-          {filteredTasks.map(task => (
-            <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-              <div className="task-content" onClick={() => toggleTask(task)}>
-                <span className="checkbox"></span>
-                <span className="task-text">{task.text}</span>
-              </div>
-              <button className="delete-btn" onClick={() => deleteTask(task.id)}>
-                &times;
-              </button>
-            </li>
-          ))}
-          {filteredTasks.length === 0 && (
-            <li className="empty-state">
-              <p>{searchQuery ? 'No matching tasks found.' : 'All caught up!'}</p>
-            </li>
-          )}
-        </ul>
-
-        <footer className="todo-footer">
-          {tasks.length > 0 ? (
-            <>
-              <span>{tasks.length - completedCount} items left</span>
-              {completedCount > 0 && (
-                <button className="clear-btn" onClick={clearCompleted}>
-                  Clear Completed
-                </button>
-              )}
-            </>
-          ) : (
-            <span className="sync-status">
-              {user ? '✨ Synced with Cloud' : '📍 Saving Locally'}
-            </span>
-          )}
-        </footer>
+        <LegalFooter />
+        <Analytics />
       </div>
-      <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />
-      <LegalFooter />
-      <Analytics />
-    </div>
-    </div>
     </>
   )
 }
