@@ -77,6 +77,13 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
+.meet-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .meet-primary-btn {
   color: #ffffff;
   background: linear-gradient(135deg, #0f766e 0%, #155e75 100%);

@@ -4,6 +4,7 @@ import LegalFooter from './LegalFooter';
 import './MeetSummarizerLanding.css';
 
 const CHROME_WEB_STORE_URL = '';
+const EXTENSION_DOWNLOAD_URL = '/downloads/endeavor-shield-meet-extension.zip';
 
 const featureList = [
   {
@@ -63,6 +64,9 @@ const MeetSummarizerLanding: React.FC = () => {
               <button className="meet-primary-btn" onClick={handleAddToChrome}>
                 Add to Chrome
               </button>
+              <a className="meet-secondary-btn meet-secondary-link" href={EXTENSION_DOWNLOAD_URL} download>
+                Download Extension
+              </a>
               <button
                 className="meet-secondary-btn"
                 onClick={() => {
@@ -133,13 +137,14 @@ const MeetSummarizerLanding: React.FC = () => {
               <div className="meet-install-guide">
                 <p>
                   One-click browser install only works after this extension has a real Chrome Web Store listing.
-                  Until that exists, use the unpacked install flow below.
+                  Until that exists, download the zip or use the unpacked install flow below.
                 </p>
                 <ol>
+                  <li>Download the extension zip from this page and extract it anywhere on your machine.</li>
                   <li>Open <code>chrome://extensions</code> in Chrome.</li>
                   <li>Turn on <strong>Developer mode</strong>.</li>
                   <li>Click <strong>Load unpacked</strong>.</li>
-                  <li>Select the local <code>extension</code> folder from this project.</li>
+                  <li>Select the extracted extension folder.</li>
                 </ol>
               </div>
             )}

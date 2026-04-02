@@ -12,7 +12,7 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<TodoApp />} />
+        <Route path="/" element={<MainPortal />} />
         <Route path="/todo" element={<TodoApp />} />
         <Route path="/portal" element={<MainPortal />} />
         <Route path="/voicenotes" element={<VoiceNotes />} />
