@@ -3,9 +3,9 @@ import { useAuth } from '../AuthContext'
 import { Analytics } from '@vercel/analytics/react'
 import confetti from 'canvas-confetti'
 import AIAssistant from './AIAssistant'
-import LandingPage from './LandingPage'
 import LegalFooter from './LegalFooter'
 import Navbar from './Navbar'
+import GuestStorageNotice from './GuestStorageNotice'
 import guestUserIcon from '../assets/guest-user.svg'
 import { db } from '../firebase'
 import { 
@@ -38,7 +38,10 @@ const TodoApp = () => {
     document.title = 'TaskMaster • endeavor';
   }, []);
 
-  const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('isGuest') === 'true');
+  const [isGuest, setIsGuest] = useState(() => {
+    const storedGuest = sessionStorage.getItem('isGuest');
+    return storedGuest === null ? true : storedGuest === 'true';
+  });
   const [tasks, setTasks] = useState<Todo[]>(() => {
     const savedTasks = localStorage.getItem('local_tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
@@ -109,14 +112,10 @@ const TodoApp = () => {
 
   const handleLogout = () => {
     logout();
-    setIsGuest(false);
-    sessionStorage.removeItem('isGuest');
+    setIsGuest(true);
+    sessionStorage.setItem('isGuest', 'true');
     localStorage.removeItem('local_tasks');
     setTasks([]);
-  };
-
-  const handleGuestMode = () => {
-    setIsGuest(true);
   };
 
   const addTask = async (e?: React.FormEvent) => {
@@ -237,22 +236,18 @@ const TodoApp = () => {
 
   if (authLoading) return <div className="loading-screen">🌀 Initializing Cyber-Link...</div>;
 
-  if (!user && !isGuest) {
-    return (
-      <>
-        <Navbar showLinks={false} />
-        <div className="todo-app-container">
-          <LandingPage onLogin={handleLogin} onGuest={handleGuestMode} />
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Navbar />
       <div className="todo-app-container">
         <div className="container">
+          {!user && (
+            <GuestStorageNotice
+              storageKey="guest_notice_todo"
+              title="Guest Mode Active"
+              message="You are currently using TaskMaster without signing in. Your tasks and assistant activity will stay only on this device for now, so they may not be available later if you switch browsers, clear local data, or move to another device. Please sign in from the main portal if you would like your changes to be saved to your account."
+            />
+          )}
           <div className="todo-card" id="tasks-section">
         <header className="main-header">
           <div className="header-top">

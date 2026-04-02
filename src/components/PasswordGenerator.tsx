@@ -14,6 +14,7 @@ import {
 import { useDriveSync } from '../hooks/useDriveSync';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
+import GuestStorageNotice from './GuestStorageNotice';
 import guestUserIcon from '../assets/guest-user.svg';
 import './PasswordGenerator.css';
 
@@ -357,6 +358,12 @@ const PasswordGenerator: React.FC = () => {
     <>
       <Navbar />
       <div className="pg-container">
+        {!user && (
+          <GuestStorageNotice
+            storageKey="guest_notice_password"
+            message="You are not signed in. Generated passwords and any local vault data on this page are only stored on this device and will not sync to your account."
+          />
+        )}
         <div className="pg-auth-header">
           {!authLoading && (
             user ? (

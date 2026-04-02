@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
+import GuestStorageNotice from './GuestStorageNotice';
 import guestUserIcon from '../assets/guest-user.svg';
 import { db } from '../firebase';
 import { 
@@ -306,6 +307,12 @@ const VoiceNotes: React.FC = () => {
     <>
       <Navbar />
       <div className="voice-container">
+        {!user && (
+          <GuestStorageNotice
+            storageKey="guest_notice_voice_notes"
+            message="You are not signed in. Voice notes created here stay only on this browser and may be lost if you clear local data or switch devices."
+          />
+        )}
         <div className="voice-auth-header">
           {!authLoading && (
             user ? (

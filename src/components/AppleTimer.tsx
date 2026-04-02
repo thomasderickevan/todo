@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from '../AuthContext';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
+import GuestStorageNotice from './GuestStorageNotice';
 import './AppleTimer.css';
 
 const AppleTimer: React.FC = () => {
+  const { user } = useAuth();
   const [durations, setDurations] = useState({
     focus: Number(localStorage.getItem('at_focus')) || 25,
     short: Number(localStorage.getItem('at_short')) || 5,
@@ -225,6 +228,12 @@ const AppleTimer: React.FC = () => {
     <>
       <Navbar />
       <div className="at-container">
+        {!user && (
+          <GuestStorageNotice
+            storageKey="guest_notice_timer"
+            message="You are not signed in. Timer settings and session progress are only stored locally in this browser and will not follow you to another device."
+          />
+        )}
         <div className="at-card">
           <header className="at-header">
             <div className="at-title-row">
