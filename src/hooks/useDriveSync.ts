@@ -4,7 +4,6 @@ import { useAuth } from '../AuthContext';
 interface SaveToDriveOptions {
   convertToGoogleDoc?: boolean;
   mimeType?: string;
-  silent?: boolean;
 }
 
 export const useDriveSync = () => {
@@ -25,7 +24,6 @@ export const useDriveSync = () => {
     const {
       convertToGoogleDoc = true,
       mimeType = 'text/plain',
-      silent = false,
     } = options;
 
     setIsSyncing(true);
@@ -87,9 +85,6 @@ export const useDriveSync = () => {
 
       const result = await response.json();
       console.log('Successfully synced to Drive:', result);
-      if (!silent) {
-        alert(`${existingFileId ? 'Updated' : 'Saved'} in Google Drive as "${fileName}"`);
-      }
       
     } catch (error: unknown) {
       const err = error as Error;

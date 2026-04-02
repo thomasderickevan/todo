@@ -1,0 +1,220 @@
+.meet-landing-page {
+  min-height: 100vh;
+  padding: 7rem 1.5rem 3rem;
+  color: #1f1f1a;
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.22), transparent 32%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.2), transparent 24%),
+    linear-gradient(180deg, #f6f1e7 0%, #ece4d7 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.meet-hero,
+.meet-feature-grid,
+.meet-install-section {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.meet-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+.meet-kicker {
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.meet-hero h1,
+.meet-install-head h2,
+.meet-feature-card h2 {
+  margin: 0;
+}
+
+.meet-hero h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 0.95;
+  font-weight: 900;
+}
+
+.meet-subtitle {
+  max-width: 42rem;
+  margin: 1.25rem 0 0;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #4b5563;
+}
+
+.meet-hero-actions,
+.meet-install-head {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meet-hero-actions {
+  margin-top: 1.75rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.meet-primary-btn,
+.meet-secondary-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.95rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.meet-primary-btn {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e 0%, #155e75 100%);
+  box-shadow: 0 18px 36px rgba(15, 118, 110, 0.24);
+}
+
+.meet-secondary-btn {
+  color: #1f2937;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(31, 41, 55, 0.12);
+}
+
+.meet-primary-btn:hover,
+.meet-secondary-btn:hover {
+  transform: translateY(-2px);
+}
+
+.meet-install-note {
+  margin-top: 0.85rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.meet-hero-panel,
+.meet-feature-card,
+.meet-install-card {
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  border-radius: 28px;
+  background: rgba(255, 252, 246, 0.8);
+  box-shadow: 0 24px 70px rgba(31, 41, 55, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.meet-hero-panel {
+  padding: 1.2rem;
+}
+
+.meet-panel-header {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.meet-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: #d1d5db;
+}
+
+.meet-panel-body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.meet-panel-block {
+  padding: 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.meet-panel-block p,
+.meet-panel-block ul,
+.meet-feature-card p,
+.meet-install-guide p,
+.meet-install-guide ol {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.meet-panel-block ul,
+.meet-install-guide ol {
+  padding-left: 1.25rem;
+}
+
+.meet-panel-label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.meet-feature-grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.meet-feature-card {
+  padding: 1.4rem;
+}
+
+.meet-feature-card h2 {
+  margin-bottom: 0.7rem;
+  font-size: 1.2rem;
+}
+
+.meet-install-section {
+  margin-top: 2rem;
+}
+
+.meet-install-card {
+  padding: 1.5rem;
+}
+
+.meet-install-guide {
+  margin-top: 1.25rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 22px;
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.meet-install-guide code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.82);
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+@media (max-width: 880px) {
+  .meet-hero,
+  .meet-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .meet-landing-page {
+    padding-top: 6rem;
+  }
+
+  .meet-install-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

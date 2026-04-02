@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './LegalFooter.css';
 
 const LegalFooter: React.FC = () => {
   const [showSarcasm, setShowSarcasm] = useState(false);
-  const [activeType, setActiveType] = useState('');
-
-  const triggerSarcasm = (type: string) => {
-    setActiveType(type);
-    setShowSarcasm(true);
-  };
 
   const closeSarcasm = () => {
     setShowSarcasm(false);
@@ -17,9 +12,11 @@ const LegalFooter: React.FC = () => {
   return (
     <>
       <footer className="legal-footer">
-        <button onClick={() => triggerSarcasm('Privacy Policy')}>Privacy Policy</button>
+        <Link to="/privacy">Privacy Policy</Link>
         <span className="dot">•</span>
-        <button onClick={() => triggerSarcasm('Terms of Service')}>Terms of Service</button>
+        <Link to="/terms">Terms of Service</Link>
+        <span className="dot">•</span>
+        <button className="sarcasm-toggle" onClick={() => setShowSarcasm(true)}>Legal Nerd? 🤓</button>
       </footer>
 
       {showSarcasm && (
@@ -27,11 +24,11 @@ const LegalFooter: React.FC = () => {
           <div className="sarcastic-content" onClick={(e) => e.stopPropagation()}>
             <button className="sarcastic-close-btn" onClick={closeSarcasm}>&times;</button>
             <div className="emoji-explosion">😂🤣😆</div>
-            <h2>Wait, a {activeType}?!</h2>
-            <p>Bro, it's literally a TODO LIST. What are you worried about? <br/> 
-            Are the FBI going to raid you for not finishing "Buy Milk"?</p>
-            <div className="emoji-giant">💀</div>
-            <p className="sub-text">Just do your tasks and stop reading non-existent legalese!</p>
+            <h2>Wait, actual legal stuff?!</h2>
+            <p>Bro, we actually added real policies because you're that serious about a Todo list. <br/> 
+            Go back and click the actual links if you really want to read them! 💀</p>
+            <div className="emoji-giant">📦</div>
+            <p className="sub-text">But seriously, your data is safe. We're just having some fun.</p>
           </div>
         </div>
       )}

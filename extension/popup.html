@@ -23,69 +23,137 @@
 
       <main>
         <section class="tab-panel active" id="shieldPanel">
-          <div class="card">
-            <div class="mode-row">
-              <button class="mode-button active" data-mode="password">Password</button>
-              <button class="mode-button" data-mode="passphrase">Passphrase</button>
+          <div class="card" id="shieldSetupView">
+            <h2>Set up Shield Vault</h2>
+            <p class="supporting-copy">Create one master PIN for this extension. The popup stays locked until you unlock it, similar to a password manager.</p>
+            <div class="field-stack">
+              <input id="setupPinInput" type="password" placeholder="Create master PIN">
+              <input id="setupPinConfirmInput" type="password" placeholder="Confirm master PIN">
             </div>
-
-            <label class="field-label" for="generatedValue">Generated secret</label>
-            <div class="inline-field">
-              <input id="generatedValue" type="text" readonly>
-              <button id="copyGeneratedBtn" class="ghost-button">Copy</button>
-            </div>
-
-            <div id="passwordControls">
-              <label class="field-label" for="passwordLength">Length</label>
-              <input id="passwordLength" type="range" min="8" max="64" value="16">
-              <div class="check-grid">
-                <label><input id="optUppercase" type="checkbox" checked> Uppercase</label>
-                <label><input id="optLowercase" type="checkbox" checked> Lowercase</label>
-                <label><input id="optNumbers" type="checkbox" checked> Numbers</label>
-                <label><input id="optSymbols" type="checkbox" checked> Symbols</label>
-              </div>
-            </div>
-
-            <div id="passphraseControls" class="hidden">
-              <label class="field-label" for="wordCount">Word count</label>
-              <input id="wordCount" type="range" min="3" max="10" value="4">
-              <div class="check-grid">
-                <label><input id="optCapitalize" type="checkbox" checked> Capitalize</label>
-                <label class="stacked-label">
-                  Separator
-                  <select id="separatorSelect">
-                    <option value="-">Hyphen</option>
-                    <option value=".">Dot</option>
-                    <option value="_">Underscore</option>
-                    <option value=" ">Space</option>
-                    <option value="">None</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-
             <div class="button-row">
-              <button id="regenerateBtn" class="primary-button">Regenerate</button>
-              <div id="strengthPill" class="status-pill quiet">Strength</div>
+              <button id="createVaultBtn" class="primary-button">Create vault</button>
             </div>
           </div>
 
-          <div class="card">
-            <h2>Vault</h2>
+          <div class="card hidden" id="shieldUnlockView">
+            <h2>Unlock Shield</h2>
+            <p class="supporting-copy">Enter your master PIN to access saved logins and autofill the current site.</p>
             <div class="field-stack">
-              <input id="serviceNameInput" type="text" placeholder="Service name">
-              <input id="usernameInput" type="text" placeholder="Username or email">
-              <input id="masterPinInput" type="password" placeholder="Master PIN">
+              <input id="unlockPinInput" type="password" placeholder="Master PIN">
             </div>
             <div class="button-row">
-              <button id="saveVaultBtn" class="primary-button">Save to vault</button>
-              <button id="exportVaultBtn" class="ghost-button">Export</button>
+              <button id="unlockVaultBtn" class="primary-button">Unlock</button>
             </div>
-            <label class="import-label">
-              <span>Import vault</span>
-              <input id="importVaultInput" type="file" accept="application/json">
-            </label>
-            <div id="vaultList" class="list-block empty">No vault entries yet.</div>
+          </div>
+
+          <div class="hidden" id="shieldUnlockedView">
+            <div class="card">
+              <div class="entry-header">
+                <div>
+                  <h2>Current site</h2>
+                  <p class="supporting-copy" id="activeSiteLabel">No active webpage</p>
+                </div>
+                <div class="entry-actions">
+                  <span class="site-badge" id="vaultStateBadge">Unlocked</span>
+                  <button id="lockVaultBtn" class="ghost-button">Lock</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="entry-header">
+                <div>
+                  <h2>Generator</h2>
+                  <p class="supporting-copy">Generate a credential, then save it for this site.</p>
+                </div>
+                <div id="strengthPill" class="status-pill quiet">Strength</div>
+              </div>
+
+              <div class="mode-row">
+                <button class="mode-button active" data-mode="password">Password</button>
+                <button class="mode-button" data-mode="passphrase">Passphrase</button>
+              </div>
+
+              <label class="field-label" for="generatedValue">Generated secret</label>
+              <div class="inline-field">
+                <input id="generatedValue" type="text" readonly>
+                <button id="copyGeneratedBtn" class="ghost-button">Copy</button>
+              </div>
+
+              <div id="passwordControls">
+                <label class="field-label" for="passwordLength">Length</label>
+                <input id="passwordLength" type="range" min="8" max="64" value="16">
+                <div class="check-grid">
+                  <label><input id="optUppercase" type="checkbox" checked> Uppercase</label>
+                  <label><input id="optLowercase" type="checkbox" checked> Lowercase</label>
+                  <label><input id="optNumbers" type="checkbox" checked> Numbers</label>
+                  <label><input id="optSymbols" type="checkbox" checked> Symbols</label>
+                </div>
+              </div>
+
+              <div id="passphraseControls" class="hidden">
+                <label class="field-label" for="wordCount">Word count</label>
+                <input id="wordCount" type="range" min="3" max="10" value="4">
+                <div class="check-grid">
+                  <label><input id="optCapitalize" type="checkbox" checked> Capitalize</label>
+                  <label class="stacked-label">
+                    Separator
+                    <select id="separatorSelect">
+                      <option value="-">Hyphen</option>
+                      <option value=".">Dot</option>
+                      <option value="_">Underscore</option>
+                      <option value=" ">Space</option>
+                      <option value="">None</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button id="regenerateBtn" class="primary-button">Regenerate</button>
+                <button id="fillGeneratedBtn" class="ghost-button">Fill on page</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Save login</h2>
+              <div class="field-stack">
+                <input id="serviceNameInput" type="text" placeholder="Service name">
+                <input id="usernameInput" type="text" placeholder="Username or email">
+                <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
+              </div>
+              <div class="button-row">
+                <button id="saveVaultBtn" class="primary-button">Save login</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="entry-header">
+                <div>
+                  <h2>Matches for this site</h2>
+                  <p class="supporting-copy">Closest thing to the Bitwarden flow: logins relevant to the current page are surfaced first.</p>
+                </div>
+              </div>
+              <div id="siteVaultList" class="list-block empty">No saved logins match this site yet.</div>
+            </div>
+
+            <div class="card">
+              <div class="entry-header">
+                <div>
+                  <h2>Vault</h2>
+                  <p class="supporting-copy">Search and manage all saved logins.</p>
+                </div>
+                <div class="entry-actions">
+                  <button id="exportVaultBtn" class="ghost-button">Export</button>
+                  <label class="ghost-button inline-upload" for="importVaultInput">Import</label>
+                  <input id="importVaultInput" type="file" accept="application/json" hidden>
+                </div>
+              </div>
+              <div class="field-stack compact">
+                <input id="vaultSearchInput" type="text" placeholder="Search service, username, or site">
+              </div>
+              <div id="vaultList" class="list-block empty">No vault entries yet.</div>
+            </div>
           </div>
         </section>
 

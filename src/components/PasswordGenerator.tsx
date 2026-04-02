@@ -199,7 +199,7 @@ const PasswordGenerator: React.FC = () => {
     }
   };
 
-  const syncVaultBackupToDrive = useCallback(async (entries: VaultEntry[], silent = true) => {
+  const syncVaultBackupToDrive = useCallback(async (entries: VaultEntry[]) => {
     if (!user || !googleAccessToken) {
       return;
     }
@@ -210,7 +210,6 @@ const PasswordGenerator: React.FC = () => {
       {
         convertToGoogleDoc: false,
         mimeType: 'application/json',
-        silent,
       }
     );
   }, [user, googleAccessToken, saveToDrive]);
@@ -312,7 +311,7 @@ const PasswordGenerator: React.FC = () => {
       return;
     }
 
-    await syncVaultBackupToDrive(vaultEntries, false);
+    await syncVaultBackupToDrive(vaultEntries);
   };
 
   const handleRestoreFromDrive = async () => {
@@ -329,7 +328,6 @@ const PasswordGenerator: React.FC = () => {
         const restoredEntries = JSON.parse(content) as VaultEntry[];
         console.log(`Found ${restoredEntries.length} entries in backup.`);
 
-        let restoredCount = 0;
         for (const entry of restoredEntries) {
           // Check if this service/password combo already exists to avoid duplicates
           const exists = vaultEntries.some(e => 
@@ -344,10 +342,8 @@ const PasswordGenerator: React.FC = () => {
               userId: user.uid, // Ensure it's for current user
               createdAt: entry.createdAt || Date.now()
             });
-            restoredCount++;
           }
         }
-        alert(`Successfully restored ${restoredCount} new entries from your Google Drive!`);
       } catch (error) {
         console.error("Restore parsing error:", error);
         alert("Failed to parse backup file. It may be corrupted.");

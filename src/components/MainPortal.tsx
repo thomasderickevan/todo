@@ -19,7 +19,6 @@ const MainPortal: React.FC = () => {
     // In a full implementation, you'd fetch all Firestore data 
     // and package it into a file for Google Drive.
     await saveToDrive('endeavor_backup.json', JSON.stringify({ date: new Date().toISOString() }, null, 2));
-    alert("endeavor portal data backup completed in Google Drive!");
   };
 
   return (
@@ -83,11 +82,11 @@ const MainPortal: React.FC = () => {
           <div className="app-badge">Productivity</div>
         </div>
 
-        <div className="app-card disabled">
+        <div className="app-card" onClick={() => navigate('/meet-summarizer')}>
           <div className="app-icon">📹</div>
           <h2>Meet Summarizer</h2>
           <p>Google Meet extension to capture captions, generate AI summaries, and sync tasks.</p>
-          <div className="app-badge coming-soon">Extension</div>
+          <div className="app-badge">Extension</div>
         </div>
 
         <div className="app-card disabled">
