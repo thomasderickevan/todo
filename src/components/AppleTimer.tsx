@@ -23,6 +23,7 @@ const AppleTimer: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const playSound = useCallback((soundTypeOverride?: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const sound = soundTypeOverride || selectedSound;
 
@@ -106,7 +107,7 @@ const AppleTimer: React.FC = () => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      setIsActive(false);
+      setTimeout(() => setIsActive(false), 0);
       playSound();
       
       if (mode === 'focus') {

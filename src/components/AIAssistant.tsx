@@ -18,7 +18,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
-  const missingTimerRef = useRef<any>(null);
+  const missingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { speak, listen } = useVoiceAgent();
 
   // Initialize alarm
@@ -139,11 +139,11 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
 
   // Object detection interval
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval>;
     if (isStudyMode && model) {
       interval = setInterval(detectObjects, 3000);
     } else {
-      setIsUserMissing(false);
+      setTimeout(() => setIsUserMissing(false), 0);
     }
     return () => clearInterval(interval);
   }, [isStudyMode, model, detectObjects]);

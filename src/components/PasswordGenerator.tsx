@@ -252,8 +252,8 @@ const PasswordGenerator: React.FC = () => {
       alert(`Successfully locked credentials for ${serviceName} in your vault!`);
       setServiceName('');
       setVaultUsername('');
-    } catch (err) {
-      console.error("Vault Save Error:", err);
+    } catch (error) {
+      console.error("Vault Save Error:", error);
       const fallbackEntry: VaultEntry = {
         id: `local-${entryData.createdAt}`,
         ...entryData
@@ -281,7 +281,7 @@ const PasswordGenerator: React.FC = () => {
       if (!originalText) throw new Error("Invalid PIN");
       
       setRevealedIds(prev => ({ ...prev, [entry.id]: originalText }));
-    } catch (err) {
+    } catch (error) {
       alert("Incorrect Master PIN. Decryption failed.");
     }
   };
@@ -299,8 +299,8 @@ const PasswordGenerator: React.FC = () => {
           saveLocalVaultEntries(updatedEntries, user?.uid);
           await syncVaultBackupToDrive(updatedEntries);
         }
-      } catch (err) {
-        console.error("Error deleting vault entry:", err);
+      } catch (error) {
+        console.error("Error deleting vault entry:", error);
         alert("Failed to delete entry.");
       }
     }
@@ -326,7 +326,7 @@ const PasswordGenerator: React.FC = () => {
       if (!content) return;
 
       try {
-        const restoredEntries = JSON.parse(content) as any[];
+        const restoredEntries = JSON.parse(content) as VaultEntry[];
         console.log(`Found ${restoredEntries.length} entries in backup.`);
 
         let restoredCount = 0;
@@ -338,7 +338,7 @@ const PasswordGenerator: React.FC = () => {
           );
 
           if (!exists) {
-            const { id, ...cleanEntry } = entry; // Remove the old ID
+            const { id: _unusedId, ...cleanEntry } = entry;
             await addDoc(collection(db, "vault_passwords"), {
               ...cleanEntry,
               userId: user.uid, // Ensure it's for current user
@@ -348,8 +348,8 @@ const PasswordGenerator: React.FC = () => {
           }
         }
         alert(`Successfully restored ${restoredCount} new entries from your Google Drive!`);
-      } catch (err) {
-        console.error("Restore parsing error:", err);
+      } catch (error) {
+        console.error("Restore parsing error:", error);
         alert("Failed to parse backup file. It may be corrupted.");
       }
     }

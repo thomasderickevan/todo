@@ -61,11 +61,8 @@ const TodoApp = () => {
     if (!user) {
       // Load from local storage when no user
       const savedTasks = localStorage.getItem('local_tasks');
-      if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
-      } else {
-        setTasks([]);
-      }
+      const initialTasks = savedTasks ? JSON.parse(savedTasks) : [];
+      setTasks(initialTasks);
       return;
     }
 

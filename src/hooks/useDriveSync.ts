@@ -91,9 +91,10 @@ export const useDriveSync = () => {
         alert(`${existingFileId ? 'Updated' : 'Saved'} in Google Drive as "${fileName}"`);
       }
       
-    } catch (error: any) {
-      console.error("Drive sync error:", error);
-      alert(`Failed to sync to Drive: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Drive sync error:", err);
+      alert(`Failed to sync to Drive: ${err.message}`);
     } finally {
       setIsSyncing(false);
     }
@@ -151,9 +152,10 @@ export const useDriveSync = () => {
       );
       if (!directResponse.ok) throw new Error("Failed to download file from Drive");
       return await directResponse.text();
-    } catch (error: any) {
-      console.error("Drive download error:", error);
-      alert(`Failed to restore from Drive: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Drive download error:", err);
+      alert(`Failed to restore from Drive: ${err.message}`);
       return null;
     } finally {
       setIsSyncing(false);
