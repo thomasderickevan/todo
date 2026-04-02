@@ -7,7 +7,7 @@ const elements={};
 
 document.addEventListener("DOMContentLoaded",async()=>{cacheElements();bindEvents();await hydrateState();renderAll();});
 
-function cacheElements(){["accountStatusPill","accountSyncBadge","accountEmailInput","syncStatusText","signInBtn","signOutBtn","syncVaultBtn","restoreVaultBtn","accountProfileCard","accountProfileImage","accountWelcomeText","accountProfileEmail","themeSelect","generatedValue","passwordLength","wordCount","optUppercase","optLowercase","optNumbers","optSymbols","optCapitalize","separatorSelect","strengthPill","vaultList","serviceNameInput","usernameInput","siteInput","totpSecretInput","passwordControls","passphraseControls","importVaultInput","shieldSetupView","shieldUnlockView","shieldUnlockedView","setupPinInput","setupPinConfirmInput","unlockPinInput","activeSiteLabel","siteVaultList","vaultSearchInput","vaultStateBadge","vaultMetaText","showResetBtn","resetEmailInput","resetCodeInput","resetNewPinInput","resetConfirmPinInput","requestResetBtn","completeResetBtn","resetStatusText","authenticatorList","authenticatorCountBadge","authenticatorStatusText","scanQrSecondaryBtn","otpViewerCard","otpViewerTitle","otpViewerSubtitle","otpViewerBadge","otpRingProgress","otpSecondsRemaining","otpViewerCode","copyOtpViewerBtn","closeOtpViewerBtn"].forEach((id)=>{elements[id]=document.getElementById(id);});}
+function cacheElements(){["accountStatusPill","accountSyncBadge","accountEmailInput","syncStatusText","signInBtn","signOutBtn","syncVaultBtn","restoreVaultBtn","accountProfileCard","accountProfileImage","accountWelcomeText","accountProfileEmail","themeSelect","generatedValue","passwordLength","wordCount","optUppercase","optLowercase","optNumbers","optSymbols","optCapitalize","separatorSelect","strengthPill","vaultList","serviceNameInput","usernameInput","siteInput","totpSecretInput","manualTotpBtn","manualTotpSecondaryBtn","passwordControls","passphraseControls","importVaultInput","shieldSetupView","shieldUnlockView","shieldUnlockedView","setupPinInput","setupPinConfirmInput","unlockPinInput","activeSiteLabel","siteVaultList","vaultSearchInput","vaultStateBadge","vaultMetaText","showResetBtn","resetEmailInput","resetCodeInput","resetNewPinInput","resetConfirmPinInput","requestResetBtn","completeResetBtn","resetStatusText","authenticatorList","authenticatorCountBadge","authenticatorStatusText","scanQrSecondaryBtn","otpViewerCard","otpViewerTitle","otpViewerSubtitle","otpViewerBadge","otpRingProgress","otpSecondsRemaining","otpViewerCode","copyOtpViewerBtn","closeOtpViewerBtn"].forEach((id)=>{elements[id]=document.getElementById(id);});}
 
 function bindEvents(){
   document.querySelectorAll(".tab-button").forEach((button)=>button.addEventListener("click",()=>switchTab(button.dataset.tab)));
@@ -30,7 +30,9 @@ function bindEvents(){
   document.getElementById("copyGeneratedBtn").addEventListener("click",copyGeneratedSecret);
   document.getElementById("fillGeneratedBtn").addEventListener("click",fillGeneratedSecret);
   document.getElementById("scanQrBtn").addEventListener("click",runTask(scanQrFromActivePage));
+  elements.manualTotpBtn?.addEventListener("click",promptForManualTotpSecret);
   elements.scanQrSecondaryBtn.addEventListener("click",runTask(scanQrFromActivePage));
+  elements.manualTotpSecondaryBtn?.addEventListener("click",promptForManualTotpSecret);
   elements.copyOtpViewerBtn?.addEventListener("click",()=>navigator.clipboard.writeText((elements.otpViewerCode?.textContent||"").replace(/\s+/g,"")));
   elements.closeOtpViewerBtn?.addEventListener("click",hideOtpViewer);
   document.getElementById("saveVaultBtn").addEventListener("click",saveLogin);
@@ -253,22 +255,46 @@ async function scanQrFromActivePage(){
   const [{result}] = await chrome.scripting.executeScript({
     target:{tabId:tab.id},
     func:async()=>{
-      if(typeof BarcodeDetector==="undefined")throw new Error("BarcodeDetector is not supported in this browser.");
-      const detector=new BarcodeDetector({formats:["qr_code"]});
       const visible=(element)=>{const style=window.getComputedStyle(element);const rect=element.getBoundingClientRect();return style.display!=="none"&&style.visibility!=="hidden"&&rect.width>24&&rect.height>24;};
-      const candidates=[...document.querySelectorAll("img,canvas")].filter(visible);
-      for(const element of candidates){
-        try{
-          const codes=await detector.detect(element);
-          const qr=codes.find((item)=>item.rawValue);
-          if(qr?.rawValue)return qr.rawValue;
-        }catch{}
+      if(typeof BarcodeDetector!=="undefined"){
+        const detector=new BarcodeDetector({formats:["qr_code"]});
+        const candidates=[...document.querySelectorAll("img,canvas,video")].filter(visible);
+        for(const element of candidates){
+          try{
+            const codes=await detector.detect(element);
+            const qr=codes.find((item)=>item.rawValue);
+            if(qr?.rawValue)return qr.rawValue;
+          }catch{}
+        }
       }
-      throw new Error("No readable QR code found on the active page.");
+      const textCandidates=[
+        ...document.querySelectorAll("a[href^='otpauth://'], input[value*='otpauth://'], textarea, code, pre, [data-otp], [data-otpauth]")
+      ];
+      for(const element of textCandidates){
+        const raw=element.getAttribute?.("href")||element.getAttribute?.("value")||element.getAttribute?.("data-otp")||element.getAttribute?.("data-otpauth")||element.textContent||"";
+        const text=String(raw).trim();
+        if(text.includes("otpauth://"))return text;
+      }
+      const bodyText=document.body?.innerText||"";
+      const otpauthMatch=bodyText.match(/otpauth:\/\/[^\s"'<>]+/i);
+      if(otpauthMatch)return otpauthMatch[0];
+      const secretMatch=bodyText.match(/secret\s*[:=]\s*([A-Z2-7 ]{16,})/i);
+      if(secretMatch)return secretMatch[1];
+      throw new Error("No QR code or authenticator secret was found on the active page.");
     }
   });
   const secret=parseOtpAuthSecret(result);
   elements.totpSecretInput.value=secret;
+  state.uiTab="vault";
+  renderTabs();
+}
+function promptForManualTotpSecret(){
+  const entered=window.prompt("Enter the authenticator secret or paste an otpauth:// URL","");
+  if(entered===null)return;
+  const secret=parseOtpAuthSecret(entered);
+  elements.totpSecretInput.value=secret;
+  state.uiTab="vault";
+  renderTabs();
 }
 function normalizeSiteOrigin(value){try{const parsed=new URL(value);if(!/^https?:$/.test(parsed.protocol))return"";return parsed.origin;}catch{return"";}}
 async function fillSavedEntry(entryId){const entry=state.vaultEntries.find((item)=>item.id===entryId);if(!entry)return;const tab=await ensureFillableActiveTab();if(!tab)return;await runFillScript(tab.id,{username:entry.username||"",password:await decryptEntrySecret(entry)});}

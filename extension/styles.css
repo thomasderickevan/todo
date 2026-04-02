@@ -401,6 +401,11 @@ input[type="range"] {
   margin-top: 10px;
 }
 
+.compact-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 .entry-secret {
   margin: 10px 0 0;
   font-family: Consolas, "Courier New", monospace;
@@ -468,6 +473,13 @@ input[type="range"] {
 }
 
 .otp-ring {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+}
+
+.otp-ring svg {
   width: 132px;
   height: 132px;
   transform: rotate(-90deg);
@@ -527,6 +539,10 @@ input[type="range"] {
   text-align: center;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(239, 68, 68, 0.12));
   border: 1px solid rgba(59, 130, 246, 0.22);
+}
+
+#lockVaultBtn {
+  white-space: nowrap;
 }
 
 .theme-swatch {

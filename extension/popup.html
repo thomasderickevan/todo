@@ -66,7 +66,7 @@
                   <h2>Current site</h2>
                   <p class="supporting-copy" id="activeSiteLabel">No active webpage</p>
                 </div>
-                <div class="entry-actions">
+                <div class="entry-actions compact-actions">
                   <span class="site-badge" id="vaultStateBadge">Unlocked</span>
                   <button id="lockVaultBtn" class="ghost-button">Lock vault</button>
                 </div>
@@ -139,6 +139,7 @@
               </div>
               <div class="button-row wrap-row">
                 <button id="scanQrBtn" class="ghost-button">Scan QR from page</button>
+                <button id="manualTotpBtn" class="ghost-button">Enter key manually</button>
                 <button id="saveVaultBtn" class="primary-button">Save vault entry</button>
               </div>
             </div>
@@ -178,12 +179,9 @@
             <div class="entry-header">
               <div>
                 <h2>Authenticator</h2>
-                <p class="supporting-copy">Scan QR codes on the active page or copy 6-digit codes from saved entries.</p>
+                <p class="supporting-copy">View and copy 6-digit codes from saved entries.</p>
               </div>
               <span class="site-badge" id="authenticatorCountBadge">0 saved</span>
-            </div>
-            <div class="button-row wrap-row">
-              <button id="scanQrSecondaryBtn" class="primary-button">Scan QR from page</button>
             </div>
             <p class="supporting-copy inline-status" id="authenticatorStatusText">Unlock the vault to use saved authenticator entries.</p>
           </section>
@@ -204,7 +202,7 @@
                 </svg>
                 <div class="otp-ring-center">
                   <span class="otp-seconds" id="otpSecondsRemaining">30</span>
-                  <span class="otp-label">seconds left</span>
+                  <span class="otp-seconds-label">seconds left</span>
                 </div>
               </div>
               <div class="otp-code" id="otpViewerCode">000 000</div>
