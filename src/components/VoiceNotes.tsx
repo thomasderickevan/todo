@@ -122,35 +122,51 @@ const VoiceNotes: React.FC = () => {
     }
 
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn("Recognition stop error:", e);
+      }
       recognitionRef.current = null;
     }
     
     setIsRecording(false);
   }, []);
 
-  const saveNote = useCallback(async () => {
-    const currentTranscript = transcriptRef.current;
-    if (currentTranscript.trim()) {
+  const saveNote = useCallback(async (finalTranscript?: string) => {
+    const textToSave = (finalTranscript ?? transcriptRef.current).trim();
+    console.log("Attempting to save note. Text length:", textToSave.length);
+    
+    if (textToSave) {
       const newNote = {
-        text: currentTranscript,
+        text: textToSave,
         summary: '',
         createdAt: Date.now(),
         userId: user?.uid || 'local-user'
       };
 
-      if (user) {
-        await addDoc(collection(db, "voice_notes"), newNote);
-      } else {
-        setNotes(prev => [{ id: Date.now().toString(), ...newNote }, ...prev]);
+      try {
+        if (user) {
+          await addDoc(collection(db, "voice_notes"), newNote);
+          console.log("Note saved to Firestore.");
+        } else {
+          setNotes(prev => [{ id: Date.now().toString(), ...newNote }, ...prev]);
+          console.log("Note saved locally.");
+        }
+        setTranscript('');
+      } catch (err) {
+        console.error("Error saving note:", err);
+        alert("Failed to save note.");
       }
-      setTranscript('');
+    } else {
+      console.log("Empty transcript, skipping save.");
     }
   }, [user]);
 
-  const handleStopAndSave = useCallback(async () => {
+  const handleStopAndSave = useCallback(async (finalTranscript?: string) => {
+    console.log("Stopping and saving...");
     await stopRecording();
-    await saveNote();
+    await saveNote(finalTranscript);
   }, [stopRecording, saveNote]);
 
   const startRecording = useCallback(() => {
@@ -181,8 +197,8 @@ const VoiceNotes: React.FC = () => {
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
           console.log("Auto-saving due to silence...");
-          handleStopAndSave();
-        }, 8000); // Increased to 8 seconds for better UX
+          handleStopAndSave(fullTranscript);
+        }, 8000); 
       };
 
       recognition.onerror = (event: any) => {
@@ -314,7 +330,10 @@ const VoiceNotes: React.FC = () => {
         </div>
 
         <div className="recording-section">
-          <div className={`record-button ${isRecording ? 'recording' : ''}`} onClick={isRecording ? handleStopAndSave : startRecording}>
+          <div 
+            className={`record-button ${isRecording ? 'recording' : ''}`} 
+            onClick={() => isRecording ? handleStopAndSave() : startRecording()}
+          >
             <div className="record-icon">🎤</div>
             <div className="pulse"></div>
           </div>
