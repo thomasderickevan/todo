@@ -1,8 +1,8 @@
 const WORD_LIST=["apple","bridge","candle","desert","eagle","forest","galaxy","honey","island","jungle","knight","lemon","mountain","nebula","ocean","planet","quartz","river","shadow","tiger","umbrella","valley","winter","xray","yellow","zebra","autumn","blossom","canyon","dawn","echo","falcon","glacier","harvest","iceberg","jade","kite","lagoon","meadow","night","oasis","pebble","quiver","reef","storm","thunder","umbra","vortex","willow","xenon"];
-const KEYS={account:"accountProfile",entries:"vaultEntries",config:"vaultMasterConfig",ui:"uiPreferences"};
+const KEYS={account:"accountProfile",entries:"vaultEntries",config:"vaultMasterConfig",ui:"uiPreferences",session:"vaultSession"};
 const DRIVE_PREFIX="endeavor-shield-gen-vault";
-const RECOVERY_API_BASE="https://us-central1-todo-app-24b14.cloudfunctions.net";
-const state={shieldMode:"password",generatedValue:"",vaultEntries:[],vaultMasterConfig:null,accountProfile:null,isUnlocked:false,masterPin:"",currentVaultKey:"",uiTab:"vault",activeOrigin:"",activeHost:"",searchQuery:"",theme:"sunrise",syncStatusText:"Vault stays local until you sign in and sync.",resetStatusText:"Reset codes are sent by the recovery backend after Google sync has registered this vault.",vaultMetaText:"Vault key is loaded locally.",authenticatorStatusText:"Unlock the vault to use saved authenticator entries.",otpViewerEntryId:"",otpViewerSecret:"",otpTickHandle:null};
+const RECOVERY_SCRIPT_URL="https://script.google.com/macros/s/AKfycby9FZ8yzL4o2sZIMG4J1xTdXSvuilKPYz2kfSwD29hFMvk9HqzRof7FmzkCk4lcjzSy9Q/exec";
+const state={shieldMode:"password",generatedValue:"",vaultEntries:[],vaultMasterConfig:null,accountProfile:null,isUnlocked:false,masterPin:"",currentVaultKey:"",uiTab:"vault",activeOrigin:"",activeHost:"",searchQuery:"",theme:"sunrise",syncStatusText:"Vault stays local until you sign in and sync.",resetStatusText:"Reset codes are sent through your Google Apps Script recovery endpoint after sync registers this vault.",vaultMetaText:"Vault key is loaded locally.",authenticatorStatusText:"Unlock the vault to use saved authenticator entries.",otpViewerEntryId:"",otpViewerSecret:"",otpTickHandle:null};
 const elements={};
 
 document.addEventListener("DOMContentLoaded",async()=>{cacheElements();bindEvents();await hydrateState();renderAll();});
@@ -43,12 +43,17 @@ function bindEvents(){
 }
 
 async function hydrateState(){
-  const stored=await chrome.storage.local.get([KEYS.entries,KEYS.config,KEYS.account,KEYS.ui]);
+  const sessionStore=getSessionStorageArea();
+  const [stored,storedSession]=await Promise.all([
+    chrome.storage.local.get([KEYS.entries,KEYS.config,KEYS.account,KEYS.ui]),
+    sessionStore.get([KEYS.session])
+  ]);
   state.vaultEntries=stored[KEYS.entries]||[];
   state.vaultMasterConfig=stored[KEYS.config]||null;
   state.accountProfile=stored[KEYS.account]||null;
   state.theme=stored[KEYS.ui]?.theme||state.theme;
   state.uiTab=stored[KEYS.ui]?.activeTab||state.uiTab;
+  restoreVaultSession(storedSession[KEYS.session]||null);
   const pageTab=await getActiveTab();
   setActiveSiteInfo(pageTab?.url||"");
   elements.siteInput.value=state.activeOrigin;
@@ -94,7 +99,7 @@ function renderAuthenticatorList(){
   elements.authenticatorStatusText.textContent=authenticatorEntries.length?"Copy one-time codes from your saved entries.":"Scan a QR code or save a TOTP secret on a vault entry.";
   if(!authenticatorEntries.length){hideOtpViewer();elements.authenticatorList.className="list-block empty";elements.authenticatorList.textContent="No authenticator entries saved yet.";return;}
   elements.authenticatorList.className="list-block";elements.authenticatorList.innerHTML="";
-  for(const entry of authenticatorEntries){const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")}</div></div><span class="site-badge">Authenticator</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="view-otp" data-id="${entry.id}">View</button><button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy OTP</button><button class="ghost-button" data-action="copy-secret" data-id="${entry.id}">Copy secret</button></div>`;wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="view-otp")await showOtpViewer(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="copy-secret")await copyEntryTotpSecret(id);}));elements.authenticatorList.appendChild(wrapper);}
+  for(const entry of authenticatorEntries){const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")}</div></div><span class="site-badge">Authenticator</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="view-otp" data-id="${entry.id}">View code</button><button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button><button class="ghost-button" data-action="copy-secret" data-id="${entry.id}">Copy secret</button></div>`;wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="view-otp")await showOtpViewer(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="copy-secret")await copyEntryTotpSecret(id);}));elements.authenticatorList.appendChild(wrapper);}
 }
 function renderOtpViewer(){
   const activeEntry=state.vaultEntries.find((entry)=>entry.id===state.otpViewerEntryId);
@@ -126,10 +131,10 @@ function setActiveSiteInfo(url){try{const parsed=new URL(url);if(!/^https?:$/.te
 
 async function signInWithGoogle(){
   if(getOauthClientId().includes("YOUR_GOOGLE_OAUTH_CLIENT_ID")){window.alert("Set a real OAuth client ID in extension/manifest.json before using Google sign-in.");return;}
-  try{const token=await getAccessToken(true);const profile=await fetchGoogleProfile(token);state.accountProfile=profile;state.syncStatusText="Google account connected. You can sync the vault and register recovery.";elements.resetEmailInput.value=profile.email||"";await chrome.storage.local.set({[KEYS.account]:profile});renderAccount();}catch(error){console.error(error);window.alert("Google sign-in failed. Check the extension OAuth client and try again.");}
+  try{const token=await getAccessToken(true);const profile=await fetchGoogleProfile(token);state.accountProfile=profile;state.syncStatusText="Google account connected. You can sync the vault and register recovery.";elements.resetEmailInput.value=profile.email||"";await chrome.storage.local.set({[KEYS.account]:profile});await registerRecoveryProfileIfPossible({token});renderAccount();}catch(error){console.error(error);window.alert("Google sign-in failed. Check the extension OAuth client and try again.");}
 }
 async function signOutGoogle(){
-  state.accountProfile=null;state.syncStatusText="Signed out. Vault data remains local on this device.";elements.resetEmailInput.value="";await chrome.storage.local.remove(KEYS.account);renderAccount();
+  state.accountProfile=null;state.syncStatusText="Signed out. Vault data remains local on this device.";elements.resetEmailInput.value="";await chrome.storage.local.remove(KEYS.account);await clearVaultSession();renderAccount();
 }
 
 async function syncVaultToDrive(){
@@ -141,11 +146,11 @@ async function syncVaultToDrive(){
   state.syncStatusText=`Synced to Google Drive as ${getDriveFileName()}.`;
   if(state.isUnlocked&&state.currentVaultKey&&state.vaultMasterConfig?.recovery?.recoveryId){
     try{
-      await callRecoveryApi("/registerRecoveryProfile",{recoveryId:state.vaultMasterConfig.recovery.recoveryId,recoveryVaultKey:state.currentVaultKey},{token});
-      state.resetStatusText="Recovery profile registered. Email reset can restore access to the same vault key.";
+      await callRecoveryApi("registerRecoveryProfile",{email:state.accountProfile?.email||"",recoveryId:state.vaultMasterConfig.recovery.recoveryId,recoveryVaultKey:state.currentVaultKey},{token});
+      state.resetStatusText="Recovery profile registered with Apps Script. Email reset can restore access to the same vault key.";
     }catch(error){
       console.error(error);
-      state.resetStatusText="Drive sync succeeded, but recovery registration failed. Check the backend deployment and try sync again.";
+      state.resetStatusText="Drive sync succeeded, but Apps Script recovery registration failed. Check the script deployment URL and try sync again.";
     }
   }else if(!state.isUnlocked){
     state.resetStatusText="Drive sync completed. Unlock once before syncing again to register the recovery profile.";
@@ -159,6 +164,7 @@ async function restoreVaultFromDrive(){
   const payload=JSON.parse(await downloadDriveFile(getDriveFileName(),token));
   if(!payload||!Array.isArray(payload.vaultEntries)||!payload.vaultMasterConfig)throw new Error("Drive backup format is invalid.");
   state.vaultEntries=payload.vaultEntries;state.vaultMasterConfig=payload.vaultMasterConfig;state.isUnlocked=false;state.masterPin="";state.currentVaultKey="";state.syncStatusText="Restored encrypted vault data from Google Drive. Unlock with your PIN or use reset if needed.";
+  await clearVaultSession();
   await chrome.storage.local.set({[KEYS.entries]:state.vaultEntries,[KEYS.config]:state.vaultMasterConfig});
   renderAll();
 }
@@ -170,7 +176,9 @@ async function createVault(){
   const vaultKey=randomBase64(32);
   state.vaultMasterConfig=await buildVaultMasterConfig(pin,vaultKey);
   state.isUnlocked=true;state.masterPin=pin;state.currentVaultKey=vaultKey;state.vaultEntries=[];state.vaultMetaText="Vault created with a wrapped vault key. Sync while signed in to enable email reset.";
+  await persistVaultSession();
   await chrome.storage.local.set({[KEYS.config]:state.vaultMasterConfig,[KEYS.entries]:state.vaultEntries});
+  await registerRecoveryProfileIfPossible();
   elements.setupPinInput.value="";elements.setupPinConfirmInput.value="";renderAll();
 }
 
@@ -183,9 +191,11 @@ async function unlockVault(){
   }else{
     await migrateLegacyVault(pin);
   }
+  await persistVaultSession();
+  await registerRecoveryProfileIfPossible();
   elements.unlockPinInput.value="";renderAll();
 }
-function lockVault(){state.isUnlocked=false;state.masterPin="";state.currentVaultKey="";state.vaultMetaText="Vault key is loaded locally.";renderShield();}
+async function lockVault(){state.isUnlocked=false;state.masterPin="";state.currentVaultKey="";state.vaultMetaText="Vault key is loaded locally.";hideOtpViewer();await clearVaultSession();renderShield();}
 
 async function migrateLegacyVault(pin){
   if(!await verifyLegacyPin(pin,state.vaultMasterConfig)){window.alert("Incorrect master PIN.");return;}
@@ -196,7 +206,9 @@ async function migrateLegacyVault(pin){
     migrated.push({id:entry.id||`vault-${Date.now()}-${Math.random().toString(16).slice(2)}`,serviceName:entry.serviceName||"Untitled",username:entry.username||"",siteOrigin:entry.siteOrigin||"",siteHostname:entry.siteHostname||"",encryptedSecret:await encryptWithVaultKey(password,vaultKey),createdAt:entry.createdAt||Date.now(),updatedAt:entry.updatedAt||Date.now()});
   }
   state.vaultEntries=migrated;state.vaultMasterConfig=await buildVaultMasterConfig(pin,vaultKey);state.isUnlocked=true;state.masterPin=pin;state.currentVaultKey=vaultKey;state.vaultMetaText="Legacy vault migrated to wrapped vault-key storage.";
+  await persistVaultSession();
   await chrome.storage.local.set({[KEYS.config]:state.vaultMasterConfig,[KEYS.entries]:state.vaultEntries});
+  await registerRecoveryProfileIfPossible();
 }
 
 function regenerateSecret(){state.generatedValue=state.shieldMode==="password"?generateRandomPassword():generatePassphrase();}
@@ -212,8 +224,8 @@ function renderEntryList(container,entries,emptyText){
   if(!entries.length){container.className="list-block empty";container.textContent=emptyText;return;}
   container.className="list-block";container.innerHTML="";
   for(const entry of entries){
-    const otpButton=entry.encryptedTotpSecret?`<button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy OTP</button>`:"";
-    const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")} • ${escapeHtml(entry.siteOrigin||"No site")}</div></div><span class="site-badge">${siteMatches(entry,state.activeHost)?"Match":"Vault"}</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="fill" data-id="${entry.id}">Fill</button><button class="ghost-button" data-action="copy-user" data-id="${entry.id}">Copy user</button><button class="ghost-button" data-action="copy-pass" data-id="${entry.id}">Copy pass</button>${otpButton}<button class="ghost-button" data-action="delete" data-id="${entry.id}">Delete</button></div>`;
+    const otpButton=entry.encryptedTotpSecret?`<button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button>`:"";
+    const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")} • ${escapeHtml(entry.siteOrigin||"No site")}</div></div><span class="site-badge">${siteMatches(entry,state.activeHost)?"Match":"Vault"}</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="fill" data-id="${entry.id}">Fill page</button><button class="ghost-button" data-action="copy-user" data-id="${entry.id}">Copy user</button><button class="ghost-button" data-action="copy-pass" data-id="${entry.id}">Copy pass</button>${otpButton}<button class="ghost-button" data-action="delete" data-id="${entry.id}">Delete</button></div>`;
     wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="fill")await fillSavedEntry(id);if(action==="copy-user")await copyEntryUsername(id);if(action==="copy-pass")await copyEntryPassword(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="delete")await deleteEntry(id);}));
     container.appendChild(wrapper);
   }
@@ -269,17 +281,24 @@ async function deleteEntry(entryId){state.vaultEntries=state.vaultEntries.filter
 async function exportVault(){const csv=serializeVaultEntriesToCsv(state.vaultEntries);const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download="endeavor-shield-vault.csv";anchor.click();URL.revokeObjectURL(url);}
 async function importVault(event){const[file]=event.target.files||[];if(!file)return;const importedEntries=parseVaultCsv(await file.text());if(!Array.isArray(importedEntries)){window.alert("Invalid vault CSV.");return;}const merged=[...state.vaultEntries];for(const entry of importedEntries){if(!merged.some((candidate)=>candidate.id===entry.id))merged.push(entry);}merged.sort((a,b)=>b.updatedAt-a.updatedAt||b.createdAt-a.createdAt);state.vaultEntries=merged;await chrome.storage.local.set({[KEYS.entries]:state.vaultEntries,[KEYS.config]:state.vaultMasterConfig});event.target.value="";renderAll();}
 
-async function requestPinResetCode(){const email=elements.resetEmailInput.value.trim().toLowerCase();if(!email){window.alert("Enter the Google account email that owns this vault.");return;}await callRecoveryApi("/requestPinReset",{email});state.resetStatusText=`Reset code requested for ${email}. Check the inbox configured by the recovery backend.`;renderAccount();}
+async function requestPinResetCode(){
+  const email=elements.resetEmailInput.value.trim().toLowerCase();
+  if(!email){window.alert("Enter the Google account email that owns this vault.");return;}
+  await registerRecoveryProfileIfPossible();
+  await callRecoveryApi("requestPinReset",{email});
+  state.resetStatusText=`Reset code requested for ${email}. Check the inbox configured by your Apps Script email sender.`;
+  renderAccount();
+}
 async function completePinReset(){
   const email=elements.resetEmailInput.value.trim().toLowerCase(),code=elements.resetCodeInput.value.trim(),newPin=elements.resetNewPinInput.value.trim(),confirm=elements.resetConfirmPinInput.value.trim();
   if(!state.vaultMasterConfig||state.vaultMasterConfig.version!==2){window.alert("Restore the synced vault on this device before resetting the PIN.");return;}
   if(!email||!code){window.alert("Enter the email and reset code first.");return;}
   if(newPin.length<4){window.alert("Use at least 4 characters for the new PIN.");return;}
   if(newPin!==confirm){window.alert("PIN confirmation does not match.");return;}
-  const response=await callRecoveryApi("/consumePinReset",{email,code});
+  const response=await callRecoveryApi("consumePinReset",{email,code});
   if(!response?.recoveryVaultKey)throw new Error("Recovery response did not include a vault key.");
   if(response.recoveryId!==state.vaultMasterConfig.recovery?.recoveryId){window.alert("Recovery profile does not match this local vault backup.");return;}
-  state.currentVaultKey=response.recoveryVaultKey;state.vaultMasterConfig=await buildVaultMasterConfig(newPin,response.recoveryVaultKey,response.recoveryId);state.isUnlocked=true;state.masterPin=newPin;state.vaultMetaText="PIN reset completed. The existing vault key was re-wrapped with your new PIN.";state.resetStatusText="PIN reset succeeded. Sync again to refresh the backend recovery profile.";await chrome.storage.local.set({[KEYS.config]:state.vaultMasterConfig});elements.resetCodeInput.value="";elements.resetNewPinInput.value="";elements.resetConfirmPinInput.value="";renderAll();
+  state.currentVaultKey=response.recoveryVaultKey;state.vaultMasterConfig=await buildVaultMasterConfig(newPin,response.recoveryVaultKey,response.recoveryId);state.isUnlocked=true;state.masterPin=newPin;state.vaultMetaText="PIN reset completed. The existing vault key was re-wrapped with your new PIN.";state.resetStatusText="PIN reset succeeded. Sync again to refresh the backend recovery profile.";await persistVaultSession();await chrome.storage.local.set({[KEYS.config]:state.vaultMasterConfig});await registerRecoveryProfileIfPossible();elements.resetCodeInput.value="";elements.resetNewPinInput.value="";elements.resetConfirmPinInput.value="";renderAll();
 }
 
 async function getActiveTab(){const tabs=await chrome.tabs.query({active:true,currentWindow:true});return tabs[0]||null;}
@@ -329,11 +348,28 @@ async function getAccessToken(interactive){
 async function fetchGoogleProfile(token){const response=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:`Bearer ${token}`}});if(!response.ok)throw new Error("Failed to fetch Google profile.");const profile=await response.json();return{email:profile.email||"",name:profile.name||"",picture:profile.picture||"",accessToken:token};}
 async function uploadDriveFile(fileName,content,token,mimeType="application/json"){const query=encodeURIComponent(`name='${fileName.replaceAll("'","\\'")}' and trashed=false`);const searchResponse=await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&pageSize=1`,{headers:{Authorization:`Bearer ${token}`}});if(!searchResponse.ok)throw new Error("Failed to search Google Drive.");const searchResult=await searchResponse.json();const existingFileId=searchResult.files?.[0]?.id;const boundary="-------shieldgenboundary";const body=`\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name:fileName,mimeType})}\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n${content}\r\n--${boundary}--`;const endpoint=existingFileId?`https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=multipart`:"https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";const response=await fetch(endpoint,{method:existingFileId?"PATCH":"POST",headers:{Authorization:`Bearer ${token}`,"Content-Type":`multipart/related; boundary=${boundary}`},body});if(!response.ok)throw new Error("Failed to upload Google Drive backup.");}
 async function downloadDriveFile(fileName,token){const query=encodeURIComponent(`name='${fileName.replaceAll("'","\\'")}' and trashed=false`);const searchResponse=await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&pageSize=1`,{headers:{Authorization:`Bearer ${token}`}});if(!searchResponse.ok)throw new Error("Failed to search Google Drive.");const searchResult=await searchResponse.json();const fileId=searchResult.files?.[0]?.id;if(!fileId)throw new Error("No Shield Gen vault backup found in Google Drive.");const response=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,{headers:{Authorization:`Bearer ${token}`}});if(!response.ok)throw new Error("Failed to download Google Drive backup.");return response.text();}
-async function callRecoveryApi(path,payload,options={}){const headers={"Content-Type":"application/json"};if(options.token)headers.Authorization=`Bearer ${options.token}`;const response=await fetch(`${RECOVERY_API_BASE}${path}`,{method:"POST",headers,body:JSON.stringify(payload)});if(!response.ok)throw new Error(await response.text()||`Recovery API request failed for ${path}`);return response.json();}
+async function callRecoveryApi(action,payload,options={}){
+  ensureRecoveryConfigured();
+  const headers={"Content-Type":"application/json"};
+  if(options.token)headers.Authorization=`Bearer ${options.token}`;
+  const response=await fetch(RECOVERY_SCRIPT_URL,{method:"POST",headers,body:JSON.stringify({...payload,action})});
+  if(!response.ok)throw new Error(await response.text()||`Recovery API request failed for ${action}`);
+  const result=await response.json();
+  if(result?.ok===false)throw new Error(result.error||`Recovery API request failed for ${action}`);
+  return result;
+}
 function getDriveFileName(){const safe=(state.accountProfile?.email||"local").replace(/[^a-z0-9._-]/gi,"_").toLowerCase();return`${DRIVE_PREFIX}-${safe}.json`;}
 function getDriveBackupFileName(){const safe=(state.accountProfile?.email||"local").replace(/[^a-z0-9._-]/gi,"_").toLowerCase();return`${DRIVE_PREFIX}-${safe}.csv`;}
 function getOauthClientId(){return chrome.runtime.getManifest().oauth2?.client_id||"";}
 function ensureSignedIn(){if(!state.accountProfile?.email)throw new Error("Sign in with Google first.");}
+function ensureRecoveryConfigured(){if(RECOVERY_SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"))throw new Error("Configure the Google Apps Script recovery URL in extension/popup.js before using Send code.");}
+async function registerRecoveryProfileIfPossible(options={}){
+  const email=state.accountProfile?.email?.trim().toLowerCase()||"";
+  if(!email||!state.isUnlocked||!state.currentVaultKey||!state.vaultMasterConfig?.recovery?.recoveryId)return false;
+  await callRecoveryApi("registerRecoveryProfile",{email,recoveryId:state.vaultMasterConfig.recovery.recoveryId,recoveryVaultKey:state.currentVaultKey},options);
+  state.resetStatusText="Recovery profile is ready for email-based PIN reset.";
+  return true;
+}
 function runTask(task){return async()=>{try{await task();}catch(error){console.error(error);window.alert(error?.message||"Request failed.");}};}
 function bindEnterSubmit(ids,handler){ids.forEach((id)=>document.getElementById(id)?.addEventListener("keyup",async(event)=>{if(event.key==="Enter"||event.code==="NumpadEnter"){event.preventDefault();await handler();}}));}
 function startOtpTicker(){stopOtpTicker();state.otpTickHandle=window.setInterval(renderOtpViewer,1000);}
@@ -425,6 +461,11 @@ function parseOptionalJson(value,label){
   if(!text)return null;
   try{return JSON.parse(text);}catch{throw new Error(`Invalid JSON in ${label}.`);}
 }
+function getSessionStorageArea(){return chrome.storage.session||chrome.storage.local;}
+function getConfigSessionKey(config){return config?.recovery?.recoveryId||config?.wrappedVaultKey?.cipher||config?.hash||"";}
+function restoreVaultSession(session){if(!session||!state.vaultMasterConfig)return;const expectedKey=getConfigSessionKey(state.vaultMasterConfig);if(!session.isUnlocked||!session.currentVaultKey||session.configKey!==expectedKey)return;state.isUnlocked=true;state.currentVaultKey=session.currentVaultKey;state.vaultMetaText="Vault key restored from this browser session.";}
+async function persistVaultSession(){if(!state.isUnlocked||!state.currentVaultKey||!state.vaultMasterConfig)return;await getSessionStorageArea().set({[KEYS.session]:{isUnlocked:true,currentVaultKey:state.currentVaultKey,configKey:getConfigSessionKey(state.vaultMasterConfig)}});}
+async function clearVaultSession(){await getSessionStorageArea().remove(KEYS.session);}
 function randomBase64(length){return arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(length)).buffer);}
 function randomId(){return Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
 function arrayBufferToBase64(buffer){return btoa(String.fromCharCode(...new Uint8Array(buffer)));}

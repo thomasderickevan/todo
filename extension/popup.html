@@ -20,6 +20,7 @@
           <select id="themeSelect" class="theme-select" aria-label="Theme">
             <option value="sunrise">Sunrise</option>
             <option value="mint">Mint</option>
+            <option value="twilight">Twilight</option>
             <option value="midnight">Midnight</option>
           </select>
           <div class="status-pill quiet" id="accountStatusPill">Signed out</div>
@@ -42,7 +43,7 @@
               <input id="setupPinConfirmInput" type="password" placeholder="Confirm master PIN">
             </div>
             <div class="button-row">
-              <button id="createVaultBtn" class="primary-button">Create vault</button>
+              <button id="createVaultBtn" class="primary-button">Securely create vault</button>
             </div>
           </section>
 
@@ -53,8 +54,8 @@
               <input id="unlockPinInput" type="password" placeholder="Master PIN">
             </div>
             <div class="button-row wrap-row">
-              <button id="unlockVaultBtn" class="primary-button">Unlock</button>
-              <button id="showResetBtn" class="ghost-button">Open Recovery</button>
+              <button id="unlockVaultBtn" class="primary-button">Unlock vault</button>
+              <button id="showResetBtn" class="ghost-button">Recovery</button>
             </div>
           </section>
 
@@ -67,7 +68,7 @@
                 </div>
                 <div class="entry-actions">
                   <span class="site-badge" id="vaultStateBadge">Unlocked</span>
-                  <button id="lockVaultBtn" class="ghost-button">Lock</button>
+                  <button id="lockVaultBtn" class="ghost-button">Lock vault</button>
                 </div>
               </div>
               <p class="supporting-copy inline-status" id="vaultMetaText">Vault key is loaded locally.</p>
@@ -123,7 +124,7 @@
               </div>
 
               <div class="button-row wrap-row">
-                <button id="regenerateBtn" class="primary-button">Regenerate</button>
+                <button id="regenerateBtn" class="primary-button">Regenerate secret</button>
                 <button id="fillGeneratedBtn" class="ghost-button">Fill on page</button>
               </div>
             </div>
@@ -137,8 +138,8 @@
                 <input id="totpSecretInput" type="text" placeholder="Authenticator secret (required)">
               </div>
               <div class="button-row wrap-row">
-                <button id="scanQrBtn" class="ghost-button">Scan QR on page</button>
-                <button id="saveVaultBtn" class="primary-button">Save login</button>
+                <button id="scanQrBtn" class="ghost-button">Scan QR from page</button>
+                <button id="saveVaultBtn" class="primary-button">Save vault entry</button>
               </div>
             </div>
 
@@ -159,8 +160,8 @@
                   <p class="supporting-copy">Search and manage all saved logins.</p>
                 </div>
                 <div class="entry-actions">
-                  <button id="exportVaultBtn" class="ghost-button">Export CSV</button>
-                  <label class="ghost-button inline-upload" for="importVaultInput">Import CSV</label>
+                  <button id="exportVaultBtn" class="ghost-button">Export vault</button>
+                  <label class="ghost-button inline-upload" for="importVaultInput">Import vault</label>
                   <input id="importVaultInput" type="file" accept=".csv,text/csv" hidden>
                 </div>
               </div>
@@ -182,7 +183,7 @@
               <span class="site-badge" id="authenticatorCountBadge">0 saved</span>
             </div>
             <div class="button-row wrap-row">
-              <button id="scanQrSecondaryBtn" class="primary-button">Scan QR on page</button>
+              <button id="scanQrSecondaryBtn" class="primary-button">Scan QR from page</button>
             </div>
             <p class="supporting-copy inline-status" id="authenticatorStatusText">Unlock the vault to use saved authenticator entries.</p>
           </section>
@@ -214,9 +215,9 @@
             </div>
             <div class="button-row wrap-row">
               <button id="signInBtn" class="primary-button">Sign in with Google</button>
-              <button id="signOutBtn" class="ghost-button">Sign out</button>
-              <button id="syncVaultBtn" class="ghost-button">Sync</button>
-              <button id="restoreVaultBtn" class="ghost-button">Restore</button>
+              <button id="signOutBtn" class="ghost-button hidden">Sign out</button>
+              <button id="syncVaultBtn" class="ghost-button">Sync vault</button>
+              <button id="restoreVaultBtn" class="ghost-button">Restore vault</button>
             </div>
             <p class="supporting-copy inline-status" id="syncStatusText">Vault stays local until you sign in and sync.</p>
           </section>
@@ -234,7 +235,7 @@
               <button id="requestResetBtn" class="ghost-button">Send code</button>
               <button id="completeResetBtn" class="primary-button">Reset PIN</button>
             </div>
-            <p class="supporting-copy inline-status" id="resetStatusText">Reset codes are sent by the recovery backend after Google sync has registered this vault.</p>
+            <p class="supporting-copy inline-status" id="resetStatusText">Reset codes are sent by your Google Apps Script recovery endpoint after Google sync has registered this vault.</p>
           </section>
 
           <section class="card">
@@ -243,6 +244,7 @@
             <div class="theme-preview-grid">
               <button class="theme-swatch sunrise active" data-theme-swatch="sunrise">Sunrise</button>
               <button class="theme-swatch mint" data-theme-swatch="mint">Mint</button>
+              <button class="theme-swatch twilight" data-theme-swatch="twilight">Twilight</button>
               <button class="theme-swatch midnight" data-theme-swatch="midnight">Midnight</button>
             </div>
           </section>
