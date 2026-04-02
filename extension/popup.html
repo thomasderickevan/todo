@@ -9,9 +9,12 @@
   <body>
     <div class="app-shell">
       <header class="app-header">
-        <div>
+        <div class="brand-lockup">
+          <img src="brand-icon.png" alt="endeavor logo" class="brand-mark">
+          <div>
           <p class="eyebrow">endeavor extension</p>
           <h1>Shield Gen</h1>
+          </div>
         </div>
         <div class="status-pill quiet" id="accountStatusPill">Signed out</div>
       </header>
@@ -154,8 +157,10 @@
               <input id="serviceNameInput" type="text" placeholder="Service name">
               <input id="usernameInput" type="text" placeholder="Username or email">
               <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
+              <input id="totpSecretInput" type="text" placeholder="Authenticator secret (optional)">
             </div>
-            <div class="button-row">
+            <div class="button-row wrap-row">
+              <button id="scanQrBtn" class="ghost-button">Scan QR on page</button>
               <button id="saveVaultBtn" class="primary-button">Save login</button>
             </div>
           </div>
@@ -179,7 +184,7 @@
               <div class="entry-actions">
                 <button id="exportVaultBtn" class="ghost-button">Export</button>
                 <label class="ghost-button inline-upload" for="importVaultInput">Import</label>
-                <input id="importVaultInput" type="file" accept="application/json" hidden>
+                <input id="importVaultInput" type="file" accept=".csv,text/csv" hidden>
               </div>
             </div>
             <div class="field-stack compact">

@@ -44,6 +44,20 @@ body {
   gap: 10px;
 }
 
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 10px 24px rgba(31, 41, 55, 0.18);
+}
+
 .wrap-row {
   flex-wrap: wrap;
 }

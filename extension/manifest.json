@@ -15,7 +15,7 @@
     "https://www.googleapis.com/*"
   ],
   "oauth2": {
-    "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "client_id": "264066970174-ogb514sdaghgn4jm6sitke38brtm79g3.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",
@@ -24,6 +24,18 @@
   },
   "action": {
     "default_title": "endeavor Shield Gen",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "brand-icon.png",
+      "32": "brand-icon.png",
+      "48": "brand-icon.png",
+      "128": "brand-icon.png"
+    }
+  },
+  "icons": {
+    "16": "brand-icon.png",
+    "32": "brand-icon.png",
+    "48": "brand-icon.png",
+    "128": "brand-icon.png"
   }
 }
