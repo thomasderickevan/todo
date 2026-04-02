@@ -16,7 +16,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   addDoc
 } from 'firebase/firestore'
 import '../App.css'

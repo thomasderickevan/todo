@@ -8,8 +8,7 @@ import {
   collection, 
   addDoc, 
   query, 
-  where, 
-  orderBy, 
+  where,
   onSnapshot,
   deleteDoc,
   doc,
@@ -33,18 +32,15 @@ const VoiceNotes: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null);
-  const { saveToDrive } = useDriveSync();
+  const { saveToDrive, isSyncing } = useDriveSync();
   const [syncingId, setSyncingId] = useState<string | null>(null);
   
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef('');
 
-  // Sample API Key for AI Analysis (Placeholder as requested)
-  const AI_API_KEY = "AIzaSyAOZnSn4XgDsv8RMK5zsx6m7V0sM2JXj70";
-
   useEffect(() => {
-    document.title = 'VoiceNotes • endeavor';
+    document.title = '✦ endeavor • VoiceNotes';
     return () => {
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
@@ -160,74 +156,94 @@ const VoiceNotes: React.FC = () => {
   const startRecording = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech Recognition not supported in this browser.");
+      alert("Voice input is not supported in this browser. Please try Chrome or Safari.");
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-    recognition.onresult = (event: any) => {
-      let fullTranscript = '';
-      for (let i = 0; i < event.results.length; i++) {
-        fullTranscript += event.results[i][0].transcript;
-      }
-      setTranscript(fullTranscript);
+      recognition.onstart = () => {
+        setIsRecording(true);
+        setTranscript('');
+      };
 
-      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = setTimeout(() => {
-        handleStopAndSave();
-      }, 5000);
-    };
+      recognition.onresult = (event: any) => {
+        let fullTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          fullTranscript += event.results[i][0].transcript;
+        }
+        setTranscript(fullTranscript);
 
-    recognition.onerror = (event: any) => {
-      console.error("Speech Recognition Error:", event.error);
-      setIsRecording(false);
-    };
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = setTimeout(() => {
+          console.log("Auto-saving due to silence...");
+          handleStopAndSave();
+        }, 8000); // Increased to 8 seconds for better UX
+      };
 
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
+      recognition.onerror = (event: any) => {
+        console.error("Speech Recognition Error:", event.error);
+        if (event.error === 'not-allowed') {
+          alert("Microphone access was denied. Please check your browser permissions.");
+        } else if (event.error === 'network') {
+          alert("Network error occurred. Please check your connection.");
+        }
+        setIsRecording(false);
+      };
 
-    recognition.start();
-    recognitionRef.current = recognition;
-    setIsRecording(true);
-    setTranscript('');
+      recognition.onend = () => {
+        console.log("Speech Recognition ended.");
+        setIsRecording(false);
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch (err) {
+      console.error("Failed to start speech recognition:", err);
+      alert("Could not start voice recognition. Please try again.");
+    }
   }, [handleStopAndSave]);
 
-  const deleteNote = async (id: string) => {
-    if (user && isNaN(Number(id))) {
-      await deleteDoc(doc(db, "voice_notes", id));
+  const deleteNote = useCallback(async (note: VoiceNote) => {
+    if (user && note.userId === user.uid) {
+      try {
+        await deleteDoc(doc(db, "voice_notes", note.id));
+        console.log("Firestore note deleted:", note.id);
+      } catch (err) {
+        console.error("Error deleting from Firestore:", err);
+      }
     } else {
-      setNotes(prev => prev.filter(n => n.id !== id));
+      // Guest note or local note
+      const updatedNotes = notes.filter(n => n.id !== note.id);
+      setNotes(updatedNotes);
+      if (!user) {
+        localStorage.setItem('local_voice_notes', JSON.stringify(updatedNotes));
+      }
     }
-  };
+  }, [user, notes]);
 
   const summarizeNote = async (note: VoiceNote) => {
     setIsAnalyzing(note.id);
     
-    // Simulate AI API call using the placeholder key
-    console.log("Using AI API Key:", AI_API_KEY);
-    
-    // Artificial delay to simulate processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const mockSummary = "SUMMARY: " + (note.text.length > 50 ? note.text.substring(0, 50) + "..." : note.text) + " (AI Analyzed)";
 
-    const mockSummary = "SUMMARY: " + (note.text.length > 50 ? note.text.substring(0, 50) + "..." : note.text) + " (AI Analyzed)";
-
-    if (user && isNaN(Number(note.id))) {
-      try {
+      if (user && isNaN(Number(note.id))) {
         await setDoc(doc(db, "voice_notes", note.id), { ...note, summary: mockSummary });
-      } catch (err) {
-        console.error("Error updating summary in Firestore:", err);
+      } else {
         setNotes(prev => prev.map(n => n.id === note.id ? { ...n, summary: mockSummary } : n));
       }
-    } else {
-      setNotes(prev => prev.map(n => n.id === note.id ? { ...n, summary: mockSummary } : n));
+    } catch (err) {
+      console.error("Summarization error:", err);
+    } finally {
+      setIsAnalyzing(null);
     }
-    
-    setIsAnalyzing(null);
   };
 
   const handleSyncToDrive = async (note: VoiceNote) => {
@@ -237,7 +253,7 @@ const VoiceNotes: React.FC = () => {
     }
     
     if (!googleAccessToken) {
-      alert("Google Drive access is required. Please sign out and sign in again to authorize.");
+      alert("Google Drive access is required. Please sign out and sign in again to re-authorize.");
       return;
     }
 
@@ -249,27 +265,44 @@ const VoiceNotes: React.FC = () => {
     setSyncingId(null);
   };
 
+  const handleSyncAllToDrive = async () => {
+    if (!googleAccessToken) {
+      alert("Please re-authorize Google Drive access by signing out and in again.");
+      return;
+    }
+
+    const backupData = JSON.stringify(notes, null, 2);
+    await saveToDrive('endeavor_voice_notes_backup.json', backupData);
+  };
+
   if (authLoading) return <div className="loading-screen">🌀 Loading Voice Engine...</div>;
 
   return (
     <>
       <Navbar />
       <div className="voice-container">
-            <div className="user-nav">
+        <div className="voice-auth-header">
           {!authLoading && (
             user ? (
-              <div className="user-menu">
+              <div className="user-pill">
+                <button 
+                  className="sync-pill-btn" 
+                  onClick={handleSyncAllToDrive} 
+                  disabled={isSyncing || notes.length === 0}
+                >
+                  {isSyncing ? 'Syncing...' : 'Sync All'}
+                </button>
                 <img 
                   src={user.photoURL || guestUserIcon} 
                   alt="Profile" 
-                  className="nav-avatar" 
+                  className="user-pill-avatar" 
                   referrerPolicy="no-referrer"
                 />
-                <span className="user-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                <button className="logout-btn-nav" onClick={() => logout()}>Sign Out</button>
+                <span className="user-pill-name">{user.displayName?.split(' ')[0] || 'User'}</span>
+                <button className="logout-pill-btn" onClick={() => logout()}>Sign Out</button>
               </div>
             ) : (
-              <button className="login-btn-nav" onClick={() => login()}>Sign In</button>
+              <button className="login-pill-btn" onClick={() => login()}>Sign In with Google</button>
             )
           )}
         </div>
@@ -280,6 +313,9 @@ const VoiceNotes: React.FC = () => {
             <div className="pulse"></div>
           </div>
           <p className="record-status">{isRecording ? "Listening... Tap to stop" : "Tap to start recording"}</p>
+          {!isRecording && !googleAccessToken && user && (
+            <p className="auth-warning">⚠️ Drive access expired. Sign out and in to fix.</p>
+          )}
           {isRecording && transcript && (
             <div className="live-transcript">
               {transcript}
@@ -314,7 +350,7 @@ const VoiceNotes: React.FC = () => {
                 >
                   {syncingId === note.id ? "Syncing..." : "Sync to Drive"}
                 </button>
-                <button className="del-btn" onClick={() => deleteNote(note.id)}>Delete</button>
+                <button className="del-btn" onClick={() => deleteNote(note)}>Delete</button>
               </div>
             </div>
           ))}

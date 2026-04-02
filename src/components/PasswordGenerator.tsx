@@ -1,6 +1,20 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import CryptoJS from 'crypto-js';
+import { useAuth } from '../AuthContext';
+import { db } from '../firebase';
+import { 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  onSnapshot, 
+  deleteDoc, 
+  doc 
+} from 'firebase/firestore';
+import { useDriveSync } from '../hooks/useDriveSync';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
+import guestUserIcon from '../assets/guest-user.svg';
 import './PasswordGenerator.css';
 
 const WORD_LIST = [
@@ -13,7 +27,18 @@ const WORD_LIST = [
   'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'
 ];
 
+interface VaultEntry {
+  id: string;
+  serviceName: string;
+  username: string;
+  encryptedPassword: string;
+  createdAt: number;
+  userId: string;
+}
+
 const PasswordGenerator: React.FC = () => {
+  const { user, login, logout, loading: authLoading, googleAccessToken } = useAuth();
+  const { saveToDrive, isSyncing } = useDriveSync();
   const [mode, setMode] = useState<'password' | 'passphrase'>('password');
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
@@ -29,9 +54,44 @@ const PasswordGenerator: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [strength, setStrength] = useState('');
 
+  // Vault States
+  const [vaultEntries, setVaultEntries] = useState<VaultEntry[]>([]);
+  const [serviceName, setServiceName] = useState('');
+  const [vaultUsername, setVaultUsername] = useState('');
+  const [masterPin, setMasterPin] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [showVault, setShowVault] = useState(false);
+  const [revealedIds, setRevealedIds] = useState<Record<string, string>>({});
+
   useEffect(() => {
-    document.title = 'Shield Gen • endeavor';
+    document.title = '✦ endeavor • Shield Gen';
   }, []);
+
+  // Fetch Vault Entries
+  useEffect(() => {
+    if (!user) {
+      setVaultEntries([]);
+      return;
+    }
+
+    const q = query(
+      collection(db, "vault_passwords"),
+      where("userId", "==", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const entries = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as VaultEntry[];
+      entries.sort((a, b) => b.createdAt - a.createdAt);
+      setVaultEntries(entries);
+    }, (error) => {
+      console.error("Vault listener error:", error);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   const generateRandomPassword = useCallback(() => {
     const charset = {
@@ -109,18 +169,118 @@ const PasswordGenerator: React.FC = () => {
     else setStrength('Very Strong');
   }, [password, mode, wordCount, options]);
 
-  const copyToClipboard = () => {
-    if (password && password !== 'Select at least one option') {
-      navigator.clipboard.writeText(password);
+  const copyToClipboard = (text: string) => {
+    if (text && text !== 'Select at least one option') {
+      navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
+  const saveToVault = async () => {
+    if (!user) {
+      alert("Please sign in to use the Shield Vault.");
+      return;
+    }
+    if (!serviceName.trim()) {
+      alert("Please provide a Service Name (e.g., Netflix).");
+      return;
+    }
+    if (!masterPin.trim()) {
+      alert("Please set a Master PIN to encrypt your password.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const encrypted = CryptoJS.AES.encrypt(password, masterPin).toString();
+      await addDoc(collection(db, "vault_passwords"), {
+        serviceName,
+        username: vaultUsername,
+        encryptedPassword: encrypted,
+        createdAt: Date.now(),
+        userId: user.uid
+      });
+      alert(`Successfully locked credentials for ${serviceName} in your vault!`);
+      setServiceName('');
+      setVaultUsername('');
+    } catch (err) {
+      console.error("Vault Save Error:", err);
+      alert("Failed to save to vault.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const revealPassword = (entry: VaultEntry) => {
+    if (!masterPin.trim()) {
+      alert("Please enter your Master PIN to reveal passwords.");
+      return;
+    }
+    try {
+      const bytes = CryptoJS.AES.decrypt(entry.encryptedPassword, masterPin);
+      const originalText = bytes.toString(CryptoJS.enc.Utf8);
+      if (!originalText) throw new Error("Invalid PIN");
+      
+      setRevealedIds(prev => ({ ...prev, [entry.id]: originalText }));
+    } catch (err) {
+      alert("Incorrect Master PIN. Decryption failed.");
+    }
+  };
+
+  const deleteEntry = async (entry: VaultEntry) => {
+    if (window.confirm("Are you sure you want to delete this vault entry?")) {
+      try {
+        await deleteDoc(doc(db, "vault_passwords", entry.id));
+      } catch (err) {
+        console.error("Error deleting vault entry:", err);
+        alert("Failed to delete entry.");
+      }
+    }
+  };
+
+  const handleSyncToDrive = async () => {
+    if (!googleAccessToken) {
+      alert("Please re-authorize Google Drive access by signing out and in again.");
+      return;
+    }
+
+    const backupData = JSON.stringify(vaultEntries, null, 2);
+    await saveToDrive('endeavor_vault_backup.json', backupData);
+  };
+
+  if (authLoading) return <div className="loading-screen">🌀 Arming Shields...</div>;
+
   return (
     <>
       <Navbar />
       <div className="pg-container">
+        <div className="pg-auth-header">
+          {!authLoading && (
+            user ? (
+              <div className="user-pill">
+                <button 
+                  className="sync-pill-btn" 
+                  onClick={handleSyncToDrive} 
+                  disabled={isSyncing || vaultEntries.length === 0}
+                >
+                  {isSyncing ? 'Syncing...' : 'Sync Vault'}
+                </button>
+                <img 
+                  src={user.photoURL || guestUserIcon} 
+                  alt="Profile" 
+                  className="user-pill-avatar" 
+                  referrerPolicy="no-referrer"
+                />
+                <span className="user-pill-name">{user.displayName?.split(' ')[0] || 'User'}</span>
+                <button className="logout-pill-btn" onClick={() => logout()}>Sign Out</button>
+              </div>
+            ) : (
+              <button className="login-pill-btn" onClick={() => login()}>Sign In with Google</button>
+            )
+          )}
+        </div>
+
         <div className="pg-card">
           <header className="pg-header">
             <h1>Shield <span className="brand-name">Gen</span></h1>
@@ -150,7 +310,7 @@ const PasswordGenerator: React.FC = () => {
                 readOnly 
                 className={password === 'Select at least one option' ? 'error' : ''}
               />
-              <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={copyToClipboard}>
+              <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={() => copyToClipboard(password)}>
                 {copied ? '✅' : '📋'}
               </button>
             </div>
@@ -268,7 +428,73 @@ const PasswordGenerator: React.FC = () => {
               Regenerate {mode === 'password' ? 'Password' : 'Passphrase'}
             </button>
           </div>
+
+          <div className="vault-action-section">
+            <h3>🔐 Shield Vault</h3>
+            <div className="vault-inputs">
+              <input 
+                type="text" 
+                placeholder="Service (e.g. Netflix)" 
+                value={serviceName}
+                onChange={(e) => setServiceName(e.target.value)}
+                className="pg-input"
+              />
+              <input 
+                type="text" 
+                placeholder="Username (optional)" 
+                value={vaultUsername}
+                onChange={(e) => setVaultUsername(e.target.value)}
+                className="pg-input"
+              />
+              <input 
+                type="password" 
+                placeholder="Set Master PIN" 
+                value={masterPin}
+                onChange={(e) => setMasterPin(e.target.value)}
+                className="pg-input"
+              />
+              <button 
+                className="vault-lock-btn" 
+                onClick={saveToVault}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Encrypting...' : 'Lock in Vault'}
+              </button>
+            </div>
+            {vaultEntries.length > 0 && (
+              <button 
+                className="view-vault-toggle" 
+                onClick={() => setShowVault(!showVault)}
+              >
+                {showVault ? 'Hide Vault' : `View Vault (${vaultEntries.length})`}
+              </button>
+            )}
+          </div>
         </div>
+
+        {showVault && (
+          <div className="vault-list">
+            {vaultEntries.map(entry => (
+              <div key={entry.id} className="vault-entry">
+                <div className="entry-info">
+                  <div className="entry-service">{entry.serviceName}</div>
+                  <div className="entry-user">{entry.username || 'No username'}</div>
+                </div>
+                <div className="entry-actions">
+                  {revealedIds[entry.id] ? (
+                    <div className="revealed-pw">
+                      <code>{revealedIds[entry.id]}</code>
+                      <button onClick={() => copyToClipboard(revealedIds[entry.id])}>📋</button>
+                    </div>
+                  ) : (
+                    <button className="reveal-btn" onClick={() => revealPassword(entry)}>Reveal</button>
+                  )}
+                  <button className="delete-entry-btn" onClick={() => deleteEntry(entry)}>🗑️</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         <LegalFooter />
       </div>
     </>
@@ -276,3 +502,4 @@ const PasswordGenerator: React.FC = () => {
 };
 
 export default PasswordGenerator;
+
