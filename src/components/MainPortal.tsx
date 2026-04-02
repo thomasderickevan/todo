@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { useDriveSync } from '../hooks/useDriveSync';
 import guestUserIcon from '../assets/guest-user.svg';
@@ -92,6 +92,11 @@ const MainPortal: React.FC = () => {
 
       <footer className="portal-footer">
         <p>&copy; 2026 endeavor. All rights reserved.</p>
+        <div className="portal-legal-links">
+          <Link to="/privacy">Privacy Policy</Link>
+          <span>•</span>
+          <Link to="/terms">Terms of Service</Link>
+        </div>
       </footer>
     </div>
   );

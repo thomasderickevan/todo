@@ -130,21 +130,6 @@
             </div>
 
             <div class="card">
-              <h2>Save login</h2>
-              <div class="field-stack">
-                <input id="serviceNameInput" type="text" placeholder="Service name">
-                <input id="usernameInput" type="text" placeholder="Username or email">
-                <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
-                <input id="totpSecretInput" type="text" placeholder="Authenticator secret (required)">
-              </div>
-              <div class="button-row wrap-row">
-                <button id="scanQrBtn" class="ghost-button">Scan QR from page</button>
-                <button id="manualTotpBtn" class="ghost-button">Enter key manually</button>
-                <button id="saveVaultBtn" class="primary-button">Save vault entry</button>
-              </div>
-            </div>
-
-            <div class="card">
               <div class="entry-header">
                 <div>
                   <h2>Matches for this site</h2>
@@ -179,11 +164,27 @@
             <div class="entry-header">
               <div>
                 <h2>Authenticator</h2>
-                <p class="supporting-copy">View and copy 6-digit codes from saved entries.</p>
+                <p class="supporting-copy">Save authenticator-backed logins, then view and copy 6-digit codes from saved entries.</p>
               </div>
               <span class="site-badge" id="authenticatorCountBadge">0 saved</span>
             </div>
             <p class="supporting-copy inline-status" id="authenticatorStatusText">Unlock the vault to use saved authenticator entries.</p>
+          </section>
+
+          <section class="card">
+            <h2>Save login</h2>
+            <div class="field-stack">
+              <input id="serviceNameInput" type="text" placeholder="Service name">
+              <input id="usernameInput" type="text" placeholder="Username or email">
+              <input id="siteInput" type="text" placeholder="Site origin, e.g. https://github.com">
+              <input id="entryPasswordInput" type="text" placeholder="Password or generated secret">
+              <input id="totpSecretInput" type="text" placeholder="Authenticator secret (required)">
+            </div>
+            <div class="button-row wrap-row">
+              <button id="scanQrBtn" class="ghost-button">Scan QR from page</button>
+              <button id="manualTotpBtn" class="ghost-button">Enter key manually</button>
+              <button id="saveVaultBtn" class="primary-button">Save vault entry</button>
+            </div>
           </section>
 
           <section class="card hidden" id="otpViewerCard">
