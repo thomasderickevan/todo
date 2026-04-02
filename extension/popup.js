@@ -310,7 +310,40 @@ async function showOtpViewer(entryId){const entry=state.vaultEntries.find((item)
 function hideOtpViewer(){state.otpViewerEntryId="";state.otpViewerSecret="";stopOtpTicker();elements.otpViewerCard?.classList.add("hidden");}
 async function deleteEntry(entryId){state.vaultEntries=state.vaultEntries.filter((entry)=>entry.id!==entryId);await chrome.storage.local.set({[KEYS.entries]:state.vaultEntries});await autoSyncVaultIfSignedIn("Deleted entry and synced to Drive.");}
 async function exportVault(){const csv=serializeVaultEntriesToCsv(state.vaultEntries);const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download="endeavor-shield-vault.csv";anchor.click();URL.revokeObjectURL(url);}
-async function importVault(event){const[file]=event.target.files||[];if(!file)return;const importedEntries=parseVaultCsv(await file.text());if(!Array.isArray(importedEntries)){window.alert("Invalid vault CSV.");return;}const merged=[...state.vaultEntries];for(const entry of importedEntries){if(!merged.some((candidate)=>candidate.id===entry.id))merged.push(entry);}merged.sort((a,b)=>b.updatedAt-a.updatedAt||b.createdAt-a.createdAt);state.vaultEntries=merged;await chrome.storage.local.set({[KEYS.entries]:state.vaultEntries,[KEYS.config]:state.vaultMasterConfig});event.target.value="";renderAll();await autoSyncVaultIfSignedIn("Imported entries and synced to Drive.");}
+async function importVault(event){
+  const [file]=event.target.files||[];
+  if(!file)return;
+  try{
+    const text=await file.text();
+    let entries=[];
+    let incomingConfig=null;
+    if(file.type.includes('json')||file.name.toLowerCase().endsWith('.json')){
+      const parsed=JSON.parse(text);
+      entries=Array.isArray(parsed)?parsed:(Array.isArray(parsed.vaultEntries)?parsed.vaultEntries:(Array.isArray(parsed.entries)?parsed.entries:[]));
+      incomingConfig=parsed.vaultMasterConfig||parsed.vaultConfig||null;
+    }else{
+      entries=parseVaultCsv(text);
+    }
+    if(!Array.isArray(entries)||!entries.length)throw new Error("Import file contains no vault entries.");
+    const merged=[...state.vaultEntries];
+    for(const entry of entries){
+      if(!merged.some((candidate)=>candidate.id===entry.id))merged.push(entry);
+    }
+    merged.sort((a,b)=>b.updatedAt-a.updatedAt||b.createdAt-a.createdAt);
+    state.vaultEntries=merged;
+    if(incomingConfig&&incomingConfig.version){
+      state.vaultMasterConfig=incomingConfig;
+    }
+    await chrome.storage.local.set({[KEYS.entries]:state.vaultEntries,[KEYS.config]:state.vaultMasterConfig});
+    renderAll();
+    await autoSyncVaultIfSignedIn("Imported entries and synced to Drive.");
+  }catch(error){
+    console.error(error);
+    window.alert(`Import failed: ${error?.message||'Invalid file.'}`);
+  }finally{
+    event.target.value="";
+  }
+}
 
 async function requestPinResetCode(){
   const email=elements.resetEmailInput.value.trim().toLowerCase();
