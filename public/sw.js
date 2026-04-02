@@ -1,9 +1,10 @@
 // Service Worker for Student Helper PWA
-const CACHE_NAME = 'student-helper-v1';
+const CACHE_NAME = 'endeavor-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/endeavor-e.png'
 ];
 
 self.addEventListener('install', event => {
