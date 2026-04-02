@@ -38,7 +38,7 @@ interface VaultEntry {
 
 const PasswordGenerator: React.FC = () => {
   const { user, login, logout, loading: authLoading, googleAccessToken } = useAuth();
-  const { saveToDrive, isSyncing } = useDriveSync();
+  const { saveToDrive, getFromDrive, isSyncing } = useDriveSync();
   const [mode, setMode] = useState<'password' | 'passphrase'>('password');
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
@@ -249,6 +249,46 @@ const PasswordGenerator: React.FC = () => {
     await saveToDrive('endeavor_vault_backup.json', backupData);
   };
 
+  const handleRestoreFromDrive = async () => {
+    if (!user || !googleAccessToken) {
+      alert("Please sign in with Google to restore your vault.");
+      return;
+    }
+
+    if (window.confirm("This will merge your Drive backup into your current vault. Continue?")) {
+      const content = await getFromDrive('endeavor_vault_backup.json');
+      if (!content) return;
+
+      try {
+        const restoredEntries = JSON.parse(content) as any[];
+        console.log(`Found ${restoredEntries.length} entries in backup.`);
+
+        let restoredCount = 0;
+        for (const entry of restoredEntries) {
+          // Check if this service/password combo already exists to avoid duplicates
+          const exists = vaultEntries.some(e => 
+            e.serviceName === entry.serviceName && 
+            e.encryptedPassword === entry.encryptedPassword
+          );
+
+          if (!exists) {
+            const { id, ...cleanEntry } = entry; // Remove the old ID
+            await addDoc(collection(db, "vault_passwords"), {
+              ...cleanEntry,
+              userId: user.uid, // Ensure it's for current user
+              createdAt: entry.createdAt || Date.now()
+            });
+            restoredCount++;
+          }
+        }
+        alert(`Successfully restored ${restoredCount} new entries from your Google Drive!`);
+      } catch (err) {
+        console.error("Restore parsing error:", err);
+        alert("Failed to parse backup file. It may be corrupted.");
+      }
+    }
+  };
+
   if (authLoading) return <div className="loading-screen">🌀 Arming Shields...</div>;
 
   return (
@@ -259,6 +299,13 @@ const PasswordGenerator: React.FC = () => {
           {!authLoading && (
             user ? (
               <div className="user-pill">
+                <button 
+                  className="restore-pill-btn" 
+                  onClick={handleRestoreFromDrive} 
+                  disabled={isSyncing}
+                >
+                  {isSyncing ? 'Wait...' : 'Restore'}
+                </button>
                 <button 
                   className="sync-pill-btn" 
                   onClick={handleSyncToDrive} 

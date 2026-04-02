@@ -25,6 +25,13 @@
   color: #6b7280;
 }
 
+.voice-auth-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
 .recording-section {
   display: flex;
   flex-direction: column;
