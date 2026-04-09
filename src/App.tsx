@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AuthProvider } from './AuthContext';
 import HomeShowcase from './components/HomeShowcase';
 import MainPortal from './components/MainPortal';
@@ -27,6 +28,7 @@ function App() {
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>
+      <SpeedInsights />
     </AuthProvider>
   );
 }
