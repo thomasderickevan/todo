@@ -135,12 +135,12 @@ const TodoApp = () => {
         setInputValue('');
       } catch (err) {
         console.error("Error adding task to Firestore:", err);
-        const newTask = { id: Date.now().toString(), ...newTaskData };
+        const newTask = { id: `local-${Date.now()}`, ...newTaskData };
         setTasks(prev => [newTask, ...prev]);
         setInputValue('');
       }
     } else {
-      const newTask = { id: Date.now().toString(), ...newTaskData };
+      const newTask = { id: `local-${Date.now()}`, ...newTaskData };
       setTasks(prev => [newTask, ...prev]);
       setInputValue('');
     }
@@ -159,11 +159,11 @@ const TodoApp = () => {
         await addDoc(collection(db, "todos"), newTaskData);
       } catch (e) {
         console.error("Error adding voice task to Firestore:", e);
-        const newTask = { id: Date.now().toString(), ...newTaskData };
+        const newTask = { id: `local-${Date.now()}`, ...newTaskData };
         setTasks(prev => [newTask, ...prev]);
       }
     } else {
-      const newTask = { id: Date.now().toString(), ...newTaskData };
+      const newTask = { id: `local-${Date.now()}`, ...newTaskData };
       setTasks(prev => [newTask, ...prev]);
     }
   };
@@ -196,7 +196,7 @@ const TodoApp = () => {
   };
 
   const deleteTask = async (id: string) => {
-    if (user && isNaN(Number(id))) {
+    if (user && !id.includes('local')) {
       try {
         await deleteDoc(doc(db, "todos", id));
       } catch (e) {
@@ -208,18 +208,13 @@ const TodoApp = () => {
     }
   };
 
-  const clearCompleted = () => {
-    tasks.forEach(async (task) => {
-      if (task.completed) {
-        await deleteTask(task.id);
-      }
-    });
+  const clearCompleted = async () => {
+    const tasksToDelete = tasks.filter(task => task.completed);
+    await Promise.all(tasksToDelete.map(task => deleteTask(task.id)));
   };
 
-  const clearAllVoice = () => {
-    tasks.forEach(async (task) => {
-      await deleteTask(task.id);
-    });
+  const clearAllVoice = async () => {
+    await Promise.all(tasks.map(task => deleteTask(task.id)));
   };
 
   const filteredTasks = tasks
