@@ -331,20 +331,22 @@ const PasswordGenerator: React.FC = () => {
         const restoredEntries = JSON.parse(content) as VaultEntry[];
         console.log(`Found ${restoredEntries.length} entries in backup.`);
 
+        const existingKeys = new Set(
+          vaultEntries.map(e => `${e.serviceName}|${e.encryptedPassword}`)
+        );
+
         for (const entry of restoredEntries) {
           // Check if this service/password combo already exists to avoid duplicates
-          const exists = vaultEntries.some(e => 
-            e.serviceName === entry.serviceName && 
-            e.encryptedPassword === entry.encryptedPassword
-          );
+          const entryKey = `${entry.serviceName}|${entry.encryptedPassword}`;
 
-          if (!exists) {
+          if (!existingKeys.has(entryKey)) {
             const { id: _unusedId, ...cleanEntry } = entry;
             await addDoc(collection(db, "vault_passwords"), {
               ...cleanEntry,
               userId: user.uid, // Ensure it's for current user
               createdAt: entry.createdAt || Date.now()
             });
+            existingKeys.add(entryKey);
           }
         }
       } catch (error) {
