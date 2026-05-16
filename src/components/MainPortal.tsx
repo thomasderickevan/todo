@@ -23,6 +23,7 @@ const MainPortal: React.FC = () => {
   const apps = [
     { id: 'todo', title: 'TaskMaster', icon: '✅', desc: 'Organize your life, one task at a time. Secure, synced, and simple.', color: '#00FF41', badge: 'MOMENTUM' },
     { id: 'voicenotes', title: 'VoiceNotes', icon: '🎙️', desc: 'Capture your thoughts with your voice. Transcription and AI analysis.', color: '#00E5FF', badge: 'CAPTURE' },
+    { id: 'airdraw', title: 'Air Draw', icon: '🎨', desc: 'Neon finger painter using hand tracking. Express ideas in the air.', color: '#39ff14', badge: 'CREATIVE' },
     { id: 'password', title: 'Shield Gen', icon: '🔐', desc: 'Generate unbreakable passwords instantly. Customizable and secure.', color: '#FF003C', badge: 'SECURITY' },
     { id: 'timer', title: 'Apple Timer', icon: '🍏', desc: 'Boost productivity with the focus technique. Focus and rest.', color: '#FFEA00', badge: 'FOCUS' },
     { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' }
@@ -82,7 +83,7 @@ const MainPortal: React.FC = () => {
             <div 
               key={app.id} 
               className="mc-portal-card" 
-              onClick={() => navigate(`/${app.id === 'assistant' ? 'portal' : app.id}`)}
+              onClick={() => navigate(`/${app.id === 'assistant' ? 'assistant' : app.id}`)}
               style={{ '--app-color': app.color } as React.CSSProperties}
             >
               <div className="mc-card-header">
