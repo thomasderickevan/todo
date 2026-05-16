@@ -6,121 +6,118 @@ const logoE = '/endeavor-e.png';
 
 const apps = [
   {
-    path: '/todo',
-    id: 'taskmaster',
+    id: 'todo',
     title: 'TaskMaster',
-    kicker: 'MOMENTUM & CLARITY',
-    desc: 'Organize your life, one task at a time. Fast task planning with a clean workflow and synced momentum.',
+    path: '/todo',
+    kicker: 'MOMENTUM // TASK_MANAGEMENT',
+    desc: 'High-performance task tracking designed for deep focus. Zero friction, total clarity.',
     color: '#00FF41',
     mockup: (
-      <div className="mock-video mock-taskmaster">
-        <div className="mock-task-header"></div>
-        <div className="mock-task mock-task-1"></div>
-        <div className="mock-task mock-task-2"></div>
-        <div className="mock-task mock-task-3"></div>
+      <div className="mock-todo">
+        <div className="mock-task"><span>[ ]</span> INITIALIZE_CORE_V2</div>
+        <div className="mock-task"><span>[ ]</span> OPTIMIZE_LATENCY_FLIGHT</div>
+        <div className="mock-task checked"><span>[x]</span> DEPLOY_MOMENTUM_DRIVE</div>
       </div>
     ),
     poster: (
       <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="task-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00FF41" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#00FF41" stopOpacity="0.2" />
-          </linearGradient>
-        </defs>
-        <rect x="40" y="40" width="320" height="320" stroke="#00FF41" strokeWidth="1" opacity="0.2" />
-        <path d="M80 120H320M80 200H320M80 280H200" stroke="#00FF41" strokeWidth="2" opacity="0.3" strokeDasharray="4 4" />
-        <path d="M100 150L150 200L250 100" stroke="url(#task-grad)" strokeWidth="24" strokeLinecap="square" strokeLinejoin="miter">
-          <animate attributeName="stroke-dasharray" from="0, 1000" to="1000, 0" dur="3s" repeatCount="indefinite" />
-        </path>
-        <circle cx="200" cy="200" r="180" stroke="#00FF41" strokeWidth="0.5" opacity="0.1" />
-        <rect x="300" y="300" width="40" height="40" stroke="#00FF41" strokeWidth="1" />
+        <rect x="50" y="50" width="300" height="300" stroke="#00FF41" strokeWidth="2" />
+        <path d="M100 200L170 270L300 130" stroke="#00FF41" strokeWidth="8" />
+        <line x1="50" y1="100" x2="350" y2="100" stroke="#00FF41" strokeWidth="1" opacity="0.3" />
       </svg>
     )
   },
   {
-    path: '/voicenotes',
     id: 'voicenotes',
     title: 'VoiceNotes',
-    kicker: 'SPEAK FIRST, REFINE LATER',
-    desc: 'Capture ideas out loud and turn them into usable notes. Instant transcription designed for a frictionless creative flow.',
+    path: '/voicenotes',
+    kicker: 'CAPTURE // AUDIO_INTELLIGENCE',
+    desc: 'Instantly transcribe and analyze your thoughts. Capture lightning before it fades.',
     color: '#00E5FF',
     mockup: (
-      <div className="mock-video mock-voicenotes">
-        <div className="waveform-container">
-          <div className="wave bar-1"></div>
-          <div className="wave bar-2"></div>
-          <div className="wave bar-3"></div>
-          <div className="wave bar-4"></div>
-          <div className="wave bar-5"></div>
+      <div className="mock-audio">
+        <div className="audio-wave">
+          <span></span><span></span><span></span><span></span><span></span>
         </div>
-        <div className="mock-mic"></div>
+        <div className="audio-transcript">"Optimize the momentum drive..."</div>
       </div>
     ),
     poster: (
       <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 200Q125 50 200 200T350 200" stroke="#00E5FF" strokeWidth="4" />
-        <path d="M50 200Q125 100 200 200T350 200" stroke="#00E5FF" strokeWidth="2" opacity="0.5" />
-        <path d="M50 200Q125 150 200 200T350 200" stroke="#00E5FF" strokeWidth="1" opacity="0.3" />
-        <circle cx="200" cy="200" r="100" stroke="#00E5FF" strokeWidth="1" strokeDasharray="5 5" />
+        <circle cx="200" cy="200" r="100" stroke="#00E5FF" strokeWidth="2" />
+        <circle cx="200" cy="200" r="130" stroke="#00E5FF" strokeWidth="1" opacity="0.3" />
+        <path d="M150 200C150 170 170 150 200 150C230 150 250 170 250 200" stroke="#00E5FF" strokeWidth="4" />
       </svg>
     )
   },
   {
+    id: 'airdraw',
+    title: 'Air Draw',
+    path: '/airdraw',
+    kicker: 'CREATIVE // NEON_FINGER_PAINTER',
+    desc: 'Express ideas in the air with hand tracking technology. Paint with neon energy.',
+    color: '#39ff14',
+    mockup: (
+      <div className="mock-airdraw">
+        <div className="airdraw-hand">☝️</div>
+        <div className="airdraw-neon-path"></div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 300C150 100 250 350 300 100" stroke="#39ff14" strokeWidth="4" strokeLinecap="round" />
+        <circle cx="300" cy="100" r="10" fill="#39ff14" />
+        <circle cx="300" cy="100" r="20" stroke="#39ff14" strokeWidth="1" opacity="0.5" />
+      </svg>
+    )
+  },
+  {
+    id: 'password',
+    title: 'ShieldGen',
     path: '/password',
-    id: 'shieldgen',
-    title: 'Shield Gen',
-    kicker: 'IRONCLAD SECURITY',
-    desc: 'Generate passwords, manage credentials, and secure sign-ins. Military-grade encryption wrapped in an elegant extension.',
+    kicker: 'SECURITY // ENTROPY_CONTROL',
+    desc: 'Unbreakable cryptographic keys generated instantly. Your perimeter is our priority.',
     color: '#FF003C',
     mockup: (
-      <div className="mock-video mock-shieldgen">
-        <div className="shield-icon"></div>
-        <div className="shield-scan-line"></div>
-        <div className="password-dots">
-          <span>*</span><span>*</span><span>*</span><span>*</span><span>*</span><span>*</span><span>*</span><span>*</span>
-        </div>
+      <div className="mock-password">
+        <div className="pass-box">********</div>
+        <div className="pass-entropy">ENTROPY: 128-BIT</div>
       </div>
     ),
     poster: (
       <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M200 50L350 100V200C350 300 200 350 200 350C200 350 50 300 50 200V100L200 50Z" stroke="#FF003C" strokeWidth="4" />
-        <rect x="150" y="150" width="100" height="100" stroke="#FF003C" strokeWidth="2" transform="rotate(45 200 200)" />
-        <circle cx="200" cy="200" r="10" fill="#FF003C" />
+        <path d="M200 80L320 130V220C320 280 270 330 200 350C130 330 80 280 80 220V130L200 80Z" stroke="#FF003C" strokeWidth="2" />
+        <circle cx="200" cy="200" r="40" stroke="#FF003C" strokeWidth="1" opacity="0.5" />
       </svg>
     )
   },
   {
+    id: 'timer',
+    title: 'AppleTimer',
     path: '/timer',
-    id: 'appletimer',
-    title: 'Apple Timer',
-    kicker: 'DEEP WORK RHYTHM',
-    desc: 'A focused timer flow for deep work and repeatable rhythm. Cut out the noise and reclaim your attention.',
+    kicker: 'FOCUS // TEMPORAL_ALIGNMENT',
+    desc: 'Master your internal clock. Engineered periods of deep work and necessary restoration.',
     color: '#FFEA00',
     mockup: (
-      <div className="mock-video mock-timer">
-        <div className="timer-ring"></div>
-        <div className="timer-hand"></div>
-        <div className="timer-display">25:00</div>
+      <div className="mock-timer">
+        <div className="timer-ring">25:00</div>
+        <div className="timer-label">FLOW_STATE</div>
       </div>
     ),
     poster: (
       <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="200" cy="200" r="150" stroke="#FFEA00" strokeWidth="2" />
-        <line x1="200" y1="200" x2="200" y2="80" stroke="#FFEA00" strokeWidth="8" strokeLinecap="round" />
-        <line x1="200" y1="200" x2="300" y2="200" stroke="#FFEA00" strokeWidth="4" strokeLinecap="round" opacity="0.5" />
-        {Array.from({ length: 12 }).map((_, i) => (
-          <rect key={i} x="198" y="60" width="4" height="20" fill="#FFEA00" transform={`rotate(${i * 30} 200 200)`} />
-        ))}
+        <circle cx="200" cy="200" r="120" stroke="#FFEA00" strokeWidth="2" />
+        <path d="M200 100V200L270 270" stroke="#FFEA00" strokeWidth="4" strokeLinecap="round" />
+        <circle cx="200" cy="200" r="5" fill="#FFEA00" />
       </svg>
     )
   },
   {
+    id: 'assistant',
+    title: 'AI_Assistant',
     path: '/assistant',
-    id: 'aiassistant',
-    title: 'AI Assistant',
-    kicker: 'CONTEXT-AWARE HELP',
-    desc: 'Context-aware help embedded directly into your workflow. Ask questions, generate content, and let AI do the heavy lifting.',
+    kicker: 'INTELLIGENCE // CONTEXT_AWARE',
+    desc: 'A brutalist approach to AI. Ask questions, generate content, and let AI do the heavy lifting.',
     color: '#FF00FF',
     mockup: (
       <div className="mock-video mock-ai">
@@ -322,7 +319,7 @@ const HomeShowcase: React.FC = () => {
           </div>
           <div className="mc-status-feed">
             <p>» BOOTING_ENDEAVOR_OS_V2.0.4...</p>
-            <p>» INITIALIZING_MODULAR_STACK: [TASKMASTER, VOICENOTES, SHIELDGEN, TIMER, AI]</p>
+            <p>» INITIALIZING_MODULAR_STACK: [TASKMASTER, VOICENOTES, AIRDRAW, SHIELDGEN, TIMER, AI]</p>
             <p>» SYSTEM_STATUS: [OPTIMAL]</p>
             <p>» LATENCY: [0.04ms]</p>
             <p>» UPTIME: [99.99%]</p>
