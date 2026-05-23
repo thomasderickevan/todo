@@ -11,6 +11,7 @@ import ShieldGenExtensionLanding from './components/ShieldGenExtensionLanding';
 import AIAgentPage from './components/AIAgentPage';
 import AIMonitor from './components/AIMonitor';
 import AirDraw from './components/AirDraw';
+import VibeMatrix from './components/VibeMatrix';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/assistant" element={<AIAgentPage />} />
         <Route path="/ai-monitor" element={<AIMonitor />} />
         <Route path="/airdraw" element={<AirDraw />} />
+        <Route path="/vibematrix" element={<VibeMatrix />} />
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>

@@ -26,7 +26,8 @@ const MainPortal: React.FC = () => {
     { id: 'password', title: 'Shield Gen', icon: '🔐', desc: 'Generate unbreakable passwords instantly. Customizable and secure.', color: '#FF003C', badge: 'SECURITY' },
     { id: 'timer', title: 'Apple Timer', icon: '🍏', desc: 'Boost productivity with the focus technique. Focus and rest.', color: '#FFEA00', badge: 'FOCUS' },
     { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' },
-    { id: 'airdraw', title: 'AirDraw', icon: '🖐️', desc: 'Draw in the air using hand gestures via your webcam and MediaPipe.', color: '#00FFCC', badge: 'GESTURE' }
+    { id: 'airdraw', title: 'AirDraw', icon: '🖐️', desc: 'Draw in the air using hand gestures via your webcam and MediaPipe.', color: '#00FFCC', badge: 'GESTURE' },
+    { id: 'vibematrix', title: 'Vibe Matrix', icon: '🌌', desc: 'Interactive generative particle network driven by your local productivity.', color: '#7C4DFF', badge: 'MOMENTUM' }
   ];
 
   return (

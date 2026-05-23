@@ -1,0 +1,357 @@
+/* Vibe Matrix Page Layout */
+.vm-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Background Generative Canvas */
+.vm-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0d0d0d;
+  z-index: 1;
+  cursor: crosshair;
+}
+
+/* Cyber Floating UI Grid Layer */
+.vm-layout-container {
+  position: absolute;
+  top: 90px; /* Leave space for Endeavor navbar */
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
+  z-index: 10;
+  display: flex;
+  gap: 30px;
+  pointer-events: none; /* Let clicks pass through to canvas where cards are NOT present */
+  align-items: flex-start;
+}
+
+/* Translucent Brutalist Cards */
+.vm-card {
+  width: 340px;
+  background: rgba(10, 10, 10, 0.86);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--app-color, #00ffcc);
+  border-radius: 1px;
+  padding: 24px;
+  pointer-events: auto; /* Re-enable clicks inside control cards */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 
+              0 0 30px calc(var(--app-color) + '11');
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.vm-stats-card {
+  border-top-color: var(--app-color);
+}
+
+.vm-settings-card {
+  width: 320px;
+  border-top-color: #666;
+}
+
+.vm-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.vm-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: #666;
+}
+
+.vm-title {
+  font-size: 2.2rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0;
+  background: linear-gradient(to right, #fff, #888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vm-subtitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0;
+  color: #fff;
+}
+
+/* Tier value indictor styling */
+.vm-energy-tier-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vm-tier-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  color: #888;
+}
+
+.vm-tier-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.vm-tier-value.dormant {
+  color: #00ffcc;
+  text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+}
+
+.vm-tier-value.active {
+  color: #FFEA00;
+  text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
+  animation: vm-flicker 4s infinite alternate;
+}
+
+.vm-tier-value.supernova {
+  color: #FF003C;
+  text-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
+  animation: vm-flare 2s infinite ease-in-out alternate;
+}
+
+/* Productivity schematics table */
+.vm-metrics-breakdown {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vm-metrics-breakdown h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: #666;
+  margin: 0 0 4px 0;
+}
+
+.vm-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.vm-metric-val {
+  font-weight: bold;
+  color: #fff;
+}
+
+.vm-score-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.vm-metric-row.vm-total-score {
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.vm-total-score .vm-metric-val {
+  color: var(--app-color);
+  font-size: 1.1rem;
+}
+
+/* Attractor tips */
+.vm-interactive-tip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #666;
+  line-height: 1.4;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+/* Forms & sandbox tuning */
+.vm-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vm-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vm-control-group label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  color: #aaa;
+}
+
+.vm-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vm-label-row span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--app-color, #00ffcc);
+  font-weight: bold;
+}
+
+/* Slider, Checkbox & Dropdown override styling */
+.vm-select {
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.vm-select:focus {
+  border-color: var(--app-color, #00ffcc);
+}
+
+.vm-control-group input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  background: #222;
+  outline: none;
+  border: none;
+  margin: 6px 0;
+}
+
+.vm-control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--app-color, #00ffcc);
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--app-color, #00ffcc);
+  transition: transform 0.1s;
+}
+
+.vm-control-group input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.vm-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  color: #aaa;
+  user-select: none;
+}
+
+.vm-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.vm-custom-check {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.vm-checkbox-label input[type="checkbox"]:checked + .vm-custom-check {
+  background: var(--app-color, #00ffcc);
+  border-color: var(--app-color, #00ffcc);
+  box-shadow: 0 0 8px var(--app-color, #00ffcc);
+}
+
+/* Footer return button */
+.vm-card-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.vm-back-btn {
+  font-family: 'JetBrains Mono', monospace;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.vm-back-btn:hover {
+  color: var(--app-color, #00ffcc);
+}
+
+/* Animations */
+@keyframes vm-flicker {
+  0%, 100% { opacity: 0.95; text-shadow: 0 0 15px rgba(255, 234, 0, 0.4); }
+  50% { opacity: 1; text-shadow: 0 0 20px rgba(255, 234, 0, 0.55); }
+}
+
+@keyframes vm-flare {
+  0% { transform: scale(0.98); opacity: 0.9; text-shadow: 0 0 15px rgba(255, 0, 60, 0.5); }
+  100% { transform: scale(1.02); opacity: 1; text-shadow: 0 0 25px rgba(255, 0, 60, 0.75); }
+}
+
+/* Responsive columns */
+@media (max-width: 900px) {
+  .vm-layout-container {
+    flex-direction: column;
+    overflow-y: auto;
+    align-items: center;
+    top: 80px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    gap: 15px;
+  }
+  .vm-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 16px;
+    gap: 12px;
+  }
+}

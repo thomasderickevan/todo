@@ -17,7 +17,9 @@ const AppleTimer: React.FC = () => {
   const [mode, setMode] = useState<'focus' | 'short' | 'long'>('focus');
   const [timeLeft, setTimeLeft] = useState(durations[mode] * 60);
   const [isActive, setIsActive] = useState(false);
-  const [sessions, setSessions] = useState(0);
+  const [sessions, setSessions] = useState(() => {
+    return Number(localStorage.getItem('at_sessions')) || 0;
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,6 +133,10 @@ const AppleTimer: React.FC = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isActive, timeLeft, mode, playSound]);
+
+  useEffect(() => {
+    localStorage.setItem('at_sessions', sessions.toString());
+  }, [sessions]);
 
   useEffect(() => {
     const minutes = Math.floor(timeLeft / 60);

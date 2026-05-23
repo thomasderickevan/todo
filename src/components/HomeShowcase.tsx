@@ -158,6 +158,31 @@ const apps = [
         <path d="M80 300L120 260M320 100L280 140" stroke="#00FFCC" strokeWidth="1" opacity="0.4" />
       </svg>
     )
+  },
+  {
+    path: '/vibematrix',
+    id: 'vibematrix',
+    title: 'Vibe Matrix',
+    kicker: 'GENERATIVE MOMENTUM',
+    desc: 'An interactive generative art visualization powered by your real-time productivity metrics. Control physics and see your focus map.',
+    color: '#7C4DFF',
+    mockup: (
+      <div className="mock-video mock-matrix">
+        <div className="matrix-core"></div>
+        <div className="matrix-ring ring-1"></div>
+        <div className="matrix-ring ring-2"></div>
+        <div className="matrix-ring ring-3"></div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="200" r="140" stroke="#7C4DFF" strokeWidth="2" opacity="0.3" strokeDasharray="5 5" />
+        <circle cx="200" cy="200" r="90" stroke="#7C4DFF" strokeWidth="4" />
+        <circle cx="200" cy="200" r="40" stroke="#7C4DFF" strokeWidth="1" opacity="0.6" />
+        <line x1="200" y1="20" x2="200" y2="380" stroke="#7C4DFF" strokeWidth="0.5" opacity="0.2" />
+        <line x1="20" y1="200" x2="380" y2="200" stroke="#7C4DFF" strokeWidth="0.5" opacity="0.2" />
+      </svg>
+    )
   }
 ];
 
