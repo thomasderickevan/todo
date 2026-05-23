@@ -43,7 +43,7 @@ class MockAudio {
   pause = vi.fn();
   volume = 1;
 }
-window.Audio = MockAudio as any;
+window.Audio = MockAudio as unknown as typeof Audio;
 
 describe('Todo App', () => {
   beforeEach(() => {
@@ -63,14 +63,14 @@ describe('Todo App', () => {
 
   it('renders the Todo App title', () => {
     renderApp();
-    // The Navbar has "Tasks" text
-    expect(screen.getByText('Tasks')).toBeInTheDocument();
+    // The App has "TASKMASTER" title
+    expect(screen.getByRole('heading', { name: 'TASKMASTER' })).toBeInTheDocument();
   });
 
   it('can add a new task', () => {
     renderApp();
-    const input = screen.getByPlaceholderText('What needs to be done?');
-    const addButton = screen.getByText('Add Task');
+    const input = screen.getByPlaceholderText('ADD_NEW_TASK...');
+    const addButton = screen.getByText('ADD [←]');
 
     fireEvent.change(input, { target: { value: 'Buy groceries' } });
     fireEvent.click(addButton);
@@ -80,8 +80,8 @@ describe('Todo App', () => {
 
   it('can toggle task completion', () => {
     renderApp();
-    const input = screen.getByPlaceholderText('What needs to be done?');
-    const addButton = screen.getByText('Add Task');
+    const input = screen.getByPlaceholderText('ADD_NEW_TASK...');
+    const addButton = screen.getByText('ADD [←]');
 
     fireEvent.change(input, { target: { value: 'Test task' } });
     fireEvent.click(addButton);
@@ -95,8 +95,8 @@ describe('Todo App', () => {
 
   it('can delete a task', () => {
     renderApp();
-    const input = screen.getByPlaceholderText('What needs to be done?');
-    const addButton = screen.getByText('Add Task');
+    const input = screen.getByPlaceholderText('ADD_NEW_TASK...');
+    const addButton = screen.getByText('ADD [←]');
 
     fireEvent.change(input, { target: { value: 'Task to delete' } });
     fireEvent.click(addButton);
@@ -109,8 +109,8 @@ describe('Todo App', () => {
 
   it('filters tasks correctly', () => {
     renderApp();
-    const input = screen.getByPlaceholderText('What needs to be done?');
-    const addButton = screen.getByText('Add Task');
+    const input = screen.getByPlaceholderText('ADD_NEW_TASK...');
+    const addButton = screen.getByText('ADD [←]');
 
     // Add active task
     fireEvent.change(input, { target: { value: 'Active task' } });
@@ -122,12 +122,12 @@ describe('Todo App', () => {
     fireEvent.click(screen.getByText('Completed task'));
 
     // Switch to Completed filter
-    fireEvent.click(screen.getByText('Completed'));
+    fireEvent.click(screen.getByText('COMPLETED'));
     expect(screen.getByText('Completed task')).toBeInTheDocument();
     expect(screen.queryByText('Active task')).not.toBeInTheDocument();
 
     // Switch to Active filter
-    fireEvent.click(screen.getByText('Active'));
+    fireEvent.click(screen.getByText('ACTIVE'));
     expect(screen.queryByText('Completed task')).not.toBeInTheDocument();
     expect(screen.getByText('Active task')).toBeInTheDocument();
   });

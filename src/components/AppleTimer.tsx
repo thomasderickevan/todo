@@ -55,7 +55,7 @@ const AppleTimer: React.FC = () => {
         playNote(150, audioCtx.currentTime, 0.1, 'triangle', 0.4);
         break;
       case 'chime':
-      default:
+      default: {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -67,6 +67,7 @@ const AppleTimer: React.FC = () => {
         osc.start();
         osc.stop(audioCtx.currentTime + 0.5);
         break;
+      }
     }
   }, [selectedSound]);
 
@@ -110,16 +111,18 @@ const AppleTimer: React.FC = () => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      setTimeout(() => setIsActive(false), 0);
       playSound();
       
-      if (mode === 'focus') {
-        setSessions((prev) => prev + 1);
-        setModalMessage('Focus session complete! Take a well-deserved break.');
-      } else {
-        setModalMessage('Break over! Time to get back into the flow.');
-      }
-      setIsModalOpen(true);
+      setTimeout(() => {
+        setIsActive(false);
+        if (mode === 'focus') {
+          setSessions((prev) => prev + 1);
+          setModalMessage('Focus session complete! Take a well-deserved break.');
+        } else {
+          setModalMessage('Break over! Time to get back into the flow.');
+        }
+        setIsModalOpen(true);
+      }, 0);
       
       if (timerRef.current) clearInterval(timerRef.current);
     }
@@ -332,7 +335,7 @@ const AppleTimer: React.FC = () => {
                         <input 
                           type="number" 
                           value={durations[d as keyof typeof durations]} 
-                          onChange={(e) => updateDuration(d as any, Math.max(1, parseInt(e.target.value) || 1))}
+                          onChange={(e) => updateDuration(d as keyof typeof durations, Math.max(1, parseInt(e.target.value) || 1))}
                         />
                       </div>
                     ))}

@@ -283,7 +283,7 @@ const PasswordGenerator: React.FC = () => {
       if (!originalText) throw new Error("Invalid PIN");
       
       setRevealedIds(prev => ({ ...prev, [entry.id]: originalText }));
-    } catch (error) {
+    } catch {
       alert("Incorrect Master PIN. Decryption failed.");
     }
   };
@@ -339,7 +339,8 @@ const PasswordGenerator: React.FC = () => {
           );
 
           if (!exists) {
-            const { id: _unusedId, ...cleanEntry } = entry;
+            const cleanEntry = { ...entry } as Partial<VaultEntry>;
+            delete cleanEntry.id;
             await addDoc(collection(db, "vault_passwords"), {
               ...cleanEntry,
               userId: user.uid, // Ensure it's for current user

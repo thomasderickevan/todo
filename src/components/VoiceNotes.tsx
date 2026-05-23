@@ -36,7 +36,8 @@ const VoiceNotes: React.FC = () => {
   const { saveToDrive, isSyncing } = useDriveSync();
   const [syncingId, setSyncingId] = useState<string | null>(null);
   
-  const recognitionRef = useRef<null | any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef('');
 
@@ -97,7 +98,8 @@ const VoiceNotes: React.FC = () => {
             const batch = writeBatch(db);
             localNotes.forEach((note) => {
               const newNoteRef = doc(collection(db, "voice_notes"));
-              const { id: _unusedId, ...noteData } = note;
+              const noteData = { ...note } as Partial<VoiceNote>;
+              delete noteData.id;
               batch.set(newNoteRef, { ...noteData, userId: user.uid });
             });
             await batch.commit();
