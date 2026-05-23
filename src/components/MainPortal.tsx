@@ -25,7 +25,8 @@ const MainPortal: React.FC = () => {
     { id: 'voicenotes', title: 'VoiceNotes', icon: '🎙️', desc: 'Capture your thoughts with your voice. Transcription and AI analysis.', color: '#00E5FF', badge: 'CAPTURE' },
     { id: 'password', title: 'Shield Gen', icon: '🔐', desc: 'Generate unbreakable passwords instantly. Customizable and secure.', color: '#FF003C', badge: 'SECURITY' },
     { id: 'timer', title: 'Apple Timer', icon: '🍏', desc: 'Boost productivity with the focus technique. Focus and rest.', color: '#FFEA00', badge: 'FOCUS' },
-    { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' }
+    { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' },
+    { id: 'airdraw', title: 'AirDraw', icon: '🖐️', desc: 'Draw in the air using hand gestures via your webcam and MediaPipe.', color: '#00FFCC', badge: 'GESTURE' }
   ];
 
   return (

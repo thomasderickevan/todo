@@ -137,6 +137,27 @@ const apps = [
         <path d="M150 150L250 250M250 150L150 250" stroke="#FF00FF" strokeWidth="1" opacity="0.5" />
       </svg>
     )
+  },
+  {
+    path: '/airdraw',
+    id: 'airdraw',
+    title: 'AirDraw',
+    kicker: 'TOUCHLESS CREATIVITY',
+    desc: 'Draw in the air using simple hand gestures. Powered by MediaPipe Hands for a lag-free, pure neon vector experience.',
+    color: '#00FFCC',
+    mockup: (
+      <div className="mock-video mock-airdraw">
+        <div className="mock-hand">🖐️</div>
+        <div className="mock-draw-line"></div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M150 250C150 250 180 150 200 150C220 150 250 250 250 250" stroke="#00FFCC" strokeWidth="4" strokeLinecap="round" />
+        <circle cx="200" cy="150" r="15" stroke="#00FFCC" strokeWidth="2" fill="none" />
+        <path d="M80 300L120 260M320 100L280 140" stroke="#00FFCC" strokeWidth="1" opacity="0.4" />
+      </svg>
+    )
   }
 ];
 

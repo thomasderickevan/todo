@@ -1,0 +1,346 @@
+/* AirDraw Page Layout */
+.ad-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Webcam & Canvases Background Layer */
+.ad-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0d0d0d;
+  z-index: 1;
+}
+
+.ad-webcam-feed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror camera for intuitive drawing */
+  opacity: 0.14; /* Extremely subtle so as not to distract from drawing */
+  filter: grayscale(1) contrast(1.2) brightness(0.8); /* Matrix/cyber aesthetics */
+  pointer-events: none;
+}
+
+.ad-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ad-drawing-canvas,
+.ad-cursor-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1); /* Mirror canvases to align perfectly with mirrored video feed */
+}
+
+/* Cyber Floating UI Panel */
+.ad-ui-panel {
+  position: absolute;
+  top: 90px; /* Leave space for Endeavor navbar */
+  left: 30px;
+  width: 320px;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--app-color, #00ffcc);
+  border-radius: 1px;
+  padding: 24px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 
+              0 0 30px calc(var(--app-color) + '11'); /* Glow matching current brush color */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.ad-ui-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.ad-ui-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: #888;
+}
+
+.ad-ui-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ad-ui-status.drawing {
+  color: var(--app-color);
+}
+
+.ad-ui-status.erasing--- {
+  color: #ff3333;
+}
+
+.ad-ui-status.paused {
+  color: #aaaaaa;
+}
+
+.ad-ui-status.hand_not_found {
+  color: #ffaa00;
+}
+
+.ad-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aaa;
+  display: inline-block;
+  box-shadow: 0 0 8px #aaa;
+}
+
+.ad-ui-status.drawing .ad-status-dot {
+  background: var(--app-color);
+  box-shadow: 0 0 10px var(--app-color);
+  animation: ad-pulse 1.5s infinite;
+}
+
+.ad-ui-status.erasing--- .ad-status-dot {
+  background: #ff3333;
+  box-shadow: 0 0 10px #ff3333;
+  animation: ad-pulse 1.5s infinite;
+}
+
+.ad-ui-status.hand_not_found .ad-status-dot {
+  background: #ffaa00;
+  box-shadow: 0 0 8px #ffaa00;
+}
+
+/* Control Elements */
+.ad-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ad-control-group label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: #ccc;
+}
+
+.ad-color-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.ad-color-wrapper input[type="color"] {
+  border: none;
+  background: transparent;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  z-index: 2;
+}
+
+.ad-color-preview {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: all 0.3s;
+}
+
+.ad-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ad-value-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--app-color);
+  font-weight: bold;
+}
+
+/* Custom Cyber Range Input */
+.ad-control-group input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #222;
+  outline: none;
+  border: none;
+  margin: 10px 0;
+}
+
+.ad-control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--app-color);
+  box-shadow: 0 0 8px var(--app-color);
+  border-radius: 0; /* Square brutalist aesthetics */
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.ad-control-group input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Clear Canvas & Action Buttons */
+.ad-clear-btn {
+  font-family: 'JetBrains Mono', monospace;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 12px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ad-clear-btn:hover {
+  background: rgba(255, 51, 51, 0.1);
+  border-color: #ff3333;
+  color: #ff3333;
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+}
+
+/* Gesture Schematics / Info Guide */
+.ad-gesture-guide {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ad-gesture-guide h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: #666;
+  margin: 0;
+}
+
+.ad-gesture-guide ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ad-gesture-guide li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+}
+
+.ad-icon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.ad-text {
+  font-family: 'JetBrains Mono', monospace;
+  color: #aaa;
+  font-size: 0.75rem;
+}
+
+/* Back navigation */
+.ad-panel-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.ad-back-btn {
+  font-family: 'JetBrains Mono', monospace;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.ad-back-btn:hover {
+  color: var(--app-color);
+}
+
+/* Status dot pulsation animation */
+@keyframes ad-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ad-ui-panel {
+    top: auto;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    width: auto;
+    padding: 16px;
+    gap: 14px;
+  }
+  .ad-gesture-guide {
+    display: none; /* Hide guide on mobile to fit the panel cleanly */
+  }
+}
