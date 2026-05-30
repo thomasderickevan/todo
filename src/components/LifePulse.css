@@ -1,0 +1,729 @@
+/* ==========================================================================
+   LifePulse // Habit Tracker & Streak Engine
+   ENDEAVOR OS Module - Brutalist Design System
+   ========================================================================== */
+
+/* ── Progress Ring ───────────────────────────────────────────────── */
+.lp-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 0;
+}
+
+.lp-progress-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.lp-ring-bg {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.lp-ring-fill {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+  filter: drop-shadow(0 0 6px #FF6B35);
+}
+
+.lp-ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.lp-ring-percent {
+  display: block;
+  font-family: 'Inter', monospace;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: -0.03em;
+}
+
+.lp-ring-label {
+  display: block;
+  font-family: 'Inter', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: 0.15em;
+  margin-top: 2px;
+}
+
+.lp-progress-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lp-stat-line {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 0.08em;
+}
+
+.lp-stat-line span {
+  color: #FF6B35;
+}
+
+.lp-stat-line .lp-fire {
+  display: inline-block;
+  animation: lp-fireFlicker 0.4s infinite alternate;
+}
+
+@keyframes lp-fireFlicker {
+  0% { transform: scale(1) rotate(-3deg); }
+  100% { transform: scale(1.15) rotate(3deg); }
+}
+
+/* ── Daily Habits Section ────────────────────────────────────────── */
+.lp-section-divider {
+  font-family: 'Inter', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #444;
+  letter-spacing: 0.15em;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #1A1A1A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lp-add-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #FF6B35;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lp-add-btn:hover {
+  background: #FF6B35;
+  color: #000;
+  border-color: #FF6B35;
+}
+
+/* Habit List */
+.lp-habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lp-habit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #111;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.lp-habit-item:hover {
+  background: rgba(255, 107, 53, 0.03);
+}
+
+.lp-habit-left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.lp-habit-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.lp-habit-check.checked {
+  border-color: var(--habit-color, #FF6B35);
+  background: var(--habit-color, #FF6B35);
+  transform: scale(1.1);
+}
+
+.lp-habit-check.checked::after {
+  content: '✓';
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.lp-habit-emoji {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.lp-habit-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #CCC;
+  transition: color 0.2s;
+}
+
+.lp-habit-item.completed .lp-habit-name {
+  color: #555;
+  text-decoration: line-through;
+}
+
+.lp-habit-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.lp-streak-badge {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #222;
+  color: #555;
+  white-space: nowrap;
+}
+
+.lp-streak-badge.active {
+  color: var(--habit-color, #FF6B35);
+  border-color: var(--habit-color, #FF6B35);
+  background: rgba(255, 107, 53, 0.08);
+  text-shadow: 0 0 8px var(--habit-color, #FF6B35);
+}
+
+.lp-delete-habit {
+  background: transparent;
+  border: none;
+  color: #222;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  transition: color 0.2s;
+  opacity: 0;
+}
+
+.lp-habit-item:hover .lp-delete-habit {
+  opacity: 1;
+}
+
+.lp-delete-habit:hover {
+  color: #FF003C;
+}
+
+/* Empty State */
+.lp-empty-state {
+  padding: 3rem 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lp-empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+}
+
+.lp-empty-text {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.1em;
+}
+
+.lp-empty-cta {
+  background: #FF6B35;
+  color: #000;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.lp-empty-cta:hover {
+  opacity: 0.85;
+}
+
+/* ── Heatmap ─────────────────────────────────────────────────────── */
+.lp-heatmap-section {
+  padding: 1rem 0 0;
+}
+
+.lp-heatmap-container {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.lp-heatmap-container::-webkit-scrollbar {
+  display: none;
+}
+
+.lp-heatmap-wrapper {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.lp-heatmap-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 0;
+}
+
+.lp-heatmap-day-label {
+  height: 14px;
+  font-family: 'Inter', monospace;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.05em;
+}
+
+.lp-heatmap-grid {
+  display: grid;
+  grid-template-rows: repeat(7, 14px);
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.lp-heatmap-cell {
+  width: 14px;
+  height: 14px;
+  background: #161616;
+  transition: all 0.2s;
+  cursor: default;
+  position: relative;
+}
+
+.lp-heatmap-cell:hover {
+  transform: scale(1.4);
+  z-index: 2;
+}
+
+.lp-heatmap-cell.level-1 {
+  background: rgba(255, 107, 53, 0.25);
+}
+
+.lp-heatmap-cell.level-2 {
+  background: rgba(255, 107, 53, 0.50);
+}
+
+.lp-heatmap-cell.level-3 {
+  background: rgba(255, 107, 53, 0.75);
+}
+
+.lp-heatmap-cell.level-4 {
+  background: #FF6B35;
+  box-shadow: 0 0 6px rgba(255, 107, 53, 0.4);
+}
+
+.lp-heatmap-cell.today {
+  outline: 2px solid #FF6B35;
+  outline-offset: 1px;
+}
+
+.lp-heatmap-cell.future {
+  background: #0A0A0A;
+}
+
+/* Tooltip */
+.lp-tooltip {
+  position: fixed;
+  background: #111;
+  border: 1px solid #333;
+  color: #CCC;
+  font-family: 'Inter', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.6rem;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.lp-heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.8rem;
+  justify-content: flex-end;
+}
+
+.lp-legend-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.05em;
+}
+
+.lp-legend-cell {
+  width: 12px;
+  height: 12px;
+}
+
+/* ── Stats Dashboard ─────────────────────────────────────────────── */
+.lp-stats-section {
+  padding-top: 0.5rem;
+}
+
+.lp-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.lp-stat-card {
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.lp-stat-card:hover {
+  border-color: #333;
+  transform: translateY(-2px);
+}
+
+.lp-stat-value {
+  font-family: 'Inter', monospace;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.lp-stat-value.highlighted {
+  color: #FF6B35;
+  text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.lp-stat-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #444;
+  letter-spacing: 0.15em;
+  margin-top: 0.4rem;
+}
+
+/* ── Modals ──────────────────────────────────────────────────────── */
+.lp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  animation: lp-fadeIn 0.2s ease;
+}
+
+@keyframes lp-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lp-modal-box {
+  background: #000;
+  border: 1px solid #222;
+  border-top: 4px solid #FF6B35;
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: lp-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes lp-slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.lp-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lp-modal-title {
+  font-family: 'Inter', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: 0.05em;
+}
+
+.lp-modal-close {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  transition: color 0.2s;
+}
+
+.lp-modal-close:hover {
+  color: #FFF;
+}
+
+.lp-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.lp-modal-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: 0.12em;
+}
+
+.lp-modal-input {
+  background: #0A0A0A;
+  border: 1px solid #222;
+  color: #FFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  padding: 0.8rem 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lp-modal-input:focus {
+  border-color: #FF6B35;
+}
+
+.lp-modal-input::placeholder {
+  color: #333;
+}
+
+/* Emoji / Color picker grid */
+.lp-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.lp-picker-item {
+  width: 36px;
+  height: 36px;
+  background: #111;
+  border: 2px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.1rem;
+}
+
+.lp-picker-item:hover {
+  border-color: #555;
+  transform: scale(1.1);
+}
+
+.lp-picker-item.selected {
+  border-color: #FF6B35;
+  background: rgba(255, 107, 53, 0.1);
+  transform: scale(1.1);
+}
+
+.lp-color-swatch {
+  width: 18px;
+  height: 18px;
+}
+
+.lp-modal-submit {
+  background: #FF6B35;
+  color: #000;
+  border: none;
+  padding: 0.9rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.lp-modal-submit:hover {
+  opacity: 0.85;
+}
+
+.lp-modal-submit:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Delete confirm modal */
+.lp-confirm-box {
+  background: #000;
+  border: 1px solid #222;
+  border-top: 4px solid #FF003C;
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: center;
+  animation: lp-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lp-confirm-icon {
+  font-size: 2.5rem;
+}
+
+.lp-confirm-title {
+  font-family: 'Inter', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: 0.05em;
+}
+
+.lp-confirm-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+.lp-confirm-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.lp-confirm-cancel {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  padding: 0.8rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lp-confirm-cancel:hover {
+  border-color: #555;
+  color: #FFF;
+}
+
+.lp-confirm-delete {
+  flex: 1;
+  background: #FF003C;
+  border: none;
+  color: #FFF;
+  padding: 0.8rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.lp-confirm-delete:hover {
+  opacity: 0.85;
+}
+
+/* ── Completion Animation ────────────────────────────────────────── */
+.lp-all-done-banner {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  animation: lp-bannerGlow 2s infinite alternate;
+}
+
+@keyframes lp-bannerGlow {
+  0% { box-shadow: 0 0 10px rgba(255, 107, 53, 0.1); }
+  100% { box-shadow: 0 0 25px rgba(255, 107, 53, 0.2); }
+}
+
+.lp-banner-icon {
+  font-size: 1.5rem;
+  animation: lp-fireFlicker 0.3s infinite alternate;
+}
+
+.lp-banner-text {
+  font-family: 'Inter', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #FF6B35;
+  letter-spacing: 0.1em;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .lp-progress-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .lp-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .lp-heatmap-cell {
+    width: 11px;
+    height: 11px;
+  }
+
+  .lp-heatmap-day-label {
+    height: 11px;
+    font-size: 0.45rem;
+  }
+
+  .lp-confirm-actions {
+    flex-direction: column;
+  }
+}

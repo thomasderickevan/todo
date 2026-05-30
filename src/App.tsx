@@ -12,6 +12,7 @@ import AIAgentPage from './components/AIAgentPage';
 import AIMonitor from './components/AIMonitor';
 import AirDraw from './components/AirDraw';
 import VibeMatrix from './components/VibeMatrix';
+import LifePulse from './components/LifePulse';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/ai-monitor" element={<AIMonitor />} />
         <Route path="/airdraw" element={<AirDraw />} />
         <Route path="/vibematrix" element={<VibeMatrix />} />
+        <Route path="/lifepulse" element={<LifePulse />} />
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>

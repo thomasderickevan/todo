@@ -183,6 +183,34 @@ const apps = [
         <line x1="20" y1="200" x2="380" y2="200" stroke="#7C4DFF" strokeWidth="0.5" opacity="0.2" />
       </svg>
     )
+  },
+  {
+    path: '/lifepulse',
+    id: 'lifepulse',
+    title: 'Life Pulse',
+    kicker: 'DAILY CONSISTENCY',
+    desc: 'Track habits, build streaks, and maintain momentum. A visual heatmap of your daily actions designed to keep you moving forward.',
+    color: '#FF6B35',
+    mockup: (
+      <div className="mock-video mock-pulse">
+        <div className="pulse-ring"></div>
+        <div className="pulse-grid">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className={`pulse-cell ${i % 3 === 0 ? 'active' : ''}`}></div>
+          ))}
+        </div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="50" y="150" width="40" height="100" fill="#FF6B35" opacity="0.4" />
+        <rect x="110" y="100" width="40" height="150" fill="#FF6B35" opacity="0.6" />
+        <rect x="170" y="200" width="40" height="50" fill="#FF6B35" opacity="0.2" />
+        <rect x="230" y="50" width="40" height="200" fill="#FF6B35" opacity="0.8" />
+        <rect x="290" y="120" width="40" height="130" fill="#FF6B35" />
+        <path d="M50 250H330" stroke="#FF6B35" strokeWidth="2" strokeDasharray="5 5" opacity="0.5" />
+      </svg>
+    )
   }
 ];
 
