@@ -208,7 +208,7 @@ async function migrateLegacyVault(pin){
   const migrated=[];
   for(const entry of state.vaultEntries){
     const password=await decryptLegacySecret(entry.encryptedPassword,pin);
-    migrated.push({id:entry.id||`vault-${Date.now()}-${Math.random().toString(16).slice(2)}`,serviceName:entry.serviceName||"Untitled",username:entry.username||"",siteOrigin:entry.siteOrigin||"",siteHostname:entry.siteHostname||"",encryptedSecret:await encryptWithVaultKey(password,vaultKey),createdAt:entry.createdAt||Date.now(),updatedAt:entry.updatedAt||Date.now()});
+    migrated.push({id:entry.id||`vault-${Date.now()}-${randomId()}`,serviceName:entry.serviceName||"Untitled",username:entry.username||"",siteOrigin:entry.siteOrigin||"",siteHostname:entry.siteHostname||"",encryptedSecret:await encryptWithVaultKey(password,vaultKey),createdAt:entry.createdAt||Date.now(),updatedAt:entry.updatedAt||Date.now()});
   }
   state.vaultEntries=migrated;state.vaultMasterConfig=await buildVaultMasterConfig(pin,vaultKey);state.isUnlocked=true;state.masterPin=pin;state.currentVaultKey=vaultKey;state.vaultMetaText="Legacy vault migrated to wrapped vault-key storage.";
   await persistVaultSession();
@@ -604,7 +604,7 @@ function restoreVaultSession(session){if(!session||!state.vaultMasterConfig)retu
 async function persistVaultSession(){if(!state.isUnlocked||!state.currentVaultKey||!state.vaultMasterConfig)return;await getSessionStorageArea().set({[KEYS.session]:{isUnlocked:true,currentVaultKey:state.currentVaultKey,configKey:getConfigSessionKey(state.vaultMasterConfig)}});}
 async function clearVaultSession(){await getSessionStorageArea().remove(KEYS.session);}
 function randomBase64(length){return arrayBufferToBase64(crypto.getRandomValues(new Uint8Array(length)).buffer);}
-function randomId(){return Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
+function randomId(){return Array.from(crypto.getRandomValues(new Uint32Array(4))).map(n=>n.toString(36)).join("");}
 function arrayBufferToBase64(buffer){return btoa(String.fromCharCode(...new Uint8Array(buffer)));}
 function base64ToArrayBuffer(value){const binary=atob(value);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i+=1)bytes[i]=binary.charCodeAt(i);return bytes.buffer;}
 function escapeHtml(value){return String(value).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");}
