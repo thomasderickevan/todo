@@ -141,16 +141,22 @@ const LifePulse: React.FC = () => {
     const newHabits = data.habits.filter(h => h.id !== id);
     // Cleanup logs
     const newLogs: Record<string, string[]> = {};
-    for (const [date, ids] of Object.entries(data.logs)) {
-      const filteredIds = ids.filter(logId => logId !== id);
-      if (filteredIds.length > 0) {
-        newLogs[date] = filteredIds;
+    for (const date in data.logs) {
+      if (Object.prototype.hasOwnProperty.call(data.logs, date)) {
+        const ids = data.logs[date];
+        if (ids.includes(id)) {
+          const filteredIds = ids.filter(logId => logId !== id);
+          if (filteredIds.length > 0) {
+            newLogs[date] = filteredIds;
+          }
+        } else {
+          newLogs[date] = ids;
+        }
       }
     }
     saveData({ habits: newHabits, logs: newLogs });
     setHabitToDelete(null);
   };
-
   const toggleHabit = (habitId: string, date: string) => {
     const prevLogsForDate = data.logs[date] || [];
     const isCompleted = prevLogsForDate.includes(habitId);
