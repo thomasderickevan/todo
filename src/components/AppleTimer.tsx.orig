@@ -5,10 +5,6 @@ import LegalFooter from './LegalFooter';
 import GuestStorageNotice from './GuestStorageNotice';
 import './AppleTimer.css';
 
-const SOUND_DELAY_MS = 50;
-const TIMER_INTERVAL_MS = 1000;
-const SECONDS_PER_MINUTE = 60;
-
 const AppleTimer: React.FC = () => {
   const { user } = useAuth();
   const [durations, setDurations] = useState({
@@ -17,18 +13,18 @@ const AppleTimer: React.FC = () => {
     long: Number(localStorage.getItem('at_long')) || 15,
   });
   const [selectedSound, setSelectedSound] = useState(localStorage.getItem('at_sound') || 'chime');
-  
+
   const [mode, setMode] = useState<'focus' | 'short' | 'long'>('focus');
-  const [timeLeft, setTimeLeft] = useState(durations[mode] * SECONDS_PER_MINUTE);
+  const [timeLeft, setTimeLeft] = useState(durations[mode] * 60);
   const [isActive, setIsActive] = useState(false);
   const [sessions, setSessions] = useState(() => {
     return Number(localStorage.getItem('at_sessions')) || 0;
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const playSound = useCallback((soundTypeOverride?: string) => {
@@ -98,9 +94,9 @@ const AppleTimer: React.FC = () => {
     const newDurations = { ...durations, [m]: val };
     setDurations(newDurations);
     localStorage.setItem(`at_${m}`, val.toString());
-    
+
     if (mode === m && !isActive) {
-      setTimeLeft(val * SECONDS_PER_MINUTE);
+      setTimeLeft(val * 60);
     }
   };
 
@@ -108,17 +104,17 @@ const AppleTimer: React.FC = () => {
     setSelectedSound(sound);
     localStorage.setItem('at_sound', sound);
     // Play a quick preview of the selected sound
-    setTimeout(() => playSound(sound), SOUND_DELAY_MS);
+    setTimeout(() => playSound(sound), 50);
   };
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
-      }, TIMER_INTERVAL_MS);
+      }, 1000);
     } else if (timeLeft === 0) {
       playSound();
-      
+
       setTimeout(() => {
         setIsActive(false);
         if (mode === 'focus') {
@@ -129,7 +125,7 @@ const AppleTimer: React.FC = () => {
         }
         setIsModalOpen(true);
       }, 0);
-      
+
       if (timerRef.current) clearInterval(timerRef.current);
     }
 
@@ -164,7 +160,7 @@ const AppleTimer: React.FC = () => {
         <g style={{ opacity: progress <= 12.5 ? 1 : 0, transition: 'opacity 0.5s' }}>
           <path d="M100,152 C103,152 105,156 105,158 C105,160 95,160 95,158 C95,156 97,152 100,152 Z" fill="#5D4037"/>
         </g>
-        
+
         {/* Sprout: 12.5-25% */}
         <g style={{ opacity: progress > 12.5 && progress <= 25 ? 1 : 0, transition: 'opacity 0.5s' }}>
           <path d="M100,152 C103,152 105,156 105,158 C105,160 95,160 95,158 C95,156 97,152 100,152 Z" fill="#5D4037"/>
@@ -282,9 +278,9 @@ const AppleTimer: React.FC = () => {
 
             <div className="mc-timer-modes">
               {(['focus', 'short', 'long'] as const).map(m => (
-                <button 
+                <button
                   key={m}
-                  className={mode === m ? 'active' : ''} 
+                  className={mode === m ? 'active' : ''}
                   onClick={() => switchMode(m)}
                 >
                   {m.toUpperCase()}
@@ -342,9 +338,9 @@ const AppleTimer: React.FC = () => {
                     {Object.keys(durations).map((d) => (
                       <div key={d} className="mc-setting-input">
                         <label>{d.toUpperCase()}</label>
-                        <input 
-                          type="number" 
-                          value={durations[d as keyof typeof durations]} 
+                        <input
+                          type="number"
+                          value={durations[d as keyof typeof durations]}
                           onChange={(e) => updateDuration(d as keyof typeof durations, Math.max(1, parseInt(e.target.value) || 1))}
                         />
                       </div>
@@ -355,9 +351,9 @@ const AppleTimer: React.FC = () => {
                 <div className="mc-settings-group">
                   <h3>ALARM_INTERFACE</h3>
                   <div className="mc-settings-row">
-                    <select 
-                      className="mc-select" 
-                      value={selectedSound} 
+                    <select
+                      className="mc-select"
+                      value={selectedSound}
                       onChange={(e) => updateSound(e.target.value)}
                     >
                       <option value="chime">CHIME</option>
