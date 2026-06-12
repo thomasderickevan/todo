@@ -35,6 +35,7 @@ interface VaultEntry {
   username: string;
   encryptedPassword: string;
   createdAt: number;
+  salt?: string;
   userId: string;
 }
 
@@ -232,10 +233,17 @@ const PasswordGenerator: React.FC = () => {
     }
 
     setIsSaving(true);
+    const salt = CryptoJS.lib.WordArray.random(128 / 8).toString();
+    const key = CryptoJS.PBKDF2(masterPin, salt, {
+      keySize: 256 / 32,
+      iterations: 10000
+    }).toString();
+
     const entryData = {
       serviceName: serviceName.trim(),
       username: vaultUsername.trim(),
-      encryptedPassword: CryptoJS.AES.encrypt(password, masterPin).toString(),
+      encryptedPassword: CryptoJS.AES.encrypt(password, key).toString(),
+      salt,
       createdAt: Date.now(),
       userId: user.uid
     };
@@ -278,10 +286,18 @@ const PasswordGenerator: React.FC = () => {
       return;
     }
     try {
-      const bytes = CryptoJS.AES.decrypt(entry.encryptedPassword, masterPin);
+      let key: string | CryptoJS.lib.WordArray = masterPin;
+      if (entry.salt) {
+        key = CryptoJS.PBKDF2(masterPin, entry.salt, {
+          keySize: 256 / 32,
+          iterations: 10000
+        }).toString();
+      }
+
+      const bytes = CryptoJS.AES.decrypt(entry.encryptedPassword, key);
       const originalText = bytes.toString(CryptoJS.enc.Utf8);
       if (!originalText) throw new Error("Invalid PIN");
-      
+
       setRevealedIds(prev => ({ ...prev, [entry.id]: originalText }));
     } catch {
       alert("Incorrect Master PIN. Decryption failed.");
