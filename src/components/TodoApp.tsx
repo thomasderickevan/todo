@@ -226,7 +226,7 @@ const TodoApp = () => {
 
   const filteredTasks = tasks
     .filter(task => {
-      const matchesFilter = filter === 'Active' ? !task.completed : (filter === 'Completed' ? task.completed : true);
+      const matchesFilter = { All: true, Active: !task.completed, Completed: task.completed }[filter] ?? true;
       const matchesSearch = task.text.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesFilter && matchesSearch;
     });
