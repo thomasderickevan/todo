@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -38,7 +37,6 @@ const getLocalDateString = (date: Date = new Date()) => {
 };
 
 const LifePulse: React.FC = () => {
-  const navigate = useNavigate();
   const { user, login, logout, loading: authLoading } = useAuth();
   const { saveToDrive, isSyncing } = useDriveSync();
 
@@ -155,23 +153,18 @@ const LifePulse: React.FC = () => {
     const prevLogsForDate = data.logs[date] || [];
     const isCompleted = prevLogsForDate.includes(habitId);
     
-    let newLogsForDate;
-    if (isCompleted) {
-      newLogsForDate = prevLogsForDate.filter(id => id !== habitId);
-    } else {
-      newLogsForDate = [...prevLogsForDate, habitId];
-      
-      // Check if all habits for today are done now
-      if (date === getLocalDateString() && newLogsForDate.length === data.habits.length && data.habits.length > 0) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#FF6B35', '#FFF', '#000']
-        });
-      }
-    }
+    const newLogsForDate = isCompleted
+      ? prevLogsForDate.filter(id => id !== habitId)
+      : [...prevLogsForDate, habitId];
 
+    if (!isCompleted && date === getLocalDateString() && newLogsForDate.length === data.habits.length && data.habits.length > 0) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#FF6B35", "#FFF", "#000"]
+      });
+    }
     const newLogs = { ...data.logs };
     if (newLogsForDate.length === 0) {
       delete newLogs[date];
@@ -195,7 +188,7 @@ const LifePulse: React.FC = () => {
     
     const d = new Date();
     // Start checking from yesterday, unless today is already checked
-    let checkedToday = data.logs[todayStr]?.includes(habitId) || false;
+    const checkedToday = data.logs[todayStr]?.includes(habitId) || false;
     if (checkedToday) {
       tempStreak = 1;
     }
@@ -462,7 +455,7 @@ const LifePulse: React.FC = () => {
                   </div>
                   {heatmapColumns.map((col, colIdx) => (
                     <div key={`col-${colIdx}`} className="lp-heatmap-grid">
-                      {col.map((day: any, rowIdx: number) => (
+                      {col.map((day: { date: string; count: number; level: number; isToday: boolean; future?: boolean }, rowIdx: number) => (
                         <div 
                           key={`cell-${colIdx}-${rowIdx}`}
                           className={`lp-heatmap-cell ${day.future ? 'future' : `level-${day.level}`} ${day.isToday ? 'today' : ''}`}
