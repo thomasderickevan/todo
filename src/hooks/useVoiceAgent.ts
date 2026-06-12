@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from 'react';
 
 export const useVoiceAgent = () => {
@@ -8,7 +7,7 @@ export const useVoiceAgent = () => {
   }, []);
 
   const listen = useCallback((onCommand: (command: string) => void) => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
       console.warn("Speech Recognition not supported in this browser.");
@@ -20,11 +19,13 @@ export const useVoiceAgent = () => {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
       const command = event.results[0][0].transcript.toLowerCase();
       onCommand(command);
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onerror = (event: any) => {
       console.error("Speech Recognition Error:", event.error);
     };
@@ -33,7 +34,7 @@ export const useVoiceAgent = () => {
   }, []);
 
   const startWakeWordDetection = useCallback((onWakeWord: () => void) => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return null;
 
     const recognition = new SpeechRecognition();
@@ -41,6 +42,7 @@ export const useVoiceAgent = () => {
     recognition.continuous = true;
     recognition.interimResults = false;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
       const results = event.results;
       const last = results[results.length - 1][0].transcript.toLowerCase();
@@ -50,6 +52,7 @@ export const useVoiceAgent = () => {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onerror = (event: any) => {
       if (event.error !== 'no-speech') {
         console.error("Wake Word Error:", event.error);
