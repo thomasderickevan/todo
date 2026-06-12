@@ -10,7 +10,7 @@ import {
   where, 
   onSnapshot, 
   deleteDoc, 
-  doc 
+  doc, writeBatch
 } from 'firebase/firestore';
 import { useDriveSync } from '../hooks/useDriveSync';
 import Navbar from './Navbar';
@@ -331,6 +331,10 @@ const PasswordGenerator: React.FC = () => {
         const restoredEntries = JSON.parse(content) as VaultEntry[];
         console.log(`Found ${restoredEntries.length} entries in backup.`);
 
+        let batch = writeBatch(db);
+        let count = 0;
+        const BATCH_LIMIT = 500;
+
         for (const entry of restoredEntries) {
           // Check if this service/password combo already exists to avoid duplicates
           const exists = vaultEntries.some(e => 
@@ -341,12 +345,25 @@ const PasswordGenerator: React.FC = () => {
           if (!exists) {
             const cleanEntry = { ...entry } as Partial<VaultEntry>;
             delete cleanEntry.id;
-            await addDoc(collection(db, "vault_passwords"), {
+
+            const newDocRef = doc(collection(db, "vault_passwords"));
+            batch.set(newDocRef, {
               ...cleanEntry,
               userId: user.uid, // Ensure it's for current user
               createdAt: entry.createdAt || Date.now()
             });
+
+            count++;
+            if (count === BATCH_LIMIT) {
+              await batch.commit();
+              batch = writeBatch(db);
+              count = 0;
+            }
           }
+        }
+
+        if (count > 0) {
+          await batch.commit();
         }
       } catch (error) {
         console.error("Restore parsing error:", error);
