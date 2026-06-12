@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
-import { Analytics } from '@vercel/analytics/react'
 import confetti from 'canvas-confetti'
 import AIAssistant from './AIAssistant'
 import LegalFooter from './LegalFooter'
@@ -376,7 +375,6 @@ const TodoApp = () => {
           <AIAssistant onAddTask={addTaskVoice} onClearList={clearAllVoice} />
         </div>
         <LegalFooter />
-        <Analytics />
       </div>
     </>
   )
