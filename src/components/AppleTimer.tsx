@@ -28,8 +28,7 @@ const AppleTimer: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const playSound = useCallback((soundTypeOverride?: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const sound = soundTypeOverride || selectedSound;
 
     const playNote = (freq: number, start: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.3) => {

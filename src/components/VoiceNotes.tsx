@@ -36,8 +36,7 @@ const VoiceNotes: React.FC = () => {
   const { saveToDrive, isSyncing } = useDriveSync();
   const [syncingId, setSyncingId] = useState<string | null>(null);
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<unknown>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef('');
 
@@ -173,8 +172,7 @@ const VoiceNotes: React.FC = () => {
   }, [stopRecording, saveNote]);
 
   const startRecording = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Voice input is not supported in this browser. Please try Chrome or Safari.");
       return;
