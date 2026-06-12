@@ -12,6 +12,7 @@ import {
   doc, 
   setDoc, 
   deleteDoc,
+  writeBatch,
   onSnapshot, 
   collection,
   query,
@@ -210,18 +211,55 @@ const TodoApp = () => {
     }
   };
 
-  const clearCompleted = () => {
-    tasks.forEach(async (task) => {
-      if (task.completed) {
-        await deleteTask(task.id);
+  const clearCompleted = async () => {
+    const toDelete = tasks.filter(t => t.completed);
+    if (toDelete.length === 0) return;
+
+    if (user) {
+      const batch = writeBatch(db);
+      const firestoreIds = toDelete.filter(t => isNaN(Number(t.id))).map(t => t.id);
+      const localIds = toDelete.filter(t => !isNaN(Number(t.id))).map(t => t.id);
+
+      if (firestoreIds.length > 0) {
+        firestoreIds.forEach(id => batch.delete(doc(db, "todos", id)));
+        try {
+          await batch.commit();
+        } catch (e) {
+          console.error("Error batch deleting tasks:", e);
+        }
       }
-    });
+
+      if (localIds.length > 0) {
+        setTasks(prev => prev.filter(t => !localIds.includes(t.id)));
+      }
+    } else {
+      setTasks(prev => prev.filter(t => !t.completed));
+    }
   };
 
-  const clearAllVoice = () => {
-    tasks.forEach(async (task) => {
-      await deleteTask(task.id);
-    });
+  const clearAllVoice = async () => {
+    if (tasks.length === 0) return;
+
+    if (user) {
+      const batch = writeBatch(db);
+      const firestoreIds = tasks.filter(t => isNaN(Number(t.id))).map(t => t.id);
+      const localIds = tasks.filter(t => !isNaN(Number(t.id))).map(t => t.id);
+
+      if (firestoreIds.length > 0) {
+        firestoreIds.forEach(id => batch.delete(doc(db, "todos", id)));
+        try {
+          await batch.commit();
+        } catch (e) {
+          console.error("Error batch deleting all tasks:", e);
+        }
+      }
+
+      if (localIds.length > 0) {
+        setTasks(prev => prev.filter(t => !localIds.includes(t.id)));
+      }
+    } else {
+      setTasks([]);
+    }
   };
 
   const filteredTasks = tasks
