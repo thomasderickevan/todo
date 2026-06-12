@@ -16,7 +16,7 @@ import {
   collection,
   query,
   where,
-  addDoc
+  addDoc, writeBatch
 } from 'firebase/firestore'
 import '../App.css'
 
@@ -210,18 +210,42 @@ const TodoApp = () => {
     }
   };
 
-  const clearCompleted = () => {
-    tasks.forEach(async (task) => {
-      if (task.completed) {
-        await deleteTask(task.id);
+  const clearCompleted = async () => {
+    if (user) {
+      const batch = writeBatch(db);
+      tasks.forEach((task) => {
+        if (task.completed && isNaN(Number(task.id))) {
+          batch.delete(doc(db, "todos", task.id));
+        }
+      });
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.error("Error clearing completed tasks in Firestore:", e);
+        setTasks(prev => prev.filter(t => !t.completed));
       }
-    });
+    } else {
+      setTasks(prev => prev.filter(t => !t.completed));
+    }
   };
 
-  const clearAllVoice = () => {
-    tasks.forEach(async (task) => {
-      await deleteTask(task.id);
-    });
+  const clearAllVoice = async () => {
+    if (user) {
+      const batch = writeBatch(db);
+      tasks.forEach((task) => {
+        if (isNaN(Number(task.id))) {
+          batch.delete(doc(db, "todos", task.id));
+        }
+      });
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.error("Error clearing all tasks in Firestore:", e);
+        setTasks([]);
+      }
+    } else {
+      setTasks([]);
+    }
   };
 
   const filteredTasks = tasks
