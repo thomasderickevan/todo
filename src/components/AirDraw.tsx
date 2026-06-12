@@ -1,9 +1,41 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
 import './AirDraw.css';
+interface Landmark {
+  x: number;
+  y: number;
+}
+
+interface HandsResults {
+  multiHandLandmarks: Landmark[][];
+}
+
+interface HandsOptions {
+  maxNumHands?: number;
+  modelComplexity?: number;
+  minDetectionConfidence?: number;
+  minTrackingConfidence?: number;
+}
+
+interface Hands {
+  setOptions(options: HandsOptions): void;
+  onResults(callback: (results: HandsResults) => void): void;
+  send(inputs: { image: HTMLVideoElement }): Promise<void>;
+  close(): Promise<void> | void;
+}
+
+interface Camera {
+  start(): Promise<void>;
+  stop(): Promise<void> | void;
+}
+
+interface MediaPipeWindow extends Window {
+  Hands: new (config: { locateFile: (file: string) => string }) => Hands;
+  Camera: new (video: HTMLVideoElement, options: { onFrame: () => Promise<void>; width: number; height: number }) => Camera;
+}
+
 
 const loadScript = (src: string): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -33,8 +65,8 @@ const AirDraw: React.FC = () => {
   
   const lastXRef = useRef<number | null>(null);
   const lastYRef = useRef<number | null>(null);
-  const cameraInstanceRef = useRef<any>(null);
-  const handsInstanceRef = useRef<any>(null);
+  const cameraInstanceRef = useRef<Camera | null>(null);
+  const handsInstanceRef = useRef<Hands | null>(null);
 
   // Resize handler
   const resizeCanvases = useCallback(() => {
@@ -64,7 +96,7 @@ const AirDraw: React.FC = () => {
   }, []);
 
   // Helper to check if a finger is extended
-  const isFingerUp = (landmarks: any, tipIndex: number, mcpIndex: number) => {
+  const isFingerUp = (landmarks: Landmark[], tipIndex: number, mcpIndex: number) => {
     return landmarks[tipIndex].y < landmarks[mcpIndex].y;
   };
 
@@ -117,7 +149,7 @@ const AirDraw: React.FC = () => {
   }, [resizeCanvases]);
 
   // Main processing function called by MediaPipe
-  const onResults = useCallback((results: any) => {
+  const onResults = useCallback((results: HandsResults) => {
     const cursorCanvas = cursorCanvasRef.current;
     const drawingCanvas = drawingCanvasRef.current;
     if (!cursorCanvas || !drawingCanvas) return;
@@ -207,9 +239,9 @@ const AirDraw: React.FC = () => {
       return;
     }
 
-    const SpeechRecognitionWindow = window as any;
-    const HandsClass = SpeechRecognitionWindow.Hands;
-    const CameraClass = SpeechRecognitionWindow.Camera;
+    const mediaPipeWindow = window as unknown as MediaPipeWindow;
+    const HandsClass = mediaPipeWindow.Hands;
+    const CameraClass = mediaPipeWindow.Camera;
 
     if (!HandsClass || !CameraClass) {
       setTimeout(() => setStatus('Dependency Init Error'), 0);
@@ -246,7 +278,7 @@ const AirDraw: React.FC = () => {
       .then(() => {
         setStatus('Show Hand to Start');
       })
-      .catch((err: any) => {
+      .catch((err: Error) => {
         setStatus('Camera Access Denied');
         console.error(err);
       });
