@@ -134,7 +134,7 @@ function setActiveSiteInfo(url){try{const parsed=new URL(url);if(!/^https?:$/.te
 
 async function signInWithGoogle(){
   if(getOauthClientId().includes("YOUR_GOOGLE_OAUTH_CLIENT_ID")){window.alert("Set a real OAuth client ID in extension/manifest.json before using Google sign-in.");return;}
-  try{const token=await getAccessToken(true);const profile=await fetchGoogleProfile(token);state.accountProfile=profile;state.syncStatusText="Google account connected. Restoring Drive backups...";elements.resetEmailInput.value=profile.email||"";await chrome.storage.local.set({[KEYS.account]:profile});await restoreFromDriveOnSignIn(token);await registerRecoveryProfileIfPossible({token});renderAccount();}catch(error){console.error(error);window.alert("Google sign-in failed. Check the extension OAuth client and try again.");}
+  try{const token=await getAccessToken(true);const profile=await fetchGoogleProfile(token);state.accountProfile=profile;state.syncStatusText="Google account connected. Restoring Drive backups...";elements.resetEmailInput.value=profile.email||"";await chrome.storage.local.set({[KEYS.account]:profile});await restoreFromDriveOnSignIn(token);await registerRecoveryProfileIfPossible({token});renderAccount();}catch(error){handleError(error,"Google sign-in failed. Check the extension OAuth client and try again.");}
 }
 async function signOutGoogle(){
   state.accountProfile=null;state.syncStatusText="Signed out. Vault data remains local on this device, including your saved authenticator entries.";elements.resetEmailInput.value="";await chrome.storage.local.remove(KEYS.account);renderAccount();
@@ -338,8 +338,7 @@ async function importVault(event){
     renderAll();
     await autoSyncVaultIfSignedIn("Imported entries and synced to Drive.");
   }catch(error){
-    console.error(error);
-    window.alert(`Import failed: ${error?.message||'Invalid file.'}`);
+    handleError(error,"Import failed: " + (error?.message||"Invalid file."));
   }finally{
     event.target.value="";
   }
@@ -476,7 +475,8 @@ async function autoSyncVaultIfSignedIn(successText){
     renderAccount();
   }
 }
-function runTask(task){return async()=>{try{await task();}catch(error){console.error(error);window.alert(error?.message||"Request failed.");}};}
+function handleError(error,message){console.error(error);window.alert(message||error?.message||"Request failed.");}
+function runTask(task){return async()=>{try{await task();}catch(error){handleError(error);}};}
 function bindEnterSubmit(ids,handler){ids.forEach((id)=>document.getElementById(id)?.addEventListener("keydown",async(event)=>{if(event.key==="Enter"||event.code==="NumpadEnter"){event.preventDefault();await handler();}}));}
 function startOtpTicker(){stopOtpTicker();state.otpTickHandle=window.setInterval(renderOtpViewer,1000);}
 function stopOtpTicker(){if(state.otpTickHandle){window.clearInterval(state.otpTickHandle);state.otpTickHandle=null;}}
