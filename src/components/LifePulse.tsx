@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -38,7 +38,7 @@ const getLocalDateString = (date: Date = new Date()) => {
 };
 
 const LifePulse: React.FC = () => {
-  const navigate = useNavigate();
+//   // const navigate = useNavigate();
   const { user, login, logout, loading: authLoading } = useAuth();
   const { saveToDrive, isSyncing } = useDriveSync();
 
@@ -195,7 +195,7 @@ const LifePulse: React.FC = () => {
     
     const d = new Date();
     // Start checking from yesterday, unless today is already checked
-    let checkedToday = data.logs[todayStr]?.includes(habitId) || false;
+    const checkedToday = data.logs[todayStr]?.includes(habitId) || false;
     if (checkedToday) {
       tempStreak = 1;
     }
@@ -462,7 +462,8 @@ const LifePulse: React.FC = () => {
                   </div>
                   {heatmapColumns.map((col, colIdx) => (
                     <div key={`col-${colIdx}`} className="lp-heatmap-grid">
-                      {col.map((day: any, rowIdx: number) => (
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      {col.map((day: { date: string; count: number; level: number; isToday: boolean; future?: boolean; }, rowIdx: number) => (
                         <div 
                           key={`cell-${colIdx}-${rowIdx}`}
                           className={`lp-heatmap-cell ${day.future ? 'future' : `level-${day.level}`} ${day.isToday ? 'today' : ''}`}
