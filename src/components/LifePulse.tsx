@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -38,7 +37,6 @@ const getLocalDateString = (date: Date = new Date()) => {
 };
 
 const LifePulse: React.FC = () => {
-  const navigate = useNavigate();
   const { user, login, logout, loading: authLoading } = useAuth();
   const { saveToDrive, isSyncing } = useDriveSync();
 
@@ -195,7 +193,7 @@ const LifePulse: React.FC = () => {
     
     const d = new Date();
     // Start checking from yesterday, unless today is already checked
-    let checkedToday = data.logs[todayStr]?.includes(habitId) || false;
+    const checkedToday = data.logs[todayStr]?.includes(habitId) || false;
     if (checkedToday) {
       tempStreak = 1;
     }
@@ -222,27 +220,27 @@ const LifePulse: React.FC = () => {
 
     return { current: currentStreak, max: maxStreak };
   }, [data.logs, todayStr]);
-
   const globalStats = useMemo(() => {
     let totalCompletions = 0;
     let perfectDays = 0;
-    const allDates = Object.keys(data.logs);
+    const habitCount = data.habits.length;
     
-    for (const date of allDates) {
-      totalCompletions += data.logs[date].length;
-      if (data.habits.length > 0 && data.logs[date].length >= data.habits.length) {
-        perfectDays++;
+    for (const date in data.logs) {
+      if (Object.prototype.hasOwnProperty.call(data.logs, date)) {
+        const count = data.logs[date].length;
+        totalCompletions += count;
+        if (count >= habitCount) {
+          perfectDays++;
+        }
       }
     }
     return { totalCompletions, perfectDays };
-  }, [data]);
-
-  // Heatmap Data (Last 60 days)
+  }, [data.logs, data.habits.length]);
   const heatmapData = useMemo(() => {
     const days = [];
     const today = new Date();
-    today.setHours(0,0,0,0);
     
+    today.setHours(0,0,0,0);
     // Start date: 60 days ago
     const start = new Date(today);
     start.setDate(today.getDate() - 59);
@@ -462,7 +460,7 @@ const LifePulse: React.FC = () => {
                   </div>
                   {heatmapColumns.map((col, colIdx) => (
                     <div key={`col-${colIdx}`} className="lp-heatmap-grid">
-                      {col.map((day: any, rowIdx: number) => (
+                      {col.map((day, rowIdx: number) => (
                         <div 
                           key={`cell-${colIdx}-${rowIdx}`}
                           className={`lp-heatmap-cell ${day.future ? 'future' : `level-${day.level}`} ${day.isToday ? 'today' : ''}`}
