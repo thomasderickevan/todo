@@ -14,7 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(localStorage.getItem('google_access_token'));
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentUser);
       if (!currentUser) {
         setGoogleAccessToken(null);
-        localStorage.removeItem('google_access_token');
       }
       setLoading(false);
     });
@@ -36,7 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = credential?.accessToken;
       if (token) {
         setGoogleAccessToken(token);
-        localStorage.setItem('google_access_token', token);
       }
     } catch (error) {
       console.error("Login failed", error);
@@ -48,7 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut(auth);
       setGoogleAccessToken(null);
-      localStorage.removeItem('google_access_token');
     } catch (error) {
       console.error("Logout failed", error);
     }
