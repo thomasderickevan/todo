@@ -1,357 +1,61 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import CryptoJS from 'crypto-js';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { db } from '../firebase';
-import { 
-  collection, 
-  addDoc, 
-  query, 
-  where, 
-  onSnapshot, 
-  deleteDoc, 
-  doc 
-} from 'firebase/firestore';
-import { useDriveSync } from '../hooks/useDriveSync';
+import { useVault } from '../hooks/useVault';
+import { usePasswordGenerator } from '../hooks/usePasswordGenerator';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
 import GuestStorageNotice from './GuestStorageNotice';
 import guestUserIcon from '../assets/guest-user.svg';
 import './PasswordGenerator.css';
 
-const WORD_LIST = [
-  'apple', 'bridge', 'candle', 'desert', 'eagle', 'forest', 'galaxy', 'honey', 'island', 'jungle',
-  'knight', 'lemon', 'mountain', 'nebula', 'ocean', 'planet', 'quartz', 'river', 'shadow', 'tiger',
-  'umbrella', 'valley', 'winter', 'xray', 'yellow', 'zebra', 'autumn', 'blossom', 'canyon', 'dawn',
-  'echo', 'falcon', 'glacier', 'harvest', 'iceberg', 'jade', 'kite', 'lagoon', 'meadow', 'night',
-  'oasis', 'pebble', 'quiver', 'reef', 'storm', 'thunder', 'umbra', 'vortex', 'willow', 'xenon',
-  'yacht', 'zenith', 'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'theta', 'iota', 'kappa',
-  'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'
-];
-
-interface VaultEntry {
-  id: string;
-  serviceName: string;
-  username: string;
-  encryptedPassword: string;
-  createdAt: number;
-  userId: string;
-}
-
-const getLocalVaultKey = (userId?: string) =>
-  userId ? `local_vault_passwords_${userId}` : 'local_vault_passwords_guest';
-
-const loadLocalVaultEntries = (userId?: string): VaultEntry[] => {
-  try {
-    const raw = localStorage.getItem(getLocalVaultKey(userId));
-    return raw ? JSON.parse(raw) as VaultEntry[] : [];
-  } catch (error) {
-    console.error('Failed to read local vault cache:', error);
-    return [];
-  }
-};
-
-const saveLocalVaultEntries = (entries: VaultEntry[], userId?: string) => {
-  localStorage.setItem(getLocalVaultKey(userId), JSON.stringify(entries));
-};
-
-const DRIVE_VAULT_BACKUP_FILE = 'endeavor_vault_backup.json';
-
 const PasswordGenerator: React.FC = () => {
   const navigate = useNavigate();
-  const { user, login, logout, loading: authLoading, googleAccessToken } = useAuth();
-  const { saveToDrive, getFromDrive, isSyncing } = useDriveSync();
-  const [mode, setMode] = useState<'password' | 'passphrase'>('password');
-  const [password, setPassword] = useState('');
-  const [length, setLength] = useState(16);
-  const [wordCount, setWordCount] = useState(4);
-  const [options, setOptions] = useState({
-    uppercase: true,
-    lowercase: true,
-    numbers: true,
-    symbols: true,
-    capitalize: true,
-    separator: '-'
-  });
-  const [copied, setCopied] = useState(false);
-  const [strength, setStrength] = useState('');
+  const { user, login, logout, loading: authLoading } = useAuth();
 
-  // Vault States
-  const [vaultEntries, setVaultEntries] = useState<VaultEntry[]>([]);
+  const {
+    mode,
+    setMode,
+    password,
+    length,
+    setLength,
+    wordCount,
+    setWordCount,
+    options,
+    setOptions,
+    copied,
+    strength,
+    generate,
+    copyToClipboard
+  } = usePasswordGenerator();
+
+  const {
+    vaultEntries,
+    isSaving,
+    isSyncing,
+    revealedIds,
+    saveToVault,
+    revealPassword,
+    deleteEntry,
+    handleSyncToDrive,
+    handleRestoreFromDrive
+  } = useVault();
+
+  // Component local states
   const [serviceName, setServiceName] = useState('');
   const [vaultUsername, setVaultUsername] = useState('');
   const [masterPin, setMasterPin] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
   const [showVault, setShowVault] = useState(false);
-  const [revealedIds, setRevealedIds] = useState<Record<string, string>>({});
 
   useEffect(() => {
     document.title = '✦ endeavor • Shield Gen';
   }, []);
 
-  // Fetch Vault Entries
-  useEffect(() => {
-    if (!user) {
-      setVaultEntries(loadLocalVaultEntries());
-      return;
-    }
-
-    const q = query(
-      collection(db, "vault_passwords"),
-      where("userId", "==", user.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const entries = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as VaultEntry[];
-      entries.sort((a, b) => b.createdAt - a.createdAt);
-      setVaultEntries(entries);
-      saveLocalVaultEntries(entries, user.uid);
-    }, (error) => {
-      console.error("Vault listener error:", error);
-      setVaultEntries(loadLocalVaultEntries(user.uid));
-    });
-
-    return () => unsubscribe();
-  }, [user]);
-
-  const generateRandomPassword = useCallback(() => {
-    const charset = {
-      uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-      lowercase: 'abcdefghijklmnopqrstuvwxyz',
-      numbers: '0123456789',
-      symbols: '!@#$%^&*()_+~`|}{[]:;?><,./-=',
-    };
-
-    let characters = '';
-    if (options.uppercase) characters += charset.uppercase;
-    if (options.lowercase) characters += charset.lowercase;
-    if (options.numbers) characters += charset.numbers;
-    if (options.symbols) characters += charset.symbols;
-
-    if (!characters) {
-      setPassword('Select at least one option');
-      return;
-    }
-
-    let generated = '';
-    for (let i = 0; i < length; i++) {
-      generated += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    setPassword(generated);
-    setCopied(false);
-  }, [length, options]);
-
-  const generatePassphrase = useCallback(() => {
-    const words = [];
-    for (let i = 0; i < wordCount; i++) {
-      const word = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
-      let styledWord = word;
-      if (options.capitalize) {
-        styledWord = word.charAt(0).toUpperCase() + word.slice(1);
-      }
-      words.push(styledWord);
-    }
-    setPassword(words.join(options.separator));
-    setCopied(false);
-  }, [wordCount, options.capitalize, options.separator]);
-
-  const generate = useCallback(() => {
-    if (mode === 'password') {
-      generateRandomPassword();
-    } else {
-      generatePassphrase();
-    }
-  }, [mode, generateRandomPassword, generatePassphrase]);
-
-  useEffect(() => {
-    generate();
-  }, [generate]);
-
-  useEffect(() => {
-    // Simple strength calculation
-    let score = 0;
-    if (mode === 'password') {
-      if (password.length >= 8) score++;
-      if (password.length >= 12) score++;
-      if (password.length >= 16) score++;
-      if (/[A-Z]/.test(password)) score++;
-      if (/[0-9]/.test(password)) score++;
-      if (/[^A-Za-z0-9]/.test(password)) score++;
-    } else {
-      if (wordCount >= 3) score++;
-      if (wordCount >= 4) score++;
-      if (wordCount >= 5) score++;
-      if (options.capitalize) score++;
-      if (options.separator !== '') score++;
-    }
-
-    if (score <= 2) setStrength('Weak');
-    else if (score <= 4) setStrength('Medium');
-    else if (score <= 5) setStrength('Strong');
-    else setStrength('Very Strong');
-  }, [password, mode, wordCount, options]);
-
-  const copyToClipboard = (text: string) => {
-    if (text && text !== 'Select at least one option') {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const syncVaultBackupToDrive = useCallback(async (entries: VaultEntry[]) => {
-    if (!user || !googleAccessToken) {
-      return;
-    }
-
-    await saveToDrive(
-      DRIVE_VAULT_BACKUP_FILE,
-      JSON.stringify(entries, null, 2),
-      {
-        convertToGoogleDoc: false,
-        mimeType: 'application/json',
-      }
-    );
-  }, [user, googleAccessToken, saveToDrive]);
-
-  const saveToVault = async () => {
-    if (!user) {
-      alert("Please sign in to use the Shield Vault.");
-      return;
-    }
-    if (!serviceName.trim()) {
-      alert("Please provide a Service Name (e.g., Netflix).");
-      return;
-    }
-    if (!masterPin.trim()) {
-      alert("Please set a Master PIN to encrypt your password.");
-      return;
-    }
-
-    setIsSaving(true);
-    const entryData = {
-      serviceName: serviceName.trim(),
-      username: vaultUsername.trim(),
-      encryptedPassword: CryptoJS.AES.encrypt(password, masterPin).toString(),
-      createdAt: Date.now(),
-      userId: user.uid
-    };
-
-    try {
-      await addDoc(collection(db, "vault_passwords"), entryData);
-      const updatedEntries = [
-        {
-          id: `pending-${entryData.createdAt}`,
-          ...entryData,
-        },
-        ...vaultEntries,
-      ].sort((a, b) => b.createdAt - a.createdAt);
-
-      await syncVaultBackupToDrive(updatedEntries);
-      alert(`Successfully locked credentials for ${serviceName} in your vault!`);
+  const handleSaveToVault = async () => {
+    const success = await saveToVault(serviceName, vaultUsername, masterPin, password);
+    if (success) {
       setServiceName('');
       setVaultUsername('');
-    } catch (error) {
-      console.error("Vault Save Error:", error);
-      const fallbackEntry: VaultEntry = {
-        id: `local-${entryData.createdAt}`,
-        ...entryData
-      };
-      const updatedEntries = [fallbackEntry, ...vaultEntries].sort((a, b) => b.createdAt - a.createdAt);
-      setVaultEntries(updatedEntries);
-      saveLocalVaultEntries(updatedEntries, user.uid);
-      await syncVaultBackupToDrive(updatedEntries);
-      alert(`Saved ${entryData.serviceName} locally because cloud vault save failed.`);
-      setServiceName('');
-      setVaultUsername('');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const revealPassword = (entry: VaultEntry) => {
-    if (!masterPin.trim()) {
-      alert("Please enter your Master PIN to reveal passwords.");
-      return;
-    }
-    try {
-      const bytes = CryptoJS.AES.decrypt(entry.encryptedPassword, masterPin);
-      const originalText = bytes.toString(CryptoJS.enc.Utf8);
-      if (!originalText) throw new Error("Invalid PIN");
-      
-      setRevealedIds(prev => ({ ...prev, [entry.id]: originalText }));
-    } catch {
-      alert("Incorrect Master PIN. Decryption failed.");
-    }
-  };
-
-  const deleteEntry = async (entry: VaultEntry) => {
-    if (window.confirm("Are you sure you want to delete this vault entry?")) {
-      try {
-        if (user && !entry.id.startsWith('local-')) {
-          await deleteDoc(doc(db, "vault_passwords", entry.id));
-          const updatedEntries = vaultEntries.filter((item) => item.id !== entry.id);
-          await syncVaultBackupToDrive(updatedEntries);
-        } else {
-          const updatedEntries = vaultEntries.filter((item) => item.id !== entry.id);
-          setVaultEntries(updatedEntries);
-          saveLocalVaultEntries(updatedEntries, user?.uid);
-          await syncVaultBackupToDrive(updatedEntries);
-        }
-      } catch (error) {
-        console.error("Error deleting vault entry:", error);
-        alert("Failed to delete entry.");
-      }
-    }
-  };
-
-  const handleSyncToDrive = async () => {
-    if (!googleAccessToken) {
-      alert("Please re-authorize Google Drive access by signing out and in again.");
-      return;
-    }
-
-    await syncVaultBackupToDrive(vaultEntries);
-  };
-
-  const handleRestoreFromDrive = async () => {
-    if (!user || !googleAccessToken) {
-      alert("Please sign in with Google to restore your vault.");
-      return;
-    }
-
-    if (window.confirm("This will merge your Drive backup into your current vault. Continue?")) {
-      const content = await getFromDrive(DRIVE_VAULT_BACKUP_FILE);
-      if (!content) return;
-
-      try {
-        const restoredEntries = JSON.parse(content) as VaultEntry[];
-        console.log(`Found ${restoredEntries.length} entries in backup.`);
-
-        for (const entry of restoredEntries) {
-          // Check if this service/password combo already exists to avoid duplicates
-          const exists = vaultEntries.some(e => 
-            e.serviceName === entry.serviceName && 
-            e.encryptedPassword === entry.encryptedPassword
-          );
-
-          if (!exists) {
-            const cleanEntry = { ...entry } as Partial<VaultEntry>;
-            delete cleanEntry.id;
-            await addDoc(collection(db, "vault_passwords"), {
-              ...cleanEntry,
-              userId: user.uid, // Ensure it's for current user
-              createdAt: entry.createdAt || Date.now()
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Restore parsing error:", error);
-        alert("Failed to parse backup file. It may be corrupted.");
-      }
     }
   };
 
@@ -484,7 +188,7 @@ const PasswordGenerator: React.FC = () => {
                         <input 
                           type="checkbox" 
                           checked={options[opt]} 
-                          onChange={() => setOptions(prev => ({ ...prev, [opt]: !prev[opt] }))}
+                          onChange={() => setOptions({ ...options, [opt]: !options[opt] })}
                         />
                         <span className="mc-custom-check"></span>
                         {opt.toUpperCase()}
@@ -513,7 +217,7 @@ const PasswordGenerator: React.FC = () => {
                       <input 
                         type="checkbox" 
                         checked={options.capitalize} 
-                        onChange={() => setOptions(prev => ({ ...prev, capitalize: !prev.capitalize }))}
+                        onChange={() => setOptions({ ...options, capitalize: !options.capitalize })}
                       />
                       <span className="mc-custom-check"></span>
                       CAPITALIZE
@@ -522,7 +226,7 @@ const PasswordGenerator: React.FC = () => {
                       <label>SEPARATOR</label>
                       <select 
                         value={options.separator} 
-                        onChange={(e) => setOptions(prev => ({ ...prev, separator: e.target.value }))}
+                        onChange={(e) => setOptions({ ...options, separator: e.target.value })}
                       >
                         <option value="-">HYPHEN (-)</option>
                         <option value=".">DOT (.)</option>
@@ -563,7 +267,7 @@ const PasswordGenerator: React.FC = () => {
                 />
                 <button 
                   className="mc-vault-add" 
-                  onClick={saveToVault}
+                  onClick={handleSaveToVault}
                   disabled={isSaving}
                 >
                   {isSaving ? 'ENCRYPTING...' : 'LOCK_IN_VAULT'}
@@ -596,7 +300,7 @@ const PasswordGenerator: React.FC = () => {
                         <button onClick={() => copyToClipboard(revealedIds[entry.id])}>[COPY]</button>
                       </div>
                     ) : (
-                      <button className="mc-reveal-btn" onClick={() => revealPassword(entry)}>REVEAL_KEY</button>
+                      <button className="mc-reveal-btn" onClick={() => revealPassword(entry, masterPin)}>REVEAL_KEY</button>
                     )}
                     <button className="mc-delete-btn" onClick={() => deleteEntry(entry)}>TERMINATE</button>
                   </div>
@@ -612,4 +316,3 @@ const PasswordGenerator: React.FC = () => {
 };
 
 export default PasswordGenerator;
-
