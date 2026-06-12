@@ -174,7 +174,7 @@ const TodoApp = () => {
     const nextCompleted = !task.completed;
     
     if (nextCompleted) {
-      const audio = new Audio('https://www.myinstants.com/media/sounds/children-yay-sound-effect.mp3');
+      const audio = new Audio('/sounds/children-yay.mp3');
       audio.volume = 0.5;
       audio.play().catch(() => {});
       confetti({

@@ -25,7 +25,7 @@ const AIAssistant = ({ onAddTask, onClearList }: AIAssistantProps) => {
 
   // Initialize alarm
   useEffect(() => {
-    alarmRef.current = new Audio('https://www.myinstants.com/media/sounds/hacker-alarm.mp3');
+    alarmRef.current = new Audio('/sounds/hacker-alarm.mp3');
     alarmRef.current.loop = true;
     
     return () => {
