@@ -1,3 +1,4 @@
+import "./HomeShowcase.css"
 import { useState, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import { Analytics } from '@vercel/analytics/react'
@@ -40,7 +41,7 @@ const TodoApp = () => {
 
   const [isGuest, setIsGuest] = useState(() => {
     const storedGuest = sessionStorage.getItem('isGuest');
-    return storedGuest === null ? true : storedGuest === 'true';
+    return storedGuest === null ? false : storedGuest === 'true';
   });
   const [tasks, setTasks] = useState<Todo[]>(() => {
     const savedTasks = localStorage.getItem('local_tasks');
@@ -237,6 +238,29 @@ const TodoApp = () => {
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
   if (authLoading) return <div className="loading-screen">🌀 Initializing Cyber-Link...</div>;
+  if (!user && !isGuest) {
+    return (
+      <div className="home-showcase modern-critical app-theme">
+        <div className="mc-bg-overlay">
+          <div className="mc-dot-grid"></div>
+          <div className="mc-scanlines"></div>
+          <div className="mc-noise"></div>
+        </div>
+        <div className="mc-bg-deco-text">TASKMASTER</div>
+        <div className="mc-app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', textAlign: 'center', padding: '20px' }}>
+          <div className="mc-app-card" style={{ maxWidth: '400px', padding: '40px' }}>
+            <h1 className="mc-app-main-title" style={{ fontSize: '3rem', marginBottom: '20px' }}>TASKMASTER</h1>
+            <p className="mc-app-desc" style={{ marginBottom: '30px' }}>MOMENTUM // CLARITY // OUTPUT</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <button className="mc-app-launch" onClick={handleLogin} style={{ width: '100%', padding: '15px', "--app-color": "#00FF41", borderColor: "#00FF41", color: "#00FF41" } as React.CSSProperties}>LOGIN_WITH_GOOGLE</button>
+              <button className="mc-app-launch" onClick={() => setIsGuest(true)} style={{ width: '100%', padding: '15px', opacity: 0.8, "--app-color": "#00FF41", borderColor: "#00FF41", color: "#00FF41" } as React.CSSProperties}>CONTINUE_AS_GUEST</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <>
