@@ -107,7 +107,9 @@ export const consumePinReset = onRequest({ cors: true }, async (req, res) => {
       return;
     }
 
-    if (hashCode(code) !== resetData.codeHash) {
+    const providedHash = Buffer.from(hashCode(code));
+    const storedHash = Buffer.from(resetData.codeHash || "");
+    if (providedHash.length !== storedHash.length || !crypto.timingSafeEqual(providedHash, storedHash)) {
       res.status(401).send("Invalid reset code");
       return;
     }
