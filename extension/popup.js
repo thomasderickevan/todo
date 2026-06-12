@@ -38,6 +38,23 @@ function bindEvents(){
   document.getElementById("saveVaultBtn").addEventListener("click",saveLogin);
   document.getElementById("exportVaultBtn").addEventListener("click",exportVault);
   elements.importVaultInput.addEventListener("change",importVault);
+  elements.authenticatorList.addEventListener("click",async(e)=>{
+    const btn=e.target.closest("button");if(!btn)return;
+    const{action,id}=btn.dataset;
+    if(action==="view-otp")await showOtpViewer(id);
+    if(action==="fill-otp")await fillEntryOtp(id);
+    if(action==="copy-otp")await copyEntryOtp(id);
+    if(action==="copy-secret")await copyEntryTotpSecret(id);
+  });
+  [elements.siteVaultList,elements.vaultList].forEach((list)=>list.addEventListener("click",async(e)=>{
+    const btn=e.target.closest("button");if(!btn)return;
+    const{action,id}=btn.dataset;
+    if(action==="fill")await fillSavedEntry(id);
+    if(action==="copy-user")await copyEntryUsername(id);
+    if(action==="copy-pass")await copyEntryPassword(id);
+    if(action==="copy-otp")await copyEntryOtp(id);
+    if(action==="delete")await deleteEntry(id);
+  }));
   bindEnterSubmit(["setupPinInput","setupPinConfirmInput"],runTask(createVault));
   bindEnterSubmit(["unlockPinInput"],runTask(unlockVault));
   bindEnterSubmit(["resetCodeInput","resetNewPinInput","resetConfirmPinInput"],()=>runTask(completePinReset)());
@@ -101,7 +118,7 @@ function renderAuthenticatorList(){
   elements.authenticatorStatusText.textContent=authenticatorEntries.length?"Copy one-time codes from your saved entries.":"Scan a QR code or save a TOTP secret on a vault entry.";
   if(!authenticatorEntries.length){hideOtpViewer();elements.authenticatorList.className="list-block empty";elements.authenticatorList.textContent="No authenticator entries saved yet.";return;}
   elements.authenticatorList.className="list-block";elements.authenticatorList.innerHTML="";
-  for(const entry of authenticatorEntries){const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")}</div></div><span class="site-badge">Authenticator</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="view-otp" data-id="${entry.id}">View code</button><button class="ghost-button" data-action="fill-otp" data-id="${entry.id}">Fill code</button><button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button><button class="ghost-button" data-action="copy-secret" data-id="${entry.id}">Copy secret</button></div>`;wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="view-otp")await showOtpViewer(id);if(action==="fill-otp")await fillEntryOtp(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="copy-secret")await copyEntryTotpSecret(id);}));elements.authenticatorList.appendChild(wrapper);}
+  for(const entry of authenticatorEntries){const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")}</div></div><span class="site-badge">Authenticator</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="view-otp" data-id="${entry.id}">View code</button><button class="ghost-button" data-action="fill-otp" data-id="${entry.id}">Fill code</button><button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button><button class="ghost-button" data-action="copy-secret" data-id="${entry.id}">Copy secret</button></div>`;elements.authenticatorList.appendChild(wrapper);}
 }
 function renderOtpViewer(){
   if(!elements.otpViewerCard||!elements.otpViewerTitle||!elements.otpViewerSubtitle||!elements.otpSecondsRemaining||!elements.otpViewerCode||!elements.otpRingProgress)return;
@@ -231,7 +248,7 @@ function renderEntryList(container,entries,emptyText){
   for(const entry of entries){
     const otpButton=entry.encryptedTotpSecret?`<button class="ghost-button" data-action="copy-otp" data-id="${entry.id}">Copy code</button>`:"";
     const wrapper=document.createElement("article");wrapper.className="vault-entry";wrapper.innerHTML=`<div class="entry-header"><div><div class="entry-service">${escapeHtml(entry.serviceName)}</div><div class="entry-meta">${escapeHtml(entry.username||"No username")} • ${escapeHtml(entry.siteOrigin||"No site")}</div></div><span class="site-badge">${siteMatches(entry,state.activeHost)?"Match":"Vault"}</span></div><div class="entry-actions spread"><button class="ghost-button" data-action="fill" data-id="${entry.id}">Fill page</button><button class="ghost-button" data-action="copy-user" data-id="${entry.id}">Copy user</button><button class="ghost-button" data-action="copy-pass" data-id="${entry.id}">Copy pass</button>${otpButton}<button class="ghost-button" data-action="delete" data-id="${entry.id}">Delete</button></div>`;
-    wrapper.querySelectorAll("button").forEach((button)=>button.addEventListener("click",async()=>{const{action,id}=button.dataset;if(action==="fill")await fillSavedEntry(id);if(action==="copy-user")await copyEntryUsername(id);if(action==="copy-pass")await copyEntryPassword(id);if(action==="copy-otp")await copyEntryOtp(id);if(action==="delete")await deleteEntry(id);}));
+
     container.appendChild(wrapper);
   }
 }
