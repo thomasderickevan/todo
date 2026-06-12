@@ -163,7 +163,11 @@ function hashCode(code) {
 }
 
 function getResetPepper() {
-  return process.env.SHIELD_RESET_PEPPER || "replace-me";
+  const pepper = process.env.SHIELD_RESET_PEPPER;
+  if (!pepper) {
+    throw new Error("SHIELD_RESET_PEPPER environment variable is not set");
+  }
+  return pepper;
 }
 
 async function sendResetEmail(email, code) {
