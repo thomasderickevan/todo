@@ -4,6 +4,68 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
 import './VibeMatrix.css';
+type Tier = "DORMANT" | "ACTIVE" | "SUPERNOVA";
+
+interface TierConfig {
+  colors: string[];
+  orbitSpeedMultiplier: number;
+  vxVyMultiplier: number;
+  sizeMultiplier: number;
+  sizeBase: number;
+  connectionAlpha: number;
+  connectionLineWidth: number;
+  appColor: string;
+  showTrails: boolean;
+  showOrbitCenter: boolean;
+  useVortexPhysics: boolean;
+  hasShadow: boolean;
+}
+
+const TIER_CONFIGS: Record<Tier, TierConfig> = {
+  DORMANT: {
+    colors: ["#00ffcc", "#00e5ff", "#388E3C"],
+    orbitSpeedMultiplier: 1,
+    vxVyMultiplier: 0.6,
+    sizeMultiplier: 5,
+    sizeBase: 1,
+    connectionAlpha: 0.22,
+    connectionLineWidth: 0.8,
+    appColor: "#00FFCC",
+    showTrails: false,
+    showOrbitCenter: false,
+    useVortexPhysics: false,
+    hasShadow: false,
+  },
+  ACTIVE: {
+    colors: ["#FFEA00", "#00FF41", "#81C784"],
+    orbitSpeedMultiplier: 1,
+    vxVyMultiplier: 1.5,
+    sizeMultiplier: 3.5,
+    sizeBase: 1,
+    connectionAlpha: 0.22,
+    connectionLineWidth: 0.8,
+    appColor: "#FFEA00",
+    showTrails: false,
+    showOrbitCenter: false,
+    useVortexPhysics: false,
+    hasShadow: true,
+  },
+  SUPERNOVA: {
+    colors: ["#FF003C", "#FF00FF", "#FFEA00", "#00E5FF"],
+    orbitSpeedMultiplier: 2.5,
+    vxVyMultiplier: 4,
+    sizeMultiplier: 4,
+    sizeBase: 1,
+    connectionAlpha: 0.35,
+    connectionLineWidth: 1.2,
+    appColor: "#FF003C",
+    showTrails: true,
+    showOrbitCenter: true,
+    useVortexPhysics: true,
+    hasShadow: true,
+  },
+};
+
 
 interface MomentumMetrics {
   completedTasks: number;
@@ -125,28 +187,25 @@ const VibeMatrix: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const activeTier = overrideTier === 'auto' ? metrics.tier : (overrideTier as any);
+    const activeTier: Tier = (overrideTier === 'auto' ? metrics.tier : overrideTier) as Tier;
+    const config = TIER_CONFIGS[activeTier];
 
     // Initialize particles array based on count
     const initParticles = () => {
       const arr = [];
-      const colors = {
-        DORMANT: ['#00ffcc', '#00e5ff', '#388E3C'],
-        ACTIVE: ['#FFEA00', '#00FF41', '#81C784'],
-        SUPERNOVA: ['#FF003C', '#FF00FF', '#FFEA00', '#00E5FF']
-      }[activeTier as 'DORMANT' | 'ACTIVE' | 'SUPERNOVA'] || ['#fff'];
+      const colors = config.colors;
 
       for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
         const orbitRadius = 100 + Math.random() * 200;
-        const orbitSpeed = (0.005 + Math.random() * 0.01) * (activeTier === 'SUPERNOVA' ? 2.5 : 1);
+        const orbitSpeed = (0.005 + Math.random() * 0.01) * config.orbitSpeedMultiplier;
         
         arr.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * (activeTier === 'SUPERNOVA' ? 4 : (activeTier === 'ACTIVE' ? 1.5 : 0.6)),
-          vy: (Math.random() - 0.5) * (activeTier === 'SUPERNOVA' ? 4 : (activeTier === 'ACTIVE' ? 1.5 : 0.6)),
-          size: Math.random() * (activeTier === 'SUPERNOVA' ? 4 : (activeTier === 'ACTIVE' ? 3.5 : 5)) + 1,
+          vx: (Math.random() - 0.5) * config.vxVyMultiplier,
+          vy: (Math.random() - 0.5) * config.vxVyMultiplier,
+          size: Math.random() * config.sizeMultiplier + config.sizeBase,
           color: colors[Math.floor(Math.random() * colors.length)],
           angle,
           orbitRadius,
@@ -162,8 +221,8 @@ const VibeMatrix: React.FC = () => {
     // Physics Animation loop
     const animate = () => {
       // If SUPERNOVA, paint translucent background to leave gorgeous glowing trails
-      if (activeTier === 'SUPERNOVA') {
-        ctx.fillStyle = 'rgba(13, 13, 13, 0.08)';
+      if (config.showTrails) {
+        ctx.fillStyle = "rgba(13, 13, 13, 0.08)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -175,11 +234,11 @@ const VibeMatrix: React.FC = () => {
       const isPressed = mouseRef.current.isPressed;
 
       // Draw Orbit Center in active modes
-      if (activeTier === 'SUPERNOVA') {
+      if (config.showOrbitCenter) {
         ctx.beginPath();
         const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 100);
-        grad.addColorStop(0, 'rgba(255, 0, 60, 0.15)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        grad.addColorStop(0, "rgba(255, 0, 60, 0.15)");
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctx.arc(canvas.width / 2, canvas.height / 2, 100, 0, 2 * Math.PI);
         ctx.fillStyle = grad;
         ctx.fill();
@@ -188,7 +247,7 @@ const VibeMatrix: React.FC = () => {
       // Update and Draw Particles
       particles.forEach((p) => {
         // Mode Physics
-        if (activeTier === 'SUPERNOVA') {
+        if (config.useVortexPhysics) {
           // Circular vortex gravity well in center of screen
           p.angle += p.orbitSpeed;
           const targetX = canvas.width / 2 + Math.cos(p.angle) * p.orbitRadius;
@@ -225,7 +284,7 @@ const VibeMatrix: React.FC = () => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
         ctx.fillStyle = p.color;
-        if (activeTier !== 'DORMANT') {
+        if (config.hasShadow) {
           ctx.shadowBlur = p.size * 3;
           ctx.shadowColor = p.color;
         } else {
@@ -249,7 +308,7 @@ const VibeMatrix: React.FC = () => {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < connectionDistance) {
-              const alpha = (connectionDistance - dist) / connectionDistance * (activeTier === 'SUPERNOVA' ? 0.35 : 0.22);
+              const alpha = (connectionDistance - dist) / connectionDistance * config.connectionAlpha;
               ctx.beginPath();
               ctx.moveTo(p1.x, p1.y);
               ctx.lineTo(p2.x, p2.y);
@@ -260,7 +319,7 @@ const VibeMatrix: React.FC = () => {
               lineGrad.addColorStop(1, p2.color);
               ctx.strokeStyle = lineGrad;
               ctx.globalAlpha = alpha;
-              ctx.lineWidth = activeTier === 'SUPERNOVA' ? 1.2 : 0.8;
+              ctx.lineWidth = config.connectionLineWidth;
               ctx.stroke();
               ctx.globalAlpha = 1.0;
             }
@@ -303,7 +362,8 @@ const VibeMatrix: React.FC = () => {
     mouseRef.current.isPressed = false;
   };
 
-  const activeTier = overrideTier === 'auto' ? metrics.tier : overrideTier;
+  const activeTier: Tier = (overrideTier === 'auto' ? metrics.tier : overrideTier) as Tier;
+  const currentConfig = TIER_CONFIGS[activeTier];
 
   return (
     <>
@@ -333,7 +393,7 @@ const VibeMatrix: React.FC = () => {
         <div className="vm-layout-container">
           
           {/* Panel 1: Stats & Momentum levels */}
-          <div className="vm-card vm-stats-card" style={{ '--app-color': activeTier === 'SUPERNOVA' ? '#FF003C' : (activeTier === 'ACTIVE' ? '#FFEA00' : '#00FFCC') } as React.CSSProperties}>
+          <div className="vm-card vm-stats-card" style={{ '--app-color': currentConfig.appColor } as React.CSSProperties}>
             <header className="vm-card-header">
               <span className="vm-kicker">MOMENTUM_ENGINE // V2.0.4</span>
               <h1 className="vm-title">VIBE MATRIX</h1>
