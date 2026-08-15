@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -38,7 +37,6 @@ const getLocalDateString = (date: Date = new Date()) => {
 };
 
 const LifePulse: React.FC = () => {
-  const navigate = useNavigate();
   const { user, login, logout, loading: authLoading } = useAuth();
   const { saveToDrive, isSyncing } = useDriveSync();
 
@@ -270,7 +268,8 @@ const LifePulse: React.FC = () => {
         date: dateStr,
         count,
         level,
-        isToday: dateStr === todayStr
+        isToday: dateStr === todayStr,
+        future: false
       });
     }
     return days;
