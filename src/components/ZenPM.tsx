@@ -487,32 +487,11 @@ const ZenPM: React.FC = () => {
   };
 
   const handleDownloadInstaller = () => {
-    const luaScript = `-- ZenPM Dynamic Package Manager for KOReader
--- Save this file to /koreader/plugins/zenpm.koplugin/main.lua
-local UIManager = require("ui/uimanager")
-local InfoMessage = require("ui/widget/infomessage")
-
-local ZenPM = {
-    name = "zenpm",
-    version = "1.0.0",
-    sources = ${JSON.stringify(sources.map(s => ({ name: s.name, url: s.url })), null, 4)}
-}
-
-function ZenPM:init()
-    UIManager:show(InfoMessage:new{
-        text = "ZenPM Multi-Source Package Manager loaded!\\nSources: ${sources.length} active repos configured."
-    })
-end
-
-return ZenPM
-`;
-    const blob = new Blob([luaScript], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url;
-    link.download = 'zenpm_installer.lua';
+    link.href = '/koreader-plugin/zenpm.koplugin/main.lua';
+    link.download = 'main.lua';
     link.click();
-    URL.revokeObjectURL(url);
+    confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
   };
 
   const handleExportBundle = () => {
