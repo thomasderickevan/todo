@@ -62,7 +62,7 @@ const DEFAULT_SOURCES: RepoSource[] = [
   },
   {
     id: 'src_zenpm_verified',
-    name: 'ZenPM Verified E-Ink Registry',
+    name: 'einstall Verified E-Ink Registry',
     url: 'https://ederick.vercel.app/api/zenpm/registry.json',
     type: 'manifest-json',
     enabled: true,
@@ -98,7 +98,7 @@ const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
     repoUrl: 'https://github.com/koreader/koreader/wiki',
     tags: ['Anki', 'Vocabulary', 'Learning', 'Wi-Fi'],
     sourceId: 'src_zenpm_verified',
-    sourceName: 'ZenPM Verified',
+    sourceName: 'einstall Verified',
     sourceType: 'manifest-json'
   },
   {
@@ -118,7 +118,7 @@ const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
     repoUrl: 'https://github.com/koreader/koreader/wiki',
     tags: ['Wallabag', 'Articles', 'Sync', 'Offline'],
     sourceId: 'src_zenpm_verified',
-    sourceName: 'ZenPM Verified',
+    sourceName: 'einstall Verified',
     sourceType: 'manifest-json'
   },
   {
@@ -138,7 +138,7 @@ const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
     repoUrl: 'https://github.com/koreader/koreader/wiki',
     tags: ['Weather', 'Screensaver', 'Clock', 'Dashboard'],
     sourceId: 'src_zenpm_verified',
-    sourceName: 'ZenPM Verified',
+    sourceName: 'einstall Verified',
     sourceType: 'manifest-json'
   },
   {
@@ -273,7 +273,7 @@ const ZenPM: React.FC = () => {
 
   // Sources State
   const [sources, setSources] = useState<RepoSource[]>(() => {
-    const saved = localStorage.getItem('zenpm_sources');
+    const saved = localStorage.getItem('einstall_sources') || localStorage.getItem('zenpm_sources');
     if (saved) {
       try { return JSON.parse(saved); } catch { return DEFAULT_SOURCES; }
     }
@@ -291,12 +291,12 @@ const ZenPM: React.FC = () => {
   const [newSourceType, setNewSourceType] = useState<SourceType>('manifest-json');
 
   useEffect(() => {
-    document.title = '✦ endeavor • ZenPM Sources & Registry';
+    document.title = '✦ endeavor • einstall Sources & Registry';
   }, []);
 
   // Save sources to local storage
   useEffect(() => {
-    localStorage.setItem('zenpm_sources', JSON.stringify(sources));
+    localStorage.setItem('einstall_sources', JSON.stringify(sources));
   }, [sources]);
 
   // ── Multi-Source Fetch & Synchronization Engine ─────────────────
@@ -497,7 +497,7 @@ const ZenPM: React.FC = () => {
   const handleExportBundle = () => {
     const selectedPlugins = allPlugins.filter(p => selectedPluginIds.includes(p.id));
     const manifest = {
-      bundleName: 'ZenPM_Kindle_Bundle',
+      bundleName: 'einstall_Kindle_Bundle',
       exportedAt: new Date().toISOString(),
       targetPlatform: 'Kindle Jailbroken (KOReader)',
       destinationPath: '/mnt/us/koreader/plugins/',
@@ -517,7 +517,7 @@ const ZenPM: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'zenpm_kindle_bundle.json';
+    link.download = 'einstall_kindle_bundle.json';
     link.click();
     URL.revokeObjectURL(url);
 
@@ -539,14 +539,14 @@ const ZenPM: React.FC = () => {
           <div className="mc-noise"></div>
         </div>
 
-        <div className="mc-bg-deco-text">ZENPM</div>
+        <div className="mc-bg-deco-text">EINSTALL</div>
 
         <div className="mc-app-container">
           <div className="mc-app-card" style={{ '--app-color': '#00FFCC' } as React.CSSProperties}>
             <header className="mc-app-header">
               <div className="mc-app-title-group">
                 <span className="mc-app-kicker">KINDLE JAILBREAK // DYNAMIC REPO ENGINE</span>
-                <h1 className="mc-app-main-title">ZENPM // KOREADER HUB</h1>
+                <h1 className="mc-app-main-title">EINSTALL // KOREADER HUB</h1>
               </div>
             </header>
 

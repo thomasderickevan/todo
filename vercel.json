@@ -1,8 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/api/einstall/registry.json",
+      "destination": "/repo.json"
+    },
+    {
       "source": "/api/zenpm/registry.json",
       "destination": "/repo.json"
+    },
+    {
+      "source": "/einstall.json",
+      "destination": "/einstall.json"
     },
     {
       "source": "/repo.json",

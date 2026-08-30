@@ -248,16 +248,16 @@ const apps = [
     )
   },
   {
-    path: '/zenpm',
-    id: 'zenpm',
-    title: 'ZenPM',
+    path: '/einstall',
+    id: 'einstall',
+    title: 'einstall',
     kicker: 'E-INK PACKAGE MANAGER',
     desc: 'Browse, package, and deploy community KOReader Lua plugins to jailbroken Kindle and e-ink e-readers.',
     color: '#00FFCC',
     mockup: (
       <div className="mock-video mock-zenpm" style={{ background: '#090909', border: '1px solid #222', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'monospace', fontSize: '10px', color: '#00FFCC', fontWeight: 'bold' }}>
-          <span>📦 ZENPM // KINDLE OS</span>
+          <span>📦 EINSTALL // KINDLE OS</span>
           <span>9 PLUGINS</span>
         </div>
         <div style={{ background: '#141414', border: '1px solid #222', padding: '6px 8px', fontFamily: 'monospace', fontSize: '11px', color: '#FFF', display: 'flex', justifyContent: 'space-between' }}>

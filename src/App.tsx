@@ -18,6 +18,8 @@ import ZenPM from './components/ZenPM';
 
 function App() {
   const isRepoHost = typeof window !== 'undefined' && (
+    window.location.hostname.startsWith('einstall.') ||
+    window.location.hostname.startsWith('einstall-') ||
     window.location.hostname.startsWith('repo.') ||
     window.location.hostname.startsWith('repo-') ||
     window.location.hostname.startsWith('zenpm.') ||
@@ -43,6 +45,7 @@ function App() {
         <Route path="/lifepulse" element={<LifePulse />} />
         <Route path="/finance" element={<CapitalFlow />} />
         <Route path="/capitalflow" element={<CapitalFlow />} />
+        <Route path="/einstall" element={<ZenPM />} />
         <Route path="/zenpm" element={<ZenPM />} />
         <Route path="/koreader" element={<ZenPM />} />
         <Route path="/repo" element={<ZenPM />} />

@@ -30,7 +30,7 @@ const MainPortal: React.FC = () => {
     { id: 'vibematrix', title: 'Vibe Matrix', icon: '🌌', desc: 'Interactive generative particle network driven by your local productivity.', color: '#7C4DFF', badge: 'MOMENTUM' },
     { id: 'lifepulse', title: 'LifePulse', icon: '📈', desc: 'A daily habit tracker with streak tracking and a consistency heatmap.', color: '#FF6B35', badge: 'CONSISTENCY' },
     { id: 'finance', title: 'Capital Flow', icon: '⚡', desc: 'Real-time market feeds, multi-asset portfolio valuation, and runway burn-rate telemetry.', color: '#FFB800', badge: 'CAPITAL' },
-    { id: 'zenpm', title: 'ZenPM', icon: '📦', desc: 'KOReader package manager and plugin registry for jailbroken Kindle and e-ink devices.', color: '#00FFCC', badge: 'KOREADER' }
+    { id: 'einstall', title: 'einstall', icon: '📦', desc: 'KOReader package manager and plugin repository for jailbroken Kindle and e-ink devices.', color: '#00FFCC', badge: 'KOREADER' }
   ];
 
   return (
