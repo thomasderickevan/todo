@@ -17,10 +17,16 @@ import CapitalFlow from './components/CapitalFlow';
 import ZenPM from './components/ZenPM';
 
 function App() {
+  const isRepoHost = typeof window !== 'undefined' && (
+    window.location.hostname.startsWith('repo.') ||
+    window.location.hostname.startsWith('zenpm.') ||
+    window.location.hostname.startsWith('koreader.')
+  );
+
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<HomeShowcase />} />
+        <Route path="/" element={isRepoHost ? <ZenPM /> : <HomeShowcase />} />
         <Route path="/todo" element={<TodoApp />} />
         <Route path="/portal" element={<MainPortal />} />
         <Route path="/voicenotes" element={<VoiceNotes />} />

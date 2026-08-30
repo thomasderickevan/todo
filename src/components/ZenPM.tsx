@@ -582,6 +582,22 @@ return ZenPM
                 <p className="zpm-hero-desc">
                   Live-aggregates community plugins from GitHub, KindleFetch, and custom manifest taps. Bundle and deploy directly to your jailbroken Kindle Paperwhite, Oasis, Scribe, or Kobo.
                 </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#666' }}>OFFICIAL_TAP:</span>
+                  <code style={{ background: '#000', border: '1px solid #282828', padding: '0.2rem 0.5rem', color: '#00FFCC', fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                    https://repo.ederick.vercel.app/repo.json
+                  </code>
+                  <button
+                    className="zpm-source-toggle-btn active"
+                    style={{ padding: '0.2rem 0.6rem', fontSize: '0.6rem' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText('https://repo.ederick.vercel.app/repo.json');
+                      confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
+                    }}
+                  >
+                    📋 COPY TAP URL
+                  </button>
+                </div>
               </div>
               <div className="zpm-hero-actions">
                 <button className="zpm-primary-btn" onClick={() => syncAllSources()} disabled={isSyncingAll}>

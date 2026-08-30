@@ -1,11 +1,44 @@
 {
   "rewrites": [
     {
+      "source": "/api/zenpm/registry.json",
+      "destination": "/repo.json"
+    },
+    {
+      "source": "/repo.json",
+      "destination": "/repo.json"
+    },
+    {
+      "source": "/zenpm.json",
+      "destination": "/zenpm.json"
+    },
+    {
+      "source": "/registry.json",
+      "destination": "/repo.json"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/(.*)\\.json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/sw.js",
       "headers": [
