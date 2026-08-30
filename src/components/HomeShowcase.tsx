@@ -211,6 +211,41 @@ const apps = [
         <path d="M50 250H330" stroke="#FF6B35" strokeWidth="2" strokeDasharray="5 5" opacity="0.5" />
       </svg>
     )
+  },
+  {
+    path: '/finance',
+    id: 'finance',
+    title: 'Capital Flow',
+    kicker: 'LIQUIDITY INTELLIGENCE',
+    desc: 'Real-time multi-asset portfolio valuation, live crypto and forex telemetry feeds, and runway burn-rate calculation.',
+    color: '#FFB800',
+    mockup: (
+      <div className="mock-video mock-capital" style={{ background: '#0D0D0D', border: '1px solid #222', padding: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'monospace', fontSize: '11px', color: '#FFB800', fontWeight: 'bold' }}>
+          <span>BTC: $95.4K (+2.4%)</span>
+          <span>ETH: $2.75K</span>
+        </div>
+        <div style={{ height: '6px', width: '100%', background: '#1A1A1A', display: 'flex', gap: '2px', overflow: 'hidden' }}>
+          <div style={{ width: '50%', background: '#FFB800' }}></div>
+          <div style={{ width: '30%', background: '#00FF41' }}></div>
+          <div style={{ width: '20%', background: '#00E5FF' }}></div>
+        </div>
+        <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: '900', color: '#FFF' }}>
+          $128,450.00
+        </div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M40 320L120 240L200 270L280 150L360 80" stroke="#FFB800" strokeWidth="4" strokeLinecap="square" />
+        <circle cx="120" cy="240" r="6" fill="#FFB800" />
+        <circle cx="200" cy="270" r="6" fill="#FFB800" />
+        <circle cx="280" cy="150" r="6" fill="#FFB800" />
+        <circle cx="360" cy="80" r="8" fill="#FFB800" />
+        <line x1="40" y1="360" x2="360" y2="360" stroke="#333" strokeWidth="2" />
+        <line x1="40" y1="40" x2="40" y2="360" stroke="#333" strokeWidth="2" />
+      </svg>
+    )
   }
 ];
 

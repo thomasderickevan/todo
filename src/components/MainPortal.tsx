@@ -28,7 +28,8 @@ const MainPortal: React.FC = () => {
     { id: 'assistant', title: 'AI Assistant', icon: '✨', desc: 'Context-aware help embedded directly into your workflow.', color: '#FF00FF', badge: 'INTELLIGENCE' },
     { id: 'airdraw', title: 'AirDraw', icon: '🖐️', desc: 'Draw in the air using hand gestures via your webcam and MediaPipe.', color: '#00FFCC', badge: 'GESTURE' },
     { id: 'vibematrix', title: 'Vibe Matrix', icon: '🌌', desc: 'Interactive generative particle network driven by your local productivity.', color: '#7C4DFF', badge: 'MOMENTUM' },
-    { id: 'lifepulse', title: 'LifePulse', icon: '📈', desc: 'A daily habit tracker with streak tracking and a consistency heatmap.', color: '#FF6B35', badge: 'CONSISTENCY' }
+    { id: 'lifepulse', title: 'LifePulse', icon: '📈', desc: 'A daily habit tracker with streak tracking and a consistency heatmap.', color: '#FF6B35', badge: 'CONSISTENCY' },
+    { id: 'finance', title: 'Capital Flow', icon: '⚡', desc: 'Real-time market feeds, multi-asset portfolio valuation, and runway burn-rate telemetry.', color: '#FFB800', badge: 'CAPITAL' }
   ];
 
   return (
@@ -99,15 +100,6 @@ const MainPortal: React.FC = () => {
               </div>
             </div>
           ))}
-          
-          <div className="mc-portal-card disabled">
-            <div className="mc-card-header">
-              <span className="mc-card-badge">WIP</span>
-              <span className="mc-card-icon">📊</span>
-            </div>
-            <h2 className="mc-card-title">FINANCE_TRACKER</h2>
-            <p className="mc-card-desc">Coming soon: Smart insights for your wallet and global asset tracking.</p>
-          </div>
         </div>
       </main>
 

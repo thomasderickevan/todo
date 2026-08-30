@@ -1,0 +1,660 @@
+/* ==========================================================================
+   CapitalFlow // Finance & Market Intelligence Module
+   ENDEAVOR OS Module - Brutalist Design System
+   ========================================================================== */
+
+/* ── Top Ticker Stream ─────────────────────────────────────────── */
+.cf-ticker-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #0D0D0D;
+  border: 1px solid #222;
+  border-left: 3px solid #FFB800;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cf-ticker-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #FFB800;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.cf-ticker-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFB800;
+  box-shadow: 0 0 8px #FFB800;
+  animation: cf-pulse 1.5s infinite;
+}
+
+@keyframes cf-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.cf-ticker-items {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.cf-ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.cf-ticker-symbol {
+  color: #888;
+  font-weight: 700;
+}
+
+.cf-ticker-price {
+  color: #FFF;
+  font-weight: 800;
+}
+
+.cf-ticker-change {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+
+.cf-ticker-change.up {
+  color: #00FF41;
+  background: rgba(0, 255, 65, 0.08);
+}
+
+.cf-ticker-change.down {
+  color: #FF003C;
+  background: rgba(255, 0, 60, 0.08);
+}
+
+/* ── Primary Telemetry Grid ─────────────────────────────────────── */
+.cf-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cf-telemetry-card {
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  padding: 1.25rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cf-telemetry-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  transition: background 0.3s;
+}
+
+.cf-telemetry-card:hover {
+  border-color: #333;
+  transform: translateY(-2px);
+}
+
+.cf-telemetry-card:hover::before {
+  background: #FFB800;
+}
+
+.cf-telemetry-kicker {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.4rem;
+}
+
+.cf-telemetry-val {
+  font-family: 'Inter', monospace;
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #FFF;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.cf-telemetry-val.highlight {
+  color: #FFB800;
+  text-shadow: 0 0 15px rgba(255, 184, 0, 0.25);
+}
+
+.cf-telemetry-val.positive {
+  color: #00FF41;
+}
+
+.cf-telemetry-val.negative {
+  color: #FF003C;
+}
+
+.cf-telemetry-sub {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #666;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Tab Switcher ────────────────────────────────────────────────── */
+.cf-nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #1A1A1A;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.cf-tab-btn {
+  background: transparent;
+  border: 1px solid #222;
+  color: #777;
+  font-family: 'Inter', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cf-tab-btn:hover {
+  border-color: #444;
+  color: #FFF;
+}
+
+.cf-tab-btn.active {
+  background: #FFB800;
+  color: #000;
+  border-color: #FFB800;
+  font-weight: 800;
+}
+
+/* ── Section Dividers & Actions ─────────────────────────────────── */
+.cf-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #181818;
+  margin-bottom: 1rem;
+}
+
+.cf-section-title {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #888;
+  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cf-btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cf-action-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #FFB800;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cf-action-btn:hover {
+  background: #FFB800;
+  color: #000;
+  border-color: #FFB800;
+}
+
+/* ── Asset Allocation Bar ────────────────────────────────────────── */
+.cf-allocation-container {
+  background: #0D0D0D;
+  border: 1px solid #1E1E1E;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.cf-allocation-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.cf-allocation-title {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #666;
+  letter-spacing: 0.1em;
+}
+
+.cf-allocation-bar {
+  display: flex;
+  height: 10px;
+  background: #1A1A1A;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.cf-allocation-segment {
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.cf-allocation-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.cf-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  color: #888;
+}
+
+.cf-legend-color {
+  width: 8px;
+  height: 8px;
+}
+
+/* ── Industrial Tables ──────────────────────────────────────────── */
+.cf-table-container {
+  overflow-x: auto;
+  border: 1px solid #1A1A1A;
+  background: #080808;
+  margin-bottom: 1.5rem;
+}
+
+.cf-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+}
+
+.cf-table th {
+  background: #111;
+  color: #555;
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #222;
+}
+
+.cf-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #141414;
+  color: #CCC;
+}
+
+.cf-table tr:hover td {
+  background: rgba(255, 184, 0, 0.03);
+}
+
+.cf-asset-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cf-asset-icon {
+  font-size: 1.1rem;
+}
+
+.cf-asset-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.cf-asset-name {
+  color: #FFF;
+  font-weight: 700;
+}
+
+.cf-asset-type {
+  font-size: 0.55rem;
+  color: #666;
+  letter-spacing: 0.05em;
+}
+
+.cf-num-bold {
+  font-weight: 800;
+  color: #FFF;
+}
+
+.cf-delete-btn {
+  background: transparent;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.cf-delete-btn:hover {
+  color: #FF003C;
+}
+
+/* ── Live Market Grid ────────────────────────────────────────────── */
+.cf-market-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cf-market-card {
+  background: #0C0C0C;
+  border: 1px solid #1A1A1A;
+  padding: 1rem;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cf-market-card:hover {
+  border-color: #333;
+}
+
+.cf-market-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cf-market-symbol {
+  font-family: 'Inter', monospace;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #FFF;
+}
+
+.cf-market-name {
+  font-family: 'Inter', monospace;
+  font-size: 0.6rem;
+  color: #666;
+}
+
+.cf-market-price {
+  font-family: 'Inter', monospace;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #FFB800;
+}
+
+.cf-market-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  color: #666;
+  border-top: 1px solid #161616;
+  padding-top: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+/* ── Cashflow Streams Grid ───────────────────────────────────────── */
+.cf-cashflow-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cf-stream-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cf-stream-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  padding: 0.75rem 1rem;
+}
+
+.cf-stream-item.income {
+  border-left: 3px solid #00FF41;
+}
+
+.cf-stream-item.expense {
+  border-left: 3px solid #FF003C;
+}
+
+.cf-stream-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cf-stream-title {
+  font-family: 'Inter', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #EEE;
+}
+
+.cf-stream-cat {
+  font-family: 'Inter', monospace;
+  font-size: 0.6rem;
+  color: #555;
+}
+
+.cf-stream-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cf-stream-amount {
+  font-family: 'Inter', monospace;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.cf-stream-amount.income {
+  color: #00FF41;
+}
+
+.cf-stream-amount.expense {
+  color: #FF003C;
+}
+
+/* ── Modals ──────────────────────────────────────────────────────── */
+.cf-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  animation: cf-fadeIn 0.2s ease;
+}
+
+@keyframes cf-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.cf-modal-box {
+  background: #000;
+  border: 1px solid #222;
+  border-top: 4px solid #FFB800;
+  width: 100%;
+  max-width: 460px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: cf-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cf-slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.cf-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cf-modal-title {
+  font-family: 'Inter', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFF;
+  letter-spacing: 0.05em;
+}
+
+.cf-modal-close {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.cf-modal-close:hover {
+  color: #FFF;
+}
+
+.cf-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cf-modal-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 0.12em;
+}
+
+.cf-modal-input,
+.cf-modal-select {
+  background: #0A0A0A;
+  border: 1px solid #222;
+  color: #FFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cf-modal-input:focus,
+.cf-modal-select:focus {
+  border-color: #FFB800;
+}
+
+.cf-modal-submit {
+  background: #FFB800;
+  color: #000;
+  border: none;
+  padding: 0.85rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 0.5rem;
+}
+
+.cf-modal-submit:hover {
+  opacity: 0.9;
+}
+
+.cf-modal-submit:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Responsive Rules ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .cf-telemetry-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cf-market-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cf-cashflow-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .cf-telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cf-market-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cf-ticker-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
