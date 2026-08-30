@@ -585,13 +585,14 @@ return ZenPM
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#666' }}>OFFICIAL_TAP:</span>
                   <code style={{ background: '#000', border: '1px solid #282828', padding: '0.2rem 0.5rem', color: '#00FFCC', fontFamily: 'monospace', fontSize: '0.7rem' }}>
-                    https://repo.ederick.vercel.app/repo.json
+                    {typeof window !== 'undefined' ? `${window.location.origin}/repo.json` : 'https://ederick.vercel.app/repo.json'}
                   </code>
                   <button
                     className="zpm-source-toggle-btn active"
                     style={{ padding: '0.2rem 0.6rem', fontSize: '0.6rem' }}
                     onClick={() => {
-                      navigator.clipboard.writeText('https://repo.ederick.vercel.app/repo.json');
+                      const tapUrl = typeof window !== 'undefined' ? `${window.location.origin}/repo.json` : 'https://ederick.vercel.app/repo.json';
+                      navigator.clipboard.writeText(tapUrl);
                       confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
                     }}
                   >

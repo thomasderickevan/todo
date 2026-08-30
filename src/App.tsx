@@ -19,8 +19,11 @@ import ZenPM from './components/ZenPM';
 function App() {
   const isRepoHost = typeof window !== 'undefined' && (
     window.location.hostname.startsWith('repo.') ||
+    window.location.hostname.startsWith('repo-') ||
     window.location.hostname.startsWith('zenpm.') ||
-    window.location.hostname.startsWith('koreader.')
+    window.location.hostname.startsWith('zenpm-') ||
+    window.location.hostname.startsWith('koreader.') ||
+    window.location.hostname.includes('-repo.')
   );
 
   return (
@@ -42,6 +45,7 @@ function App() {
         <Route path="/capitalflow" element={<CapitalFlow />} />
         <Route path="/zenpm" element={<ZenPM />} />
         <Route path="/koreader" element={<ZenPM />} />
+        <Route path="/repo" element={<ZenPM />} />
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>
