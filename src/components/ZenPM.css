@@ -33,6 +33,20 @@
   gap: 0.5rem;
 }
 
+.zpm-hero-tag .pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00FFCC;
+  box-shadow: 0 0 8px #00FFCC;
+  animation: zpm-pulse 1.5s infinite;
+}
+
+@keyframes zpm-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
 .zpm-hero-title {
   font-family: 'Inter', monospace;
   font-size: 1.2rem;
@@ -53,6 +67,7 @@
   display: flex;
   gap: 0.75rem;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .zpm-primary-btn {
@@ -169,6 +184,7 @@
   border-bottom: 1px solid #1A1A1A;
   padding-bottom: 0.75rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .zpm-tab-btn {
@@ -182,6 +198,7 @@
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .zpm-tab-btn:hover {
@@ -232,6 +249,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.zpm-badges-group {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .zpm-card-badge {
@@ -244,9 +269,32 @@
   letter-spacing: 0.08em;
 }
 
+.zpm-source-badge {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #888;
+  background: #161616;
+  border: 1px solid #282828;
+  padding: 0.15rem 0.4rem;
+  letter-spacing: 0.05em;
+}
+
+.zpm-source-badge.github {
+  color: #A371F7;
+  border-color: rgba(163, 113, 247, 0.3);
+  background: rgba(163, 113, 247, 0.08);
+}
+
+.zpm-source-badge.official {
+  color: #00FF41;
+  border-color: rgba(0, 255, 65, 0.3);
+  background: rgba(0, 255, 65, 0.08);
+}
+
 .zpm-card-select-btn {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border: 1px solid #333;
   background: #000;
   display: flex;
@@ -254,6 +302,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .zpm-card-select-btn.checked {
@@ -363,6 +412,158 @@
   gap: 0.75rem;
 }
 
+/* ── Sources Management View ─────────────────────────────────────── */
+.zpm-sources-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.zpm-sources-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1E1E1E;
+  padding-bottom: 1rem;
+}
+
+.zpm-sources-telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.zpm-source-card {
+  background: #090909;
+  border: 1px solid #1A1A1A;
+  padding: 1rem;
+}
+
+.zpm-source-kicker {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: 0.12em;
+}
+
+.zpm-source-stat {
+  font-family: 'Inter', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #FFF;
+  margin: 0.2rem 0;
+}
+
+.zpm-source-stat.highlight {
+  color: #00FFCC;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
+
+.zpm-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.zpm-source-row {
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  border-left: 3px solid #00FFCC;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+
+.zpm-source-row.disabled {
+  opacity: 0.5;
+  border-left-color: #444;
+}
+
+.zpm-source-row:hover {
+  border-color: #333;
+}
+
+.zpm-source-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.zpm-source-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zpm-source-name {
+  font-family: 'Inter', monospace;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #FFF;
+}
+
+.zpm-source-url {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  color: #777;
+  word-break: break-all;
+}
+
+.zpm-source-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  color: #555;
+  margin-top: 0.2rem;
+}
+
+.zpm-source-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zpm-source-toggle-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #AAA;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zpm-source-toggle-btn.active {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: #00FFCC;
+  color: #00FFCC;
+}
+
+.zpm-source-delete-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zpm-source-delete-btn:hover {
+  border-color: #FF003C;
+  color: #FF003C;
+}
+
 /* ── Installation Guide View ─────────────────────────────────────── */
 .zpm-guide-container {
   background: #0A0A0A;
@@ -425,7 +626,7 @@
   overflow-x: auto;
 }
 
-/* ── Plugin Detail Modal ─────────────────────────────────────────── */
+/* ── Modals ──────────────────────────────────────────────────────── */
 .zpm-modal-overlay {
   position: fixed;
   top: 0;
@@ -491,6 +692,37 @@
   color: #FFF;
 }
 
+.zpm-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.zpm-modal-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 0.1em;
+}
+
+.zpm-modal-input,
+.zpm-modal-select {
+  background: #0A0A0A;
+  border: 1px solid #222;
+  color: #FFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.zpm-modal-input:focus,
+.zpm-modal-select:focus {
+  border-color: #00FFCC;
+}
+
 .zpm-modal-meta-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -533,9 +765,13 @@
   margin-top: 0.5rem;
 }
 
-/* ── Responsive Rules ────────────────────────────────────────────── */
+/* ── Responsive Rules ─────────────────────────────────────── */
 @media (max-width: 960px) {
   .zpm-plugin-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .zpm-sources-telemetry {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -550,6 +786,10 @@
     grid-template-columns: 1fr;
   }
 
+  .zpm-sources-telemetry {
+    grid-template-columns: 1fr;
+  }
+
   .zpm-bundle-drawer {
     flex-direction: column;
     gap: 1rem;
@@ -559,5 +799,10 @@
   .zpm-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .zpm-source-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

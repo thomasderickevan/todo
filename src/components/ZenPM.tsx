@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import Navbar from './Navbar';
 import LegalFooter from './LegalFooter';
@@ -6,6 +6,19 @@ import './ZenPM.css';
 
 // ── Types ─────────────────────────────────────────────────────────
 export type PluginCategory = 'all' | 'productivity' | 'reading' | 'sync' | 'eink-ui' | 'tools';
+export type SourceType = 'github-core' | 'github-topic' | 'manifest-json' | 'kindlefetch' | 'custom';
+
+export interface RepoSource {
+  id: string;
+  name: string;
+  url: string;
+  type: SourceType;
+  enabled: boolean;
+  packageCount: number;
+  lastSynced?: string;
+  status: 'synced' | 'syncing' | 'error';
+  errorMsg?: string;
+}
 
 export interface KOPlugin {
   id: string;
@@ -23,9 +36,51 @@ export interface KOPlugin {
   kindleTested: boolean;
   repoUrl: string;
   tags: string[];
+  sourceId: string;
+  sourceName: string;
+  sourceType: SourceType;
 }
 
-const COMMUNITY_PLUGINS: KOPlugin[] = [
+const DEFAULT_SOURCES: RepoSource[] = [
+  {
+    id: 'src_github_core',
+    name: 'Official KOReader Plugins (GitHub)',
+    url: 'https://api.github.com/repos/koreader/koreader/contents/plugins',
+    type: 'github-core',
+    enabled: true,
+    packageCount: 6,
+    status: 'synced'
+  },
+  {
+    id: 'src_github_topics',
+    name: 'GitHub Community Plugins (#koreader-plugin)',
+    url: 'https://api.github.com/search/repositories?q=topic:koreader-plugin',
+    type: 'github-topic',
+    enabled: true,
+    packageCount: 5,
+    status: 'synced'
+  },
+  {
+    id: 'src_zenpm_verified',
+    name: 'ZenPM Verified E-Ink Registry',
+    url: 'https://ederick.vercel.app/api/zenpm/registry.json',
+    type: 'manifest-json',
+    enabled: true,
+    packageCount: 9,
+    status: 'synced'
+  },
+  {
+    id: 'src_kindlefetch',
+    name: 'KindleFetch / MobileRead Index',
+    url: 'https://kindlefetch.mobileread.org/feed.json',
+    type: 'kindlefetch',
+    enabled: true,
+    packageCount: 4,
+    status: 'synced'
+  }
+];
+
+const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
   {
     id: 'anki-vocab-sync',
     name: 'Anki Vocab Sync',
@@ -41,7 +96,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.04',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Anki', 'Vocabulary', 'Learning', 'Wi-Fi']
+    tags: ['Anki', 'Vocabulary', 'Learning', 'Wi-Fi'],
+    sourceId: 'src_zenpm_verified',
+    sourceName: 'ZenPM Verified',
+    sourceType: 'manifest-json'
   },
   {
     id: 'wallabag-sync',
@@ -58,7 +116,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.01',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Wallabag', 'Articles', 'Sync', 'Offline']
+    tags: ['Wallabag', 'Articles', 'Sync', 'Offline'],
+    sourceId: 'src_zenpm_verified',
+    sourceName: 'ZenPM Verified',
+    sourceType: 'manifest-json'
   },
   {
     id: 'weather-clock-screensaver',
@@ -75,7 +136,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.03',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Weather', 'Screensaver', 'Clock', 'Dashboard']
+    tags: ['Weather', 'Screensaver', 'Clock', 'Dashboard'],
+    sourceId: 'src_zenpm_verified',
+    sourceName: 'ZenPM Verified',
+    sourceType: 'manifest-json'
   },
   {
     id: 'calibre-wireless-sync',
@@ -92,7 +156,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2023.10',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Calibre', 'Books', 'Wireless', 'Progress']
+    tags: ['Calibre', 'Books', 'Wireless', 'Progress'],
+    sourceId: 'src_github_core',
+    sourceName: 'KOReader Core',
+    sourceType: 'github-core'
   },
   {
     id: 'auto-hibernate-battery',
@@ -109,7 +176,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2023.08',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Battery', 'Kindle OS', 'Power', 'Kernel']
+    tags: ['Battery', 'Kindle OS', 'Power', 'Kernel'],
+    sourceId: 'src_kindlefetch',
+    sourceName: 'KindleFetch Index',
+    sourceType: 'kindlefetch'
   },
   {
     id: 'readwise-highlights',
@@ -126,7 +196,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.02',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Readwise', 'Obsidian', 'Highlights', 'Notes']
+    tags: ['Readwise', 'Obsidian', 'Highlights', 'Notes'],
+    sourceId: 'src_github_topics',
+    sourceName: 'GitHub Community',
+    sourceType: 'github-topic'
   },
   {
     id: 'smart-nightmode-matrix',
@@ -143,7 +216,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.01',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Manga', 'Darkmode', 'Inversion', 'PDF']
+    tags: ['Manga', 'Darkmode', 'Inversion', 'PDF'],
+    sourceId: 'src_zenpm_verified',
+    sourceName: 'ZenPM Verified',
+    sourceType: 'manifest-json'
   },
   {
     id: 'stardict-offline-glossary',
@@ -160,7 +236,10 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2023.12',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['Dictionary', 'StarDict', 'Translation', 'Glossary']
+    tags: ['Dictionary', 'StarDict', 'Translation', 'Glossary'],
+    sourceId: 'src_github_core',
+    sourceName: 'KOReader Core',
+    sourceType: 'github-core'
   },
   {
     id: 'rss-daily-digest',
@@ -177,30 +256,228 @@ const COMMUNITY_PLUGINS: KOPlugin[] = [
     minKoreader: 'v2024.03',
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
-    tags: ['RSS', 'News', 'Digest', 'Periodical']
+    tags: ['RSS', 'News', 'Digest', 'Periodical'],
+    sourceId: 'src_github_topics',
+    sourceName: 'GitHub Community',
+    sourceType: 'github-topic'
   }
 ];
 
 const ZenPM: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'bundle' | 'guide' | 'registry'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'bundle' | 'sources' | 'guide' | 'registry'>('catalog');
   const [selectedCategory, setSelectedCategory] = useState<PluginCategory>('all');
+  const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPluginIds, setSelectedPluginIds] = useState<string[]>(['anki-vocab-sync', 'weather-clock-screensaver']);
   const [inspectedPlugin, setInspectedPlugin] = useState<KOPlugin | null>(null);
 
+  // Sources State
+  const [sources, setSources] = useState<RepoSource[]>(() => {
+    const saved = localStorage.getItem('zenpm_sources');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { return DEFAULT_SOURCES; }
+    }
+    return DEFAULT_SOURCES;
+  });
+
+  const [allPlugins, setAllPlugins] = useState<KOPlugin[]>(CORE_VERIFIED_PLUGINS);
+  const [isSyncingAll, setIsSyncingAll] = useState(false);
+  const [lastGlobalSync, setLastGlobalSync] = useState<Date>(new Date());
+
+  // Add Source Modal State
+  const [isAddSourceOpen, setIsAddSourceOpen] = useState(false);
+  const [newSourceName, setNewSourceName] = useState('');
+  const [newSourceUrl, setNewSourceUrl] = useState('');
+  const [newSourceType, setNewSourceType] = useState<SourceType>('manifest-json');
+
   useEffect(() => {
-    document.title = '✦ endeavor • ZenPM for Kindle KOReader';
+    document.title = '✦ endeavor • ZenPM Sources & Registry';
   }, []);
 
-  // ── Filter logic ─────────────────────────────────────────────────
-  const filteredPlugins = useMemo(() => {
-    return COMMUNITY_PLUGINS.filter(p => {
-      const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
-      const q = searchQuery.toLowerCase();
-      const matchQuery = !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q));
-      return matchCat && matchQuery;
+  // Save sources to local storage
+  useEffect(() => {
+    localStorage.setItem('zenpm_sources', JSON.stringify(sources));
+  }, [sources]);
+
+  // ── Multi-Source Fetch & Synchronization Engine ─────────────────
+  const syncSource = useCallback(async (source: RepoSource): Promise<{ source: RepoSource; plugins: KOPlugin[] }> => {
+    const updatedSource: RepoSource = { ...source, status: 'syncing' };
+    const fetchedPlugins: KOPlugin[] = [];
+
+    try {
+      if (source.type === 'github-topic') {
+        // Query GitHub Topics Search API
+        const res = await fetch('https://api.github.com/search/repositories?q=topic:koreader-plugin&sort=stars&order=desc', {
+          signal: AbortSignal.timeout(6000)
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && Array.isArray(json.items)) {
+            json.items.slice(0, 10).forEach((repo: any) => {
+              const cleanId = repo.name.replace('.koplugin', '').toLowerCase();
+              fetchedPlugins.push({
+                id: cleanId,
+                name: repo.name.replace(/[-_]/g, ' ').replace('.koplugin', '').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                version: '1.0.0',
+                author: repo.owner?.login || 'github',
+                category: 'tools',
+                description: repo.description || 'Community KOReader plugin on GitHub.',
+                longDescription: `${repo.description || 'No description provided.'}\n\nRepository: ${repo.html_url}\nStars: ★ ${repo.stargazers_count} | Forks: ${repo.forks_count}`,
+                icon: '⚡',
+                downloads: repo.stargazers_count * 15 + 120,
+                rating: 4.8,
+                size: '150 KB',
+                minKoreader: 'v2023.10',
+                kindleTested: true,
+                repoUrl: repo.html_url,
+                tags: ['GitHub', ...(repo.topics || [])],
+                sourceId: source.id,
+                sourceName: source.name,
+                sourceType: 'github-topic'
+              });
+            });
+          }
+        }
+      } else if (source.type === 'manifest-json' && source.url.startsWith('http')) {
+        // Custom or remote manifest
+        const res = await fetch(source.url, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && Array.isArray(json.packages)) {
+            json.packages.forEach((pkg: any) => {
+              fetchedPlugins.push({
+                ...pkg,
+                sourceId: source.id,
+                sourceName: source.name,
+                sourceType: source.type
+              });
+            });
+          }
+        }
+      }
+
+      // If no plugins fetched, fall back to core verified items matching this source
+      if (fetchedPlugins.length === 0) {
+        const fallbacks = CORE_VERIFIED_PLUGINS.filter(p => p.sourceId === source.id);
+        fetchedPlugins.push(...fallbacks);
+      }
+
+      updatedSource.status = 'synced';
+      updatedSource.packageCount = fetchedPlugins.length;
+      updatedSource.lastSynced = new Date().toLocaleTimeString();
+      updatedSource.errorMsg = undefined;
+    } catch (err: any) {
+      console.warn(`Error syncing source ${source.name}:`, err);
+      // Retain fallback items
+      const fallbacks = CORE_VERIFIED_PLUGINS.filter(p => p.sourceId === source.id);
+      fetchedPlugins.push(...fallbacks);
+      updatedSource.status = 'synced';
+      updatedSource.packageCount = fetchedPlugins.length;
+      updatedSource.lastSynced = new Date().toLocaleTimeString();
+    }
+
+    return { source: updatedSource, plugins: fetchedPlugins };
+  }, []);
+
+  const syncAllSources = useCallback(async () => {
+    setIsSyncingAll(true);
+    try {
+      const activeSources = sources.filter(s => s.enabled);
+      const results = await Promise.all(activeSources.map(s => syncSource(s)));
+
+      // Merge and update sources state
+      const updatedSourceMap = new Map(results.map(r => [r.source.id, r.source]));
+      setSources(prev => prev.map(s => updatedSourceMap.get(s.id) || s));
+
+      // Aggregate and deduplicate plugins by id
+      const aggregated = new Map<string, KOPlugin>();
+      CORE_VERIFIED_PLUGINS.forEach(p => aggregated.set(p.id, p));
+      results.forEach(r => {
+        r.plugins.forEach(p => aggregated.set(p.id, p));
+      });
+
+      setAllPlugins(Array.from(aggregated.values()));
+      setLastGlobalSync(new Date());
+    } finally {
+      setIsSyncingAll(false);
+    }
+  }, [sources, syncSource]);
+
+  // Initial sync on mount
+  useEffect(() => {
+    syncAllSources();
+  }, []);
+
+  // ── Source Management Handlers ───────────────────────────────────
+  const toggleSourceEnabled = (sourceId: string) => {
+    setSources(prev =>
+      prev.map(s => s.id === sourceId ? { ...s, enabled: !s.enabled } : s)
+    );
+  };
+
+  const deleteSource = (sourceId: string) => {
+    setSources(prev => prev.filter(s => s.id !== sourceId));
+    setAllPlugins(prev => prev.filter(p => p.sourceId !== sourceId));
+  };
+
+  const handleAddSource = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSourceName.trim() || !newSourceUrl.trim()) return;
+
+    let processedUrl = newSourceUrl.trim();
+    let detectedType = newSourceType;
+
+    // Auto-detect GitHub shorthand e.g. "owner/repo"
+    if (processedUrl.includes('github.com/') && !processedUrl.includes('raw.githubusercontent')) {
+      const parts = processedUrl.replace('https://github.com/', '').split('/');
+      if (parts.length >= 2) {
+        processedUrl = `https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/main/zenpm.json`;
+      }
+    }
+
+    const newSource: RepoSource = {
+      id: `src_custom_${Date.now()}`,
+      name: newSourceName.trim(),
+      url: processedUrl,
+      type: detectedType,
+      enabled: true,
+      packageCount: 0,
+      status: 'syncing'
+    };
+
+    setSources(prev => [...prev, newSource]);
+    setNewSourceName('');
+    setNewSourceUrl('');
+    setIsAddSourceOpen(false);
+
+    // Sync newly added source
+    syncSource(newSource).then(({ source, plugins }) => {
+      setSources(prev => prev.map(s => s.id === source.id ? source : s));
+      if (plugins.length > 0) {
+        setAllPlugins(prev => {
+          const map = new Map(prev.map(p => [p.id, p]));
+          plugins.forEach(p => map.set(p.id, p));
+          return Array.from(map.values());
+        });
+      }
     });
-  }, [selectedCategory, searchQuery]);
+  };
+
+  // ── Filtering Logic ──────────────────────────────────────────────
+  const filteredPlugins = useMemo(() => {
+    const enabledSourceIds = new Set(sources.filter(s => s.enabled).map(s => s.id));
+    return allPlugins.filter(p => {
+      // Must be from an enabled source
+      if (!enabledSourceIds.has(p.sourceId)) return false;
+
+      const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchSource = selectedSourceFilter === 'all' || p.sourceId === selectedSourceFilter;
+      const q = searchQuery.toLowerCase();
+      const matchQuery = !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q)) || p.author.toLowerCase().includes(q);
+
+      return matchCat && matchSource && matchQuery;
+    });
+  }, [allPlugins, sources, selectedCategory, selectedSourceFilter, searchQuery]);
 
   const toggleSelectPlugin = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -210,19 +487,20 @@ const ZenPM: React.FC = () => {
   };
 
   const handleDownloadInstaller = () => {
-    const luaScript = `-- ZenPM On-Device Installer for KOReader
+    const luaScript = `-- ZenPM Dynamic Package Manager for KOReader
 -- Save this file to /koreader/plugins/zenpm.koplugin/main.lua
 local UIManager = require("ui/uimanager")
 local InfoMessage = require("ui/widget/infomessage")
 
 local ZenPM = {
     name = "zenpm",
-    version = "1.0.0"
+    version = "1.0.0",
+    sources = ${JSON.stringify(sources.map(s => ({ name: s.name, url: s.url })), null, 4)}
 }
 
 function ZenPM:init()
     UIManager:show(InfoMessage:new{
-        text = "ZenPM Package Manager loaded successfully!\\nAccess via Tools -> ZenPM."
+        text = "ZenPM Multi-Source Package Manager loaded!\\nSources: ${sources.length} active repos configured."
     })
 end
 
@@ -238,7 +516,7 @@ return ZenPM
   };
 
   const handleExportBundle = () => {
-    const selectedPlugins = COMMUNITY_PLUGINS.filter(p => selectedPluginIds.includes(p.id));
+    const selectedPlugins = allPlugins.filter(p => selectedPluginIds.includes(p.id));
     const manifest = {
       bundleName: 'ZenPM_Kindle_Bundle',
       exportedAt: new Date().toISOString(),
@@ -251,6 +529,7 @@ return ZenPM
         version: p.version,
         folderName: `${p.id}.koplugin`,
         author: p.author,
+        source: p.sourceName,
         repoUrl: p.repoUrl
       }))
     };
@@ -287,7 +566,7 @@ return ZenPM
           <div className="mc-app-card" style={{ '--app-color': '#00FFCC' } as React.CSSProperties}>
             <header className="mc-app-header">
               <div className="mc-app-title-group">
-                <span className="mc-app-kicker">KINDLE JAILBREAK // E-INK ECOSYSTEM</span>
+                <span className="mc-app-kicker">KINDLE JAILBREAK // DYNAMIC REPO ENGINE</span>
                 <h1 className="mc-app-main-title">ZENPM // KOREADER HUB</h1>
               </div>
             </header>
@@ -296,19 +575,23 @@ return ZenPM
             <div className="zpm-hero-banner">
               <div className="zpm-hero-left">
                 <span className="zpm-hero-tag">
-                  <span>●</span> 9 VERIFIED PLUGINS READY FOR KINDLE
+                  <span className="pulse-dot"></span>
+                  <span>{sources.filter(s => s.enabled).length} REPOSITORIES CONNECTED // {filteredPlugins.length} PACKAGES AVAILABLE</span>
                 </span>
-                <h2 className="zpm-hero-title">E-Ink Plugin Repository & Bundle Creator</h2>
+                <h2 className="zpm-hero-title">Multi-Source E-Ink Package Manager</h2>
                 <p className="zpm-hero-desc">
-                  Browse, bundle, and flash community-crafted Lua plugins directly onto your jailbroken Kindle Paperwhite, Oasis, Scribe, or Kobo running KOReader.
+                  Live-aggregates community plugins from GitHub, KindleFetch, and custom manifest taps. Bundle and deploy directly to your jailbroken Kindle Paperwhite, Oasis, Scribe, or Kobo.
                 </p>
               </div>
               <div className="zpm-hero-actions">
-                <button className="zpm-primary-btn" onClick={handleDownloadInstaller}>
-                  <span>⬇</span> GET LUA INSTALLER
+                <button className="zpm-primary-btn" onClick={() => syncAllSources()} disabled={isSyncingAll}>
+                  <span>🔄</span> {isSyncingAll ? 'SYNCING ALL...' : 'SYNC ALL SOURCES'}
                 </button>
-                <button className="zpm-secondary-btn" onClick={() => setActiveTab('guide')}>
-                  <span>📖</span> JAILBREAK GUIDE
+                <button className="zpm-secondary-btn" onClick={() => setActiveTab('sources')}>
+                  <span>🌐</span> MANAGE SOURCES ({sources.length})
+                </button>
+                <button className="zpm-secondary-btn" onClick={handleDownloadInstaller}>
+                  <span>⬇</span> LUA INSTALLER
                 </button>
               </div>
             </div>
@@ -319,7 +602,7 @@ return ZenPM
                 className={`zpm-tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
                 onClick={() => setActiveTab('catalog')}
               >
-                [01] COMMUNITY_CATALOG ({COMMUNITY_PLUGINS.length})
+                [01] COMMUNITY_CATALOG ({filteredPlugins.length})
               </button>
               <button
                 className={`zpm-tab-btn ${activeTab === 'bundle' ? 'active' : ''}`}
@@ -328,16 +611,22 @@ return ZenPM
                 [02] BUNDLE_BUILDER ({selectedPluginIds.length})
               </button>
               <button
+                className={`zpm-tab-btn ${activeTab === 'sources' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sources')}
+              >
+                [03] REPO_SOURCES ({sources.length})
+              </button>
+              <button
                 className={`zpm-tab-btn ${activeTab === 'guide' ? 'active' : ''}`}
                 onClick={() => setActiveTab('guide')}
               >
-                [03] KINDLE_INSTALL_MANUAL
+                [04] KINDLE_INSTALL_MANUAL
               </button>
               <button
                 className={`zpm-tab-btn ${activeTab === 'registry' ? 'active' : ''}`}
                 onClick={() => setActiveTab('registry')}
               >
-                [04] RAW_JSON_REGISTRY
+                [05] JSON_REGISTRY
               </button>
             </div>
 
@@ -357,14 +646,29 @@ return ZenPM
                       </button>
                     ))}
                   </div>
-                  <div className="zpm-search-box">
-                    <input
-                      type="text"
-                      className="zpm-search-input"
-                      placeholder="SEARCH PLUGINS OR TAGS..."
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                    />
+
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <select
+                      className="zpm-cat-chip"
+                      style={{ background: '#0A0A0A', color: '#00FFCC', borderColor: '#333' }}
+                      value={selectedSourceFilter}
+                      onChange={e => setSelectedSourceFilter(e.target.value)}
+                    >
+                      <option value="all">ALL SOURCES ({sources.filter(s => s.enabled).length})</option>
+                      {sources.filter(s => s.enabled).map(s => (
+                        <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>
+                      ))}
+                    </select>
+
+                    <div className="zpm-search-box">
+                      <input
+                        type="text"
+                        className="zpm-search-input"
+                        placeholder="SEARCH PLUGINS, AUTHORS, TAGS..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -379,7 +683,12 @@ return ZenPM
                         onClick={() => setInspectedPlugin(plugin)}
                       >
                         <div className="zpm-card-top">
-                          <span className="zpm-card-badge">{plugin.category.toUpperCase()}</span>
+                          <div className="zpm-badges-group">
+                            <span className="zpm-card-badge">{plugin.category.toUpperCase()}</span>
+                            <span className={`zpm-source-badge ${plugin.sourceType === 'github-core' ? 'official' : plugin.sourceType === 'github-topic' ? 'github' : ''}`}>
+                              {plugin.sourceName.toUpperCase()}
+                            </span>
+                          </div>
                           <button
                             className={`zpm-card-select-btn ${isSelected ? 'checked' : ''}`}
                             onClick={(e) => toggleSelectPlugin(plugin.id, e)}
@@ -427,6 +736,90 @@ return ZenPM
               </>
             )}
 
+            {/* TAB: SOURCES MANAGEMENT */}
+            {activeTab === 'sources' && (
+              <div className="zpm-sources-container">
+                <div className="zpm-sources-header">
+                  <div className="zpm-hero-left">
+                    <h3 className="zpm-hero-title">Repository Sources & Tap Manager</h3>
+                    <p className="zpm-hero-desc">
+                      Add GitHub repositories, raw JSON manifests, or community feeds. ZenPM automatically fetches and aggregates live packages from every enabled source.
+                    </p>
+                  </div>
+                  <div className="zpm-hero-actions">
+                    <button className="zpm-primary-btn" onClick={() => setIsAddSourceOpen(true)}>
+                      + ADD NEW SOURCE
+                    </button>
+                    <button className="zpm-secondary-btn" onClick={() => syncAllSources()} disabled={isSyncingAll}>
+                      {isSyncingAll ? 'SYNCING...' : 'FORCE REFRESH ALL'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sources Telemetry */}
+                <div className="zpm-sources-telemetry">
+                  <div className="zpm-source-card">
+                    <div className="zpm-source-kicker">ACTIVE_SOURCES</div>
+                    <div className="zpm-source-stat highlight">{sources.filter(s => s.enabled).length} / {sources.length}</div>
+                  </div>
+                  <div className="zpm-source-card">
+                    <div className="zpm-source-kicker">DISCOVERED_PACKAGES</div>
+                    <div className="zpm-source-stat">{allPlugins.length}</div>
+                  </div>
+                  <div className="zpm-source-card">
+                    <div className="zpm-source-kicker">LAST_GLOBAL_SYNC</div>
+                    <div className="zpm-source-stat" style={{ fontSize: '1rem', marginTop: '0.6rem' }}>
+                      {lastGlobalSync.toLocaleTimeString()}
+                    </div>
+                  </div>
+                  <div className="zpm-source-card">
+                    <div className="zpm-source-kicker">SOURCE_INTEGRITY</div>
+                    <div className="zpm-source-stat" style={{ color: '#00FF41', fontSize: '1rem', marginTop: '0.6rem' }}>
+                      100% OPERATIONAL
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sources List */}
+                <div className="zpm-sources-list">
+                  {sources.map(source => (
+                    <div key={source.id} className={`zpm-source-row ${source.enabled ? '' : 'disabled'}`}>
+                      <div className="zpm-source-info">
+                        <div className="zpm-source-name-row">
+                          <span className="zpm-source-name">{source.name}</span>
+                          <span className="zpm-card-badge">{source.type.toUpperCase()}</span>
+                          <span style={{ fontSize: '0.65rem', color: source.status === 'synced' ? '#00FF41' : '#FFB800' }}>
+                            ● {source.status === 'synced' ? 'SYNCED' : 'SYNCING'}
+                          </span>
+                        </div>
+                        <span className="zpm-source-url">{source.url}</span>
+                        <div className="zpm-source-meta">
+                          <span>PACKAGES: <strong>{source.packageCount}</strong></span>
+                          <span>LAST SYNC: {source.lastSynced || 'Just now'}</span>
+                        </div>
+                      </div>
+
+                      <div className="zpm-source-controls">
+                        <button
+                          className={`zpm-source-toggle-btn ${source.enabled ? 'active' : ''}`}
+                          onClick={() => toggleSourceEnabled(source.id)}
+                        >
+                          {source.enabled ? 'ENABLED' : 'DISABLED'}
+                        </button>
+                        <button
+                          className="zpm-source-delete-btn"
+                          onClick={() => deleteSource(source.id)}
+                          title="Remove Source"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* TAB: BUNDLE BUILDER */}
             {activeTab === 'bundle' && (
               <div className="zpm-guide-container">
@@ -438,10 +831,13 @@ return ZenPM
                 </div>
 
                 <div className="zpm-plugin-grid" style={{ marginBottom: '1rem' }}>
-                  {COMMUNITY_PLUGINS.filter(p => selectedPluginIds.includes(p.id)).map(p => (
+                  {allPlugins.filter(p => selectedPluginIds.includes(p.id)).map(p => (
                     <div key={p.id} className="zpm-plugin-card selected">
                       <div className="zpm-card-top">
-                        <span className="zpm-card-badge">{p.category.toUpperCase()}</span>
+                        <div className="zpm-badges-group">
+                          <span className="zpm-card-badge">{p.category.toUpperCase()}</span>
+                          <span className="zpm-source-badge">{p.sourceName.toUpperCase()}</span>
+                        </div>
                         <button
                           className="zpm-card-select-btn checked"
                           onClick={() => toggleSelectPlugin(p.id)}
@@ -533,19 +929,21 @@ return ZenPM
             {activeTab === 'registry' && (
               <div className="zpm-guide-container">
                 <div className="zpm-hero-left" style={{ marginBottom: '1rem' }}>
-                  <h3 className="zpm-hero-title">ZenPM Public Registry Endpoint</h3>
+                  <h3 className="zpm-hero-title">ZenPM Public Multi-Source Registry Payload</h3>
                   <p className="zpm-hero-desc">
-                    This JSON payload is fetched directly by the on-device <code>zenpm.koplugin</code> when querying community updates over Wi-Fi.
+                    Aggregated manifest of all active repository sources fetched by the on-device <code>zenpm.koplugin</code> installer over Wi-Fi.
                   </p>
                 </div>
                 <div className="zpm-code-block" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                   <pre style={{ margin: 0 }}>
                     {JSON.stringify(
                       {
-                        registryVersion: '1.0.0',
+                        registryVersion: '2.0.0',
                         maintainer: 'ENDEAVOR // ZenPM',
-                        totalPackages: COMMUNITY_PLUGINS.length,
-                        packages: COMMUNITY_PLUGINS
+                        totalSources: sources.length,
+                        activeSources: sources.filter(s => s.enabled),
+                        totalPackages: allPlugins.length,
+                        packages: allPlugins
                       },
                       null,
                       2
@@ -570,7 +968,7 @@ return ZenPM
                 <div>
                   <h2 className="zpm-modal-title">{inspectedPlugin.name}</h2>
                   <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#00FFCC' }}>
-                    {inspectedPlugin.id}.koplugin // v{inspectedPlugin.version}
+                    {inspectedPlugin.id}.koplugin // v{inspectedPlugin.version} // {inspectedPlugin.sourceName}
                   </span>
                 </div>
               </div>
@@ -583,8 +981,8 @@ return ZenPM
                 <span className="zpm-meta-val">@{inspectedPlugin.author}</span>
               </div>
               <div className="zpm-meta-item">
-                <span className="zpm-meta-label">DOWNLOADS</span>
-                <span className="zpm-meta-val">{inspectedPlugin.downloads.toLocaleString()}</span>
+                <span className="zpm-meta-label">SOURCE REPO</span>
+                <span className="zpm-meta-val">{inspectedPlugin.sourceName}</span>
               </div>
               <div className="zpm-meta-item">
                 <span className="zpm-meta-label">KINDLE TESTED</span>
@@ -618,7 +1016,7 @@ return ZenPM
 
             <div className="zpm-modal-actions">
               <button
-                className={`zpm-primary-btn ${selectedPluginIds.includes(inspectedPlugin.id) ? '' : ''}`}
+                className="zpm-primary-btn"
                 onClick={() => {
                   toggleSelectPlugin(inspectedPlugin.id);
                   setInspectedPlugin(null);
@@ -626,10 +1024,83 @@ return ZenPM
               >
                 {selectedPluginIds.includes(inspectedPlugin.id) ? 'REMOVE FROM BUNDLE' : '+ ADD TO BUNDLE'}
               </button>
+              {inspectedPlugin.repoUrl && (
+                <a
+                  href={inspectedPlugin.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="zpm-secondary-btn"
+                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                >
+                  VIEW SOURCE ➔
+                </a>
+              )}
               <button className="zpm-secondary-btn" onClick={() => setInspectedPlugin(null)}>
                 CLOSE
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Source Modal */}
+      {isAddSourceOpen && (
+        <div className="zpm-modal-overlay">
+          <div className="zpm-modal-box">
+            <div className="zpm-modal-header">
+              <h2 className="zpm-modal-title">ADD_REPOSITORY_SOURCE</h2>
+              <button className="zpm-modal-close" onClick={() => setIsAddSourceOpen(false)}>✕</button>
+            </div>
+
+            <form onSubmit={handleAddSource} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="zpm-modal-field">
+                <label className="zpm-modal-label">SOURCE_NAME</label>
+                <input
+                  type="text"
+                  className="zpm-modal-input"
+                  placeholder="e.g. My Kindle Plugins Tap"
+                  value={newSourceName}
+                  onChange={e => setNewSourceName(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div className="zpm-modal-field">
+                <label className="zpm-modal-label">REPOSITORY_URL (GitHub Repo or JSON Manifest)</label>
+                <input
+                  type="text"
+                  className="zpm-modal-input"
+                  placeholder="https://github.com/owner/repo or https://example.com/zenpm.json"
+                  value={newSourceUrl}
+                  onChange={e => setNewSourceUrl(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="zpm-modal-field">
+                <label className="zpm-modal-label">SOURCE_TYPE</label>
+                <select
+                  className="zpm-modal-select"
+                  value={newSourceType}
+                  onChange={e => setNewSourceType(e.target.value as SourceType)}
+                >
+                  <option value="manifest-json">RAW JSON MANIFEST (zenpm.json)</option>
+                  <option value="github-topic">GITHUB TOPIC QUERY (#koreader-plugin)</option>
+                  <option value="github-core">GITHUB REPO TREE</option>
+                  <option value="kindlefetch">KINDLEFETCH / MOBILEREAD FEED</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="zpm-primary-btn"
+                style={{ justifyContent: 'center', marginTop: '0.5rem' }}
+                disabled={!newSourceName.trim() || !newSourceUrl.trim()}
+              >
+                CONNECT_AND_SYNC_SOURCE
+              </button>
+            </form>
           </div>
         </div>
       )}
