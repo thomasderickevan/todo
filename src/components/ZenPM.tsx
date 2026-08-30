@@ -218,7 +218,7 @@ const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
     repoUrl: 'https://github.com/koreader/koreader/wiki',
     tags: ['Manga', 'Darkmode', 'Inversion', 'PDF'],
     sourceId: 'src_zenpm_verified',
-    sourceName: 'ZenPM Verified',
+    sourceName: 'einstall Verified',
     sourceType: 'manifest-json'
   },
   {
@@ -257,6 +257,186 @@ const CORE_VERIFIED_PLUGINS: KOPlugin[] = [
     kindleTested: true,
     repoUrl: 'https://github.com/koreader/koreader/wiki',
     tags: ['RSS', 'News', 'Digest', 'Periodical'],
+    sourceId: 'src_github_topics',
+    sourceName: 'GitHub Community',
+    sourceType: 'github-topic'
+  },
+  {
+    id: 'syncthing-wireless-vault',
+    name: 'Syncthing Wireless Vault',
+    version: '1.4.0',
+    author: 'calibre-core',
+    category: 'sync',
+    description: 'Continuous background two-way sync of EPUBs, PDFs, and reading states directly with your home NAS or PC via Syncthing.',
+    longDescription: 'Runs an embedded micro-Syncthing daemon inside KOReader. Seamlessly synchronizes books and highlight notes over your home Wi-Fi whenever the device is charging.',
+    icon: '🔄',
+    downloads: 28400,
+    rating: 5.0,
+    size: '520 KB',
+    minKoreader: 'v2024.02',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Syncthing', 'NAS', 'P2P', 'Wireless'],
+    sourceId: 'src_kindlefetch',
+    sourceName: 'KindleFetch Index',
+    sourceType: 'kindlefetch'
+  },
+  {
+    id: 'eink-chess-tactics',
+    name: 'Grandmaster E-Ink Chess & Tactics',
+    version: '2.0.1',
+    author: 'chesscraft',
+    category: 'tools',
+    description: 'Play offline chess against Stockfish or solve 10,000+ daily tactics puzzles with high-contrast e-ink rendering.',
+    longDescription: 'Features an ultra-sharp monochrome chessboard with zero ghosting. Includes daily tactics puzzles from Lichess database and adjustable Stockfish difficulty levels.',
+    icon: '♟️',
+    downloads: 19800,
+    rating: 4.9,
+    size: '310 KB',
+    minKoreader: 'v2023.11',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Chess', 'Stockfish', 'Puzzles', 'Offline'],
+    sourceId: 'src_kindlefetch',
+    sourceName: 'KindleFetch Index',
+    sourceType: 'kindlefetch'
+  },
+  {
+    id: 'offline-wikipedia-zim',
+    name: 'Kiwix Offline Wikipedia Explorer',
+    version: '1.1.8',
+    author: 'kiwix-dev',
+    category: 'reading',
+    description: 'Query full offline Wikipedia, Wikivoyage, and medical summaries in ZIM format with fast indexing.',
+    longDescription: 'Instant offline encyclopedia lookups from your Kindle storage. Strips web overhead and renders clean typography for medical and reference materials.',
+    icon: '🌐',
+    downloads: 17500,
+    rating: 4.8,
+    size: '480 KB',
+    minKoreader: 'v2024.01',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Wikipedia', 'Kiwix', 'ZIM', 'Offline'],
+    sourceId: 'src_kindlefetch',
+    sourceName: 'KindleFetch Index',
+    sourceType: 'kindlefetch'
+  },
+  {
+    id: 'manga-panel-autocrop',
+    name: 'Manga Smart-Crop & Panel Zoom',
+    version: '2.3.0',
+    author: 'manga-craft',
+    category: 'reading',
+    description: 'Auto-detects comic borders, strips white page margins, and enables tap-to-zoom panel-by-panel reading.',
+    longDescription: 'Optimizes CBZ, CBR, and PDF manga for smaller 6-inch and 6.8-inch Kindle screens. Automatically centers action panels and prevents awkward edge-cropping.',
+    icon: '💥',
+    downloads: 31200,
+    rating: 4.9,
+    size: '270 KB',
+    minKoreader: 'v2024.02',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Manga', 'Comics', 'AutoCrop', 'Zoom'],
+    sourceId: 'src_github_topics',
+    sourceName: 'GitHub Community',
+    sourceType: 'github-topic'
+  },
+  {
+    id: 'pomodoro-flow-timer',
+    name: 'ZenFocus Pomodoro & Reading Velocity',
+    version: '1.5.0',
+    author: 'endeavor-labs',
+    category: 'productivity',
+    description: 'Minimalist footer timer showing chapter time-to-read and gentle 25-minute e-ink focus intervals.',
+    longDescription: 'Displays an ultra-clean reading HUD showing pages-per-hour and time remaining in current chapter. Flashes a gentle inverted e-ink break banner when reading goals are met.',
+    icon: '⏱️',
+    downloads: 22600,
+    rating: 5.0,
+    size: '140 KB',
+    minKoreader: 'v2024.04',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Pomodoro', 'Focus', 'Velocity', 'Timer'],
+    sourceId: 'src_zenpm_verified',
+    sourceName: 'einstall Verified',
+    sourceType: 'manifest-json'
+  },
+  {
+    id: 'libretranslate-offline',
+    name: 'DeepL & LibreTranslate Bridge',
+    version: '1.3.2',
+    author: 'linguist-dev',
+    category: 'reading',
+    description: 'Instant full-sentence and paragraph translation bridge supporting 50+ languages over Wi-Fi.',
+    longDescription: 'Select any passage in foreign literature and get an instant, natural translation in a popup card with side-by-side linguistic breakdown.',
+    icon: '🗣️',
+    downloads: 14900,
+    rating: 4.7,
+    size: '175 KB',
+    minKoreader: 'v2023.12',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Translate', 'DeepL', 'Languages', 'Polyglot'],
+    sourceId: 'src_github_topics',
+    sourceName: 'GitHub Community',
+    sourceType: 'github-topic'
+  },
+  {
+    id: 'gesture-macro-shortcuts',
+    name: 'Multi-Touch Gestures & Corner Macros',
+    version: '2.1.0',
+    author: 'pixelpulse',
+    category: 'eink-ui',
+    description: 'Assign custom actions to two-finger swipes, diagonal drags, and corner long-presses.',
+    longDescription: 'Control frontlight warmth, bookmark creation, dictionary switching, and screenshot capture with swift, intuitive touch gestures tailored for single-handed reading.',
+    icon: '🖐️',
+    downloads: 26800,
+    rating: 4.9,
+    size: '110 KB',
+    minKoreader: 'v2024.01',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Gestures', 'Macros', 'Touch', 'Shortcuts'],
+    sourceId: 'src_github_core',
+    sourceName: 'KOReader Core',
+    sourceType: 'github-core'
+  },
+  {
+    id: 'eink-sudoku-generator',
+    name: 'Infinite Offline Sudoku Generator',
+    version: '1.2.0',
+    author: 'puzzle-labs',
+    category: 'tools',
+    description: 'Generates limitless unique Sudoku puzzles with Easy, Medium, Hard, and Master difficulty curves.',
+    longDescription: 'Clean, distraction-free Sudoku on e-ink with smart pencil notes, auto-save state, and zero battery impact.',
+    icon: '🔢',
+    downloads: 11400,
+    rating: 4.8,
+    size: '130 KB',
+    minKoreader: 'v2023.09',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Sudoku', 'Puzzles', 'Brain', 'Offline'],
+    sourceId: 'src_kindlefetch',
+    sourceName: 'KindleFetch Index',
+    sourceType: 'kindlefetch'
+  },
+  {
+    id: 'unsplash-daily-screensaver',
+    name: 'Unsplash Daily E-Ink Photography',
+    version: '2.2.0',
+    author: 'art-eink',
+    category: 'eink-ui',
+    description: 'Downloads and dither-optimizes high-resolution architectural and nature photography for your sleep screen.',
+    longDescription: 'Refreshes your Kindle sleep screen with hand-picked 16-level grayscale photography from Unsplash and Wikimedia Commons on a scheduled morning sync.',
+    icon: '📷',
+    downloads: 34100,
+    rating: 4.9,
+    size: '290 KB',
+    minKoreader: 'v2024.03',
+    kindleTested: true,
+    repoUrl: 'https://github.com/koreader/koreader/wiki',
+    tags: ['Screensaver', 'Wallpaper', 'Photography', 'Art'],
     sourceId: 'src_github_topics',
     sourceName: 'GitHub Community',
     sourceType: 'github-topic'
@@ -339,7 +519,6 @@ const ZenPM: React.FC = () => {
           }
         }
       } else if (source.type === 'manifest-json' && source.url.startsWith('http')) {
-        // Custom or remote manifest
         const res = await fetch(source.url, { signal: AbortSignal.timeout(5000) });
         if (res.ok) {
           const json = await res.json();
@@ -353,6 +532,26 @@ const ZenPM: React.FC = () => {
               });
             });
           }
+        }
+      } else if (source.type === 'kindlefetch' && source.url.startsWith('http')) {
+        try {
+          const res = await fetch(source.url, { signal: AbortSignal.timeout(5000) });
+          if (res.ok) {
+            const json = await res.json();
+            const items = json.packages || json.items || json.plugins || [];
+            if (Array.isArray(items)) {
+              items.forEach((pkg: any) => {
+                fetchedPlugins.push({
+                  ...pkg,
+                  sourceId: source.id,
+                  sourceName: source.name,
+                  sourceType: 'kindlefetch'
+                });
+              });
+            }
+          }
+        } catch {
+          // Handled by fallback below
         }
       }
 
