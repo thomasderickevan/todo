@@ -14,6 +14,7 @@ import AirDraw from './components/AirDraw';
 import VibeMatrix from './components/VibeMatrix';
 import LifePulse from './components/LifePulse';
 import CapitalFlow from './components/CapitalFlow';
+import ZenPM from './components/ZenPM';
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
         <Route path="/lifepulse" element={<LifePulse />} />
         <Route path="/finance" element={<CapitalFlow />} />
         <Route path="/capitalflow" element={<CapitalFlow />} />
+        <Route path="/zenpm" element={<ZenPM />} />
+        <Route path="/koreader" element={<ZenPM />} />
         <Route path="/privacy" element={<LegalPages type="privacy" />} />
         <Route path="/terms" element={<LegalPages type="terms" />} />
       </Routes>

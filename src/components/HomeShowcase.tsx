@@ -246,6 +246,41 @@ const apps = [
         <line x1="40" y1="40" x2="40" y2="360" stroke="#333" strokeWidth="2" />
       </svg>
     )
+  },
+  {
+    path: '/zenpm',
+    id: 'zenpm',
+    title: 'ZenPM',
+    kicker: 'E-INK PACKAGE MANAGER',
+    desc: 'Browse, package, and deploy community KOReader Lua plugins to jailbroken Kindle and e-ink e-readers.',
+    color: '#00FFCC',
+    mockup: (
+      <div className="mock-video mock-zenpm" style={{ background: '#090909', border: '1px solid #222', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'monospace', fontSize: '10px', color: '#00FFCC', fontWeight: 'bold' }}>
+          <span>📦 ZENPM // KINDLE OS</span>
+          <span>9 PLUGINS</span>
+        </div>
+        <div style={{ background: '#141414', border: '1px solid #222', padding: '6px 8px', fontFamily: 'monospace', fontSize: '11px', color: '#FFF', display: 'flex', justifyContent: 'space-between' }}>
+          <span>Anki Vocab Sync</span>
+          <span style={{ color: '#00FFCC' }}>✓ v2.1.0</span>
+        </div>
+        <div style={{ background: '#141414', border: '1px solid #222', padding: '6px 8px', fontFamily: 'monospace', fontSize: '11px', color: '#FFF', display: 'flex', justifyContent: 'space-between' }}>
+          <span>Weather Screensaver</span>
+          <span style={{ color: '#00FFCC' }}>✓ v3.0.2</span>
+        </div>
+      </div>
+    ),
+    poster: (
+      <svg className="mc-poster" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="80" y="60" width="240" height="280" rx="8" stroke="#00FFCC" strokeWidth="3" fill="#0A0A0A" />
+        <rect x="100" y="90" width="200" height="200" fill="#141414" stroke="#222" />
+        <line x1="120" y1="120" x2="280" y2="120" stroke="#00FFCC" strokeWidth="2" />
+        <line x1="120" y1="150" x2="250" y2="150" stroke="#888" strokeWidth="2" />
+        <line x1="120" y1="180" x2="270" y2="180" stroke="#888" strokeWidth="2" />
+        <line x1="120" y1="210" x2="220" y2="210" stroke="#888" strokeWidth="2" />
+        <circle cx="200" cy="315" r="10" stroke="#00FFCC" strokeWidth="2" />
+      </svg>
+    )
   }
 ];
 

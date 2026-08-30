@@ -1,0 +1,563 @@
+/* ==========================================================================
+   ZenPM // KOReader Package Manager & Plugin Hub
+   ENDEAVOR OS Module - E-Ink & Brutalist Design System
+   ========================================================================== */
+
+/* ── Hero & Telemetry Banner ─────────────────────────────────────── */
+.zpm-hero-banner {
+  background: #0C0C0C;
+  border: 1px solid #222;
+  border-left: 4px solid #00FFCC;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.zpm-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.zpm-hero-tag {
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #00FFCC;
+  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zpm-hero-title {
+  font-family: 'Inter', monospace;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #FFF;
+  letter-spacing: -0.02em;
+}
+
+.zpm-hero-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.zpm-hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.zpm-primary-btn {
+  background: #00FFCC;
+  color: #000;
+  border: none;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.zpm-primary-btn:hover {
+  background: #33FFDD;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+}
+
+.zpm-secondary-btn {
+  background: transparent;
+  color: #CCC;
+  border: 1px solid #333;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zpm-secondary-btn:hover {
+  border-color: #00FFCC;
+  color: #FFF;
+}
+
+/* ── Filter & Search Toolbar ─────────────────────────────────────── */
+.zpm-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.zpm-categories {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.zpm-cat-chip {
+  background: #0E0E0E;
+  border: 1px solid #222;
+  color: #777;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zpm-cat-chip:hover {
+  border-color: #444;
+  color: #FFF;
+}
+
+.zpm-cat-chip.active {
+  background: #00FFCC;
+  color: #000;
+  border-color: #00FFCC;
+  font-weight: 800;
+}
+
+.zpm-search-box {
+  display: flex;
+  align-items: center;
+  background: #0A0A0A;
+  border: 1px solid #222;
+  padding: 0.35rem 0.8rem;
+  min-width: 240px;
+}
+
+.zpm-search-box:focus-within {
+  border-color: #00FFCC;
+}
+
+.zpm-search-input {
+  background: transparent;
+  border: none;
+  color: #FFF;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  outline: none;
+  width: 100%;
+}
+
+.zpm-search-input::placeholder {
+  color: #444;
+}
+
+/* ── Navigation Sub-Tabs ─────────────────────────────────────────── */
+.zpm-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #1A1A1A;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.zpm-tab-btn {
+  background: transparent;
+  border: 1px solid #222;
+  color: #777;
+  font-family: 'Inter', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zpm-tab-btn:hover {
+  border-color: #444;
+  color: #FFF;
+}
+
+.zpm-tab-btn.active {
+  background: #00FFCC;
+  color: #000;
+  border-color: #00FFCC;
+  font-weight: 800;
+}
+
+/* ── Plugin Card Grid ────────────────────────────────────────────── */
+.zpm-plugin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.zpm-plugin-card {
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all 0.25s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.zpm-plugin-card:hover {
+  border-color: #333;
+  transform: translateY(-2px);
+  background: #0D0D0D;
+}
+
+.zpm-plugin-card.selected {
+  border-color: #00FFCC;
+  background: rgba(0, 255, 204, 0.03);
+}
+
+.zpm-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.zpm-card-badge {
+  font-family: 'Inter', monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #00FFCC;
+  background: rgba(0, 255, 204, 0.08);
+  padding: 0.2rem 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+.zpm-card-select-btn {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #333;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zpm-card-select-btn.checked {
+  background: #00FFCC;
+  border-color: #00FFCC;
+  color: #000;
+  font-weight: 900;
+  font-size: 0.75rem;
+}
+
+.zpm-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zpm-card-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zpm-card-icon {
+  font-size: 1.25rem;
+}
+
+.zpm-card-title {
+  font-family: 'Inter', monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFF;
+}
+
+.zpm-card-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #888;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.zpm-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #161616;
+  padding-top: 0.75rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.zpm-card-version {
+  color: #888;
+  font-weight: 700;
+}
+
+.zpm-card-author {
+  color: #555;
+}
+
+/* ── Fixed Floating Bundle Cart ──────────────────────────────────── */
+.zpm-bundle-drawer {
+  position: sticky;
+  bottom: 1.5rem;
+  background: #000;
+  border: 1px solid #00FFCC;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+  margin-top: 1rem;
+  animation: zpm-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100;
+}
+
+@keyframes zpm-slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.zpm-drawer-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.zpm-drawer-count {
+  font-family: 'Inter', monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #00FFCC;
+}
+
+.zpm-drawer-text {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  color: #AAA;
+}
+
+.zpm-drawer-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ── Installation Guide View ─────────────────────────────────────── */
+.zpm-guide-container {
+  background: #0A0A0A;
+  border: 1px solid #1E1E1E;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.zpm-guide-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.zpm-step-num {
+  font-family: 'Inter', monospace;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: #000;
+  background: #00FFCC;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.zpm-step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.zpm-step-title {
+  font-family: 'Inter', monospace;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #FFF;
+}
+
+.zpm-step-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+.zpm-code-block {
+  background: #000;
+  border: 1px solid #222;
+  padding: 0.75rem 1rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  color: #00FFCC;
+  margin-top: 0.4rem;
+  overflow-x: auto;
+}
+
+/* ── Plugin Detail Modal ─────────────────────────────────────────── */
+.zpm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  animation: zpm-fadeIn 0.2s ease;
+}
+
+@keyframes zpm-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.zpm-modal-box {
+  background: #000;
+  border: 1px solid #222;
+  border-top: 4px solid #00FFCC;
+  width: 100%;
+  max-width: 540px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: zpm-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.zpm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.zpm-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.zpm-modal-title {
+  font-family: 'Inter', monospace;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #FFF;
+}
+
+.zpm-modal-close {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.zpm-modal-close:hover {
+  color: #FFF;
+}
+
+.zpm-modal-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+  padding: 0.85rem;
+}
+
+.zpm-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zpm-meta-label {
+  font-family: 'Inter', monospace;
+  font-size: 0.55rem;
+  color: #666;
+  letter-spacing: 0.1em;
+}
+
+.zpm-meta-val {
+  font-family: 'Inter', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #FFF;
+}
+
+.zpm-modal-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #AAA;
+  line-height: 1.5;
+}
+
+.zpm-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Responsive Rules ────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .zpm-plugin-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .zpm-hero-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .zpm-plugin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zpm-bundle-drawer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .zpm-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
